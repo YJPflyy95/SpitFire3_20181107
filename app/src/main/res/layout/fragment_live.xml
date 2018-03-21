@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="org.astri.spitfire.fragment.LiveFragment">
+    <ScrollView
+        android:id="@+id/id_scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_history"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="#21D347"
+        android:gravity="center"
+        android:text="Live"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/ct_hrhrvspo2"
+            android:layout_width="0dp"
+            android:layout_height="240dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+            <com.owater.library.CircleTextView
+                android:id="@+id/tx_heartrate"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:ct_backgroundColor="@color/limegreen"
+                app:ct_border_width="10dp"
+                app:ct_border_color="@color/limegreen"
+                app:ct_type="shadow_gradual"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:text="hello"/>
+
+
+            <com.owater.library.CircleTextView
+                android:id="@+id/tx_hrv"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:ct_backgroundColor="@color/orange"
+                app:ct_border_width="10dp"
+                app:ct_border_color="@color/orange"
+                app:ct_type="shadow_gradual"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:text="hello"/>
+
+
+            <com.owater.library.CircleTextView
+                android:id="@+id/tx_spo2"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:ct_backgroundColor="@color/dodgerblue"
+                app:ct_border_width="10dp"
+                app:ct_border_color="@color/dodgerblue"
+                app:ct_type="shadow_gradual"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:text="hello"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/ct_gsr"
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+
+            <com.owater.library.CircleTextView
+                android:id="@+id/tx_gsr"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:ct_backgroundColor="@color/magenta"
+                app:ct_border_width="10dp"
+                app:ct_border_color="@color/magenta"
+                app:ct_type="shadow_gradual"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:elevation="200dp"
+                android:layout_marginTop="20dp"
+                android:text="hello"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/ct_stimulation"
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.owater.library.CircleTextView
+
+                android:id="@+id/tx_stimulation"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:ct_backgroundColor="@color/limegreen"
+                app:ct_border_width="10dp"
+                app:ct_border_color="@color/limegreen"
+                app:ct_type="shadow_gradual"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:layout_marginTop="20dp"
+                android:text="hello"/>
+
+
+        </LinearLayout>
+    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

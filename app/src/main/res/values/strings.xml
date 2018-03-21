@@ -1,0 +1,90 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">>
+    <string name="app_name">Spitfire</string>
+
+    <string name="invalid_device_data">Invalid Device Data!</string>
+    <string name="no_data">No data</string>
+    <string name="not_supported">Not supported</string>
+    <string name="off">Off</string>
+    <string name="on">On</string>
+    <string name="supported">Supported</string>
+    <string name="unknown">unknown</string>
+    <string name="unknown_characteristic">Unknown characteristic</string>
+    <string name="unknown_device">Unknown device</string>
+    <string name="unknown_service">Unknown service</string>
+    <string name="no_known_services">No known services</string>
+    <string name="header_device_info">Device Info</string>
+    <!--<string name="header_raw_ad_records">Raw Ad Records</string>-->
+    <!--<string name="header_rssi_info">RSSI Info</string>-->
+    <!--<string name="header_scan_record">Scan Record</string>-->
+
+    <!-- Formatters -->
+    <string name="formatter_db">%sdb</string>
+    <string name="formatter_item_count">Items: %s</string>
+
+    <!-- Menu items -->
+    <string name="menu_about">About</string>
+    <string name="menu_connect">Connect</string>
+    <string name="menu_disconnect">Disconnect</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
+    <string name="menu_share">Share</string>
+
+    <!-- Labels -->
+    <string name="label_as_array">As Array:</string>
+    <string name="label_as_string">As String:</string>
+    <string name="label_bluetooth_le_status">Bluetooth LE:</string>
+    <string name="label_bluetooth_status">Bluetooth:</string>
+    <string name="label_bonding_state">Bonding State:</string>
+    <string name="label_desc">Desc:</string>
+    <string name="label_device_address">Device address:</string>
+    <!--<string name="label_device_class">Device Class:</string>-->
+    <!--<string name="label_device_major_class">Major Class:</string>-->
+    <!--<string name="label_device_services">Services:</string>-->
+    <string name="label_device_name">Device Name:</string>
+    <string name="label_first_rssi">First RSSI:</string>
+    <string name="label_first_timestamp">First Timestamp:</string>
+    <string name="label_last_rssi">Last RSSI:</string>
+    <string name="label_last_timestamp">Last Timestamp:</string>
+    <string name="label_rssi">RSSI:</string>
+    <string name="label_running_average_rssi">Running Average RSSI:</string>
+    <string name="label_state">State:</string>
+    <string name="label_uuid">UUID:</string>
+    <string name="label_notify_data">Notify Data:\n</string>
+
+    <string name="no_connected_device">您还没有添加设备哟</string>
+    <string name="no_scan_device">周围没有扫描到设备哟</string>
+
+    <string name="label_input">输入:</string>
+    <string name="label_output">输出:</string>
+    <string name="label_select_read_characteristic">选择可读服务</string>
+    <string name="label_select_write_characteristic">选择可写服务</string>
+    <string name="label_select_notify_characteristic">选择可通知服务</string>
+    <string name="label_send">发送</string>
+
+    <string name="hint_operator_name">你好</string>
+    <string name="hello">Hello World, Date!</string>
+
+    <string name="strInputAccHint">输入帐号</string>
+    <string name="strAccInputLabel">帐号</string>
+    <string name="strPswInputLabel">密码</string>
+    <string name="login">登 录</string>
+    <string name="register">注 册</string>
+    <string name="cancel">取 消</string>
+    <string name="account_empty">用户名为空，请重新输入！</string>
+    <string name="pwd_empty">密码为空，请重新输入！</string>
+    <string name="pwd_not_fit_user">密码不正确，请重新输入！</string>
+    <string name="pwd_new_empty">新密码为空，请重新输入！</string>
+    <string name="pwd_check_empty">密码确认为空，请重新输入！</string>
+    <string name="pwd_not_the_same">密码确认不正确，请重新输入密码！</string>
+    <string name="register_fail">注册用户失败，请重新尝试！</string>
+    <string name="register_success">注册成功！</string>
+    <string name="resetpwd_fail">密码修改失败，请重新尝试！</string>
+    <string name="resetpwd_success">密码修改成功！</string>
+    <string name="login_success">登陆成功！</string>
+    <string name="cancel_success">注销成功！</string>
+    <string name="login_fail">登录失败！请输入正确的用户名与密码！</string>
+    <string name="cancel_fail">注销失败！请输入正确的用户名与密码！</string>
+    <string name="name_already_exist">用户名【<xliff:g example="tom" id="id1">%1$s</xliff:g>】已存在，请重新输入！</string>
+    <string name="name_not_exist">用户名【<xliff:g example="tom" id="id1">%1$s</xliff:g>】不存在，请重新输入！</string>
+    <string name="user_login_success">用户：<xliff:g example="tom" id="id2">%1$s</xliff:g>登录，欢迎光临！</string>
+</resources>

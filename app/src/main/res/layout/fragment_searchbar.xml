@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_history"
+            android:layout_width="326dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:background="#21D347"
+            android:gravity="center"
+            android:text="Home"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:visibility="visible"
+            tools:text="History" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+        android:id="@+id/tv_bytime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="By Time"
+        android:textSize="18sp"
+        android:visibility="visible"
+        />
+
+        <TextView
+        android:id="@+id/tv_byexercise"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="By Exercise"
+        android:textSize="18sp"
+        android:visibility="visible"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_byTime"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:clickable="true"
+            android:paddingBottom="2dp"
+            android:text="Daily"
+            android:textSize="13sp"
+            />
+        <ImageView
+            android:id="@+id/iv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_date"
+            android:clickable="true"
+            android:padding="10dp"
+            android:src="@mipmap/ic_arrow" />
+
+        <TextView
+            android:id="@+id/tv_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/iv_date"
+            android:padding="10dp"
+            android:text="Start"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:id="@+id/tv_start_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_start"
+            android:padding="10dp"
+            android:text="01/11/2018"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:id="@+id/tv_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_start_date"
+            android:padding="10dp"
+            android:text="End"
+            android:textSize="15sp"/>
+        <TextView
+            android:id="@+id/tv_end_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_end"
+            android:padding="10dp"
+            android:text="01/17/2018"
+            android:textSize="15sp"/>
+
+    </LinearLayout>
+
+
+    <com.mancj.materialsearchbar.MaterialSearchBar
+        style="@style/MaterialSearchBarLight"
+        android:visibility="invisible"
+        app:mt_speechMode="false"
+        app:mt_hint="Custom hint"
+        app:mt_maxSuggestionsCount="10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/searchBar" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/ct_readiness"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/ct_hrhrvspo2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/ct_gsr"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+</LinearLayout>

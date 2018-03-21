@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/lightgray" />
+    <stroke android:width="5dp" android:color="@color/lightgray" />
+    <corners android:topLeftRadius="5dp"
+        android:topRightRadius="5dp"
+        android:bottomRightRadius="5dp"
+        android:bottomLeftRadius="5dp"/>
+
+
+    <!--分析：-->
+
+    <!--solid设置填充颜色，颜色值以#80开头表示透明-->
+
+    <!--stroke 设置边框宽度，颜色值-->
+
+    <!--corners设置圆角-->
+
+    <!--第二种方法：用图片设置background-->
+</shape>

@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:circleimageView="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:overScrollMode="never"
+    android:padding="15dp"
+    android:scrollbars="none">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <org.astri.spitfire.component.CircleImageView
+                android:id="@+id/headIcon"
+                android:layout_width="69dp"
+                android:layout_height="61dp"
+                android:layout_gravity="start"
+                android:layout_margin="5dp"
+                circleimageView:border_color="#ffffff"
+                circleimageView:border_width="1dp" />
+
+            <EditText
+                android:id="@+id/AddYourDeviceName_et"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:padding="15dip"
+                android:layout_weight="1"
+                android:background="@android:color/white"
+                android:gravity="left"
+                android:hint="Add Your Device Name"
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip"
+                android:selectAllOnFocus="false"
+                android:singleLine="false" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="#9FB6CD" />
+        </LinearLayout>
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal">-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/MACID_tv"-->
+                <!--android:layout_width="93dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_margin="5dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:gravity="start"-->
+                <!--android:text="  MAC ID"-->
+                <!--android:textColor="#000000"-->
+                <!--android:textSize="20sp"-->
+                <!--android:visibility="visible"-->
+                <!--tools:text="   MAC ID" />-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/MACID_ev"-->
+                <!--android:layout_width="209dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_margin="5dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="@null"-->
+                <!--android:gravity="start"-->
+                <!--android:textColor="#000000"-->
+                <!--android:textSize="20sp"-->
+                <!--android:visibility="visible" />-->
+        <!--</LinearLayout>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/BatteryStatus_tv"
+                android:layout_width="167dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="Battery Status"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:visibility="visible"
+                tools:text="Battery Status" />
+
+            <EditText
+                android:id="@+id/BatteryStatus_ev"
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:gravity="start"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/batterystatus_ib"
+                android:layout_width="49dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/batterystatus" />
+        </LinearLayout>
+        <GridLayout
+            android:id="@+id/deviceInformation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:useDefaultMargins="true">
+
+            <TextView
+                style="@style/GridLayoutTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:text="@string/label_device_address"
+                />
+
+            <TextView
+                android:id="@+id/device_address"
+                style="@style/GridLayoutDataTextView"/>
+
+
+            <!--<TextView-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="145dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_state"-->
+                <!--android:textColor="#000000"-->
+                <!--android:textSize="20sp" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/connection_state"-->
+                <!--style="@style/GridLayoutDataTextView"/>-->
+        </GridLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="#9FB6CD" />
+        </LinearLayout>
+        <GridLayout
+            android:id="@+id/device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:useDefaultMargins="true">
+
+            <TextView
+                style="@style/GridLayoutTitleTextView"
+                android:layout_width="145dp"
+                android:layout_height="wrap_content"
+                android:text="@string/label_state"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/connection_state"
+                style="@style/GridLayoutDataTextView"/>
+        </GridLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="#9FB6CD" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="240dp"
+                android:background="#FFFFFF" />
+        </LinearLayout>
+        <FrameLayout
+            android:id="@+id/flContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/Homeiv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:src="@drawable/home" />
+
+                <TextView
+                    android:id="@+id/Hometv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Home"
+
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/Liveiv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:src="@drawable/live" />
+
+                <TextView
+                    android:id="@+id/Livetv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Live"
+
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/Historyiv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:src="@drawable/history" />
+
+                <TextView
+                    android:id="@+id/Historytv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="History"
+
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/Activitiesiv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:src="@drawable/exercisefilled" />
+
+                <TextView
+                    android:id="@+id/Activitiestv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Activities" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/Meiv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:src="@drawable/my" />
+
+                <TextView
+                    android:id="@+id/Metv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="#00000000"
+                    android:text="Me" />
+            </LinearLayout>
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/holo_blue_dark"/>
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="vertical"-->
+            <!--&gt;-->
+
+            <!--<Button-->
+                <!--android:id="@+id/select_write_characteristic"-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_select_write_characteristic"/>-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/show_write_characteristic"-->
+                <!--style="@style/GridLayoutDataTextView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:enabled="false"/>-->
+
+            <!--<Button-->
+                <!--android:id="@+id/select_notify_characteristic"-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_select_notify_characteristic"/>-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/show_notify_characteristic"-->
+                <!--style="@style/GridLayoutDataTextView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:enabled="false"/>-->
+
+            <!--<TextView-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_input"/>-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/input"-->
+                <!--style="@style/GridLayoutDataTextView"-->
+                <!--android:layout_width="match_parent"/>-->
+
+            <!--<TextView-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_output"/>-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/output"-->
+                <!--style="@style/GridLayoutDataTextView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:enabled="false"/>-->
+
+            <!--<Button-->
+                <!--android:id="@+id/send"-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_send"/>-->
+        <!--</LinearLayout>-->
+
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@android:color/holo_blue_dark"/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/select_read_characteristic"-->
+            <!--style="@style/GridLayoutTitleTextView"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="@string/label_select_read_characteristic"/>-->
+
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@android:color/holo_blue_dark"/>-->
+
+        <!--<GridLayout-->
+            <!--android:id="@+id/gattInformation"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:columnCount="2"-->
+            <!--android:useDefaultMargins="true">-->
+
+            <!--<TextView-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_uuid"/>-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/uuid"-->
+                <!--style="@style/GridLayoutDataTextViewMonospace"/>-->
+
+            <!--<TextView-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_desc"/>-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/description"-->
+                <!--style="@style/GridLayoutDataTextViewMonospace"/>-->
+
+            <!--<TextView-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_as_string"/>-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/data_as_string"-->
+                <!--style="@style/GridLayoutDataTextViewMonospace"/>-->
+
+            <!--<TextView-->
+                <!--style="@style/GridLayoutTitleTextView"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/label_as_array"/>-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/data_as_array"-->
+                <!--style="@style/GridLayoutDataTextViewMonospace"/>-->
+        <!--</GridLayout>-->
+    </LinearLayout>
+
+</ScrollView>

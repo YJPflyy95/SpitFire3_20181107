@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:id="@+id/rlTop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <ImageView
+                android:id="@+id/imgLamp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@mipmap/ic_launcher" />
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="22dp"
+                android:layout_toRightOf="@+id/imgLamp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/tvContent"
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_toRightOf="@+id/imgLamp"
+                android:layout_below="@+id/tvName"
+                android:layout_marginLeft="10dp"
+                android:gravity="start"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:text="18/1/2018 17:30 to 18/1/2018 18:30                   >\n            \nWramUp duration:30mins\nCooldown duration 30mins"
+                />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_below="@+id/rlTop"
+            android:background="#EEEEEE"/>
+
+    </RelativeLayout>
+
+    <!--Edit-->
+    <TextView
+        android:id="@+id/tvEdit"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:background="#dddddd"
+        android:gravity="center"
+        android:paddingLeft="20dp"
+        android:layout_marginBottom="1dp"
+        android:textColor="@android:color/white"
+        android:paddingRight="20dp"
+        android:text="edit" />
+
+    <!--delete-->
+    <TextView
+        android:id="@+id/delete"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:background="#FFFF0000"
+        android:gravity="center"
+        android:paddingLeft="20dp"
+        android:layout_marginBottom="1dp"
+        android:textColor="@android:color/white"
+        android:paddingRight="20dp"
+        android:text="delete" />
+
+</LinearLayout>

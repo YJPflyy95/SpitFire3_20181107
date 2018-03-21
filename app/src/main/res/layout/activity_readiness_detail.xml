@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="org.astri.spitfire.ReadinessDetailActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#21D347"
+        >
+        <Button
+            android:id="@+id/Delete_bt"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:textColor="#FFFFFF"
+            android:paddingBottom="5dip"
+            android:paddingTop="20dip"
+            android:text="Delete"
+            android:textAppearance="@style/TextAppearance.Compat.Notification.Line2.Media"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/ReadinessDetail_tv"
+            android:layout_width="326dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Readiness Detail"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:visibility="visible"
+            tools:text="Readiness Detail" />
+
+        <Button
+            android:id="@+id/Save_bt"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:textColor="#FFFFFF"
+            android:paddingBottom="5dip"
+            android:paddingTop="20dip"
+            android:text="Save"
+            android:textAppearance="@style/TextAppearance.Compat.Notification.Line2.Media"
+            android:textSize="20dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:id="@+id/Duration_tv"
+            android:layout_width="125dp"
+            android:layout_height="30dp"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textStyle="bold"
+            android:text="Duration: 2 mins"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            tools:text="Duration: 2 mins" />
+
+        <TextView
+            android:id="@+id/Time_tv"
+            android:layout_width="151dp"
+            android:layout_height="30dp"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textStyle="bold"
+            android:text="Time: 8:01 am"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            tools:text="Time: 8:01 am" />
+
+        <TextView
+            android:id="@+id/Date_tv"
+            android:layout_width="132dp"
+            android:layout_height="30dp"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textStyle="bold"
+            android:text="Date: 17/1/2018"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            tools:text="Date: 17/1/2018" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="233dp">
+
+        <ImageView
+            android:id="@+id/morning-readiness-gauge_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="198dp"
+            android:layout_margin="15dp"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:gravity="start"
+            android:src="@drawable/morningreadinessgauge" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:id="@+id/HRVScores_tv"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_margin="5dp"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:text="HRV: 62"
+            android:textColor="#000000"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            tools:text="HRV: 62" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:id="@+id/MinHR_tv"
+            android:layout_width="125dp"
+            android:layout_height="30dp"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Min HR: 45.21"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            tools:text="Min HR: 45.21" />
+
+        <TextView
+            android:id="@+id/AvgHR_tv"
+            android:layout_width="151dp"
+            android:layout_height="30dp"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Avg HR: 50.33"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="Avg HR: 50.33" />
+
+        <TextView
+            android:id="@+id/MaxHR_tv"
+            android:layout_width="132dp"
+            android:layout_height="30dp"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Max HR: 56.09"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            tools:text="Max HR: 56.09" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:background="#9FB6CD" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tx_comment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            android:gravity="left"
+            android:padding="5dp"
+            android:text="Great job! Compared to your recent baseline,you should be able to train harder and handle more stress today!"
+            android:textColor="#000000"
+            android:textSize="15sp"
+            />
+    </LinearLayout>
+</LinearLayout>

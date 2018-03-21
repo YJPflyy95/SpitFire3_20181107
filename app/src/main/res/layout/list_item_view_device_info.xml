@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="top"
+    android:orientation="vertical"
+    android:paddingBottom="5dp">
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnCount="2"
+        android:useDefaultMargins="true">
+
+        <TextView
+            style="@style/GridLayoutTitleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_device_name" />
+
+        <TextView
+            android:id="@+id/deviceName"
+            style="@style/GridLayoutDataTextView" />
+
+        <TextView
+            style="@style/GridLayoutTitleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_device_address" />
+
+
+        <TextView
+            android:id="@+id/deviceAddress"
+            style="@style/GridLayoutDataTextView" />
+
+        <!--<TextView-->
+        <!--style="@style/GridLayoutTitleTextView"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+
+        <!--/>-->
+        <!--&lt;!&ndash;android:text="@string/label_device_class"&ndash;&gt;-->
+        <!--<TextView-->
+        <!--android:id="@+id/deviceClass"-->
+        <!--style="@style/GridLayoutDataTextView"/>-->
+
+        <!--<TextView-->
+        <!--style="@style/GridLayoutTitleTextView"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+
+        <!--/>-->
+        <!--&lt;!&ndash;android:text="@string/label_device_major_class"&ndash;&gt;-->
+        <!--<TextView-->
+        <!--android:id="@+id/deviceMajorClass"-->
+        <!--style="@style/GridLayoutDataTextView"/>-->
+
+        <!--<TextView-->
+        <!--style="@style/GridLayoutTitleTextView"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+
+        <!--/>-->
+        <!--&lt;!&ndash;android:text="@string/label_device_services"&ndash;&gt;-->
+        <!--<TextView-->
+        <!--android:id="@+id/deviceServiceList"-->
+        <!--style="@style/GridLayoutDataTextView"/>-->
+
+        <!--<TextView-->
+        <!--style="@style/GridLayoutTitleTextView"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/label_bonding_state"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/deviceBondingState"-->
+            <!--style="@style/GridLayoutDataTextView" />-->
+    </GridLayout>
+    <!--<FrameLayout-->
+        <!--android:id="@+id/flContainer"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="1" >-->
+    <!--</FrameLayout>-->
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="55dp"-->
+        <!--android:orientation="horizontal">-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Homeiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/home" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Hometv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:text="Home"-->
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Liveiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/live" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Livetv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:text="Live"-->
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Historyiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/history" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Historytv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:text="History"-->
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Activitiesiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/exercise" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Activitiestv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:text="Activities"-->
+
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Meiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/myfilled" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Metv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:background="#00000000"-->
+                <!--android:text="Me"-->
+
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+    <!--</LinearLayout>-->
+</LinearLayout>

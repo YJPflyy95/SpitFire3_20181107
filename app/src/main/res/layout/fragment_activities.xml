@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context="org.astri.spitfire.fragment.ActivitiesFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/Activities_tv"
+            android:layout_width="324dp"
+            android:layout_height="58dp"
+            android:layout_alignBottom="@+id/Add_bt"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_weight="1"
+            android:background="#21D347"
+            android:gravity="center"
+            android:text="        Activities"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:visibility="visible"
+            tools:text="        Activities" />
+        <Button
+            android:id="@+id/Add_bt"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="46dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="right"
+            android:layout_toEndOf="@+id/Activities_tv"
+            android:layout_toRightOf="@+id/Activities_tv"
+            android:background="#21D347"
+            android:paddingBottom="5dip"
+            android:paddingTop="20dip"
+            android:text="Add  "
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="20dp" />
+    </LinearLayout>
+    <org.astri.spitfire.component.SlideListView
+        android:id="@+id/activity_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Activities_tv">
+    </org.astri.spitfire.component.SlideListView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="175dp"
+            android:background="#FFFFFF" />
+    </LinearLayout>
+    <!--<FrameLayout-->
+        <!--android:id="@+id/flContainer"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="1" >-->
+    <!--</FrameLayout>-->
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="55dp"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_alignParentBottom ="true"-->
+        <!--android:visibility="visible">-->
+        <!--&lt;!&ndash;android:layout_height="0dp" &lt;!&ndash; 这里不能设置fill_parent &ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_weight="1" &lt;!&ndash; 这里设置layout_weight=1是最关键的，否则底部的LinearLayout无法到底部 &ndash;&gt;&ndash;&gt;-->
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Homeiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/home" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Hometv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:text="Home"-->
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Liveiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/live" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Livetv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:text="Live"-->
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Historyiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/history" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Historytv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:text="History"-->
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Activitiesiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/exercisefilled" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Activitiestv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:text="Activities"-->
+
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/Meiv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="#00000000"-->
+                <!--android:src="@drawable/my" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/Metv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:background="#00000000"-->
+                <!--android:text="Me"-->
+
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+    <!--</LinearLayout>-->
+</LinearLayout>

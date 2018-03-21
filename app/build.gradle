@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "org.astri.spitfire"
+        minSdkVersion 18
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.github.thinkcool:circletextimageview:1.0.20151218'
+    compile 'org.litepal.android:core:1.6.1'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
+    compile 'com.blankj:utilcode:1.12.3'
+    compile 'com.vise.xiaoyaoyou:baseble:2.0.5'
+    compile 'com.vise.xiaoyaoyou:xsnow:2.1.5'
+    compile 'com.ashokvarma.android:bottom-navigation-bar:2.0.4'
+    compile 'com.github.mancj:MaterialSearchBar:0.7.5'
+    compile 'com.android.support:design:26.1.0'
+    compile 'com.android.support:percent:26.1.0'
+    compile 'de.hdodenhof:circleimageview:2.2.0'
+    compile 'com.owater.library:CircleTextViewlibrary:0.8.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+
+
+//configurations.all {
+//    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+//        def requested = details.requested
+//        if (requested.group == 'com.android.support') {
+//            if (!requested.name.startsWith("multidex")) {
+//                details.useVersion '25.4.0'
+//            }
+//        }
+//    }
+//}

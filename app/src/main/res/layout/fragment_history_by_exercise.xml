@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+
+    <LinearLayout
+        android:background="@color/appmain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/bt_history"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:layout_marginLeft="0dp"
+            android:text="＜ History"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/tv_history"
+            android:layout_width="326dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:background="@color/appmain"
+            android:gravity="center"
+            android:text="Jogging"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:visibility="visible"
+            tools:text="Jogging" /> <!-- 定义 exercise类型 -->
+
+        <Button
+            android:id="@+id/connect"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:paddingBottom="5dip"
+            android:paddingTop="20dip"
+            android:textAllCaps="false"
+            android:text=""
+            android:textColor="#FFFFFF"
+            android:clickable="false"
+            android:textSize="20dp" />
+    </LinearLayout>
+
+        <LinearLayout
+        android:id="@+id/ll_legend"
+        android:layout_width="match_parent"
+        android:layout_height="15dp">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="3dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@color/yellow" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:text="HR" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="3dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@color/orange" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:text="HRV" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="3dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@color/dodgerblue" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:text="SPO2" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="3dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@color/magenta" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="GSR" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_pltgrp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:padding="5dp"
+        android:layout_height="match_parent">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/ct_hrhrvspo2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/ct_gsr"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+</LinearLayout>
