@@ -93,7 +93,8 @@ public class RegisterActivity extends AppCompatActivity{
                     register_check();
                     break;
                 case R.id.Login_bt:                     //取消按钮的监听事件,由注册界面返回登录界面
-                    Intent intent = new Intent(RegisterActivity.this,LoginActivity.class) ;    //切换Register Activity至Login Activity
+//                    Intent intent = new Intent(RegisterActivity.this,LoginActivity.class) ;    //切换Register Activity至Login Activity
+                    Intent intent = new Intent(RegisterActivity.this,HeartRate.class) ;    //切换Register Activity至Login Activity
                     startActivity(intent);
                     finish();
                     break;

@@ -39,7 +39,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
 
-
 //configurations.all {
 //    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
 //        def requested = details.requested

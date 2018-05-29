@@ -87,4 +87,5 @@
     <string name="name_already_exist">用户名【<xliff:g example="tom" id="id1">%1$s</xliff:g>】已存在，请重新输入！</string>
     <string name="name_not_exist">用户名【<xliff:g example="tom" id="id1">%1$s</xliff:g>】不存在，请重新输入！</string>
     <string name="user_login_success">用户：<xliff:g example="tom" id="id2">%1$s</xliff:g>登录，欢迎光临！</string>
+    <string name="title_activity_heart_rate">HeartRate</string>
 </resources>
