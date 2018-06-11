@@ -10,10 +10,12 @@ public class BleUUIDs {
 
     public static class Service {
         final static public UUID HEART_RATE               = UUID.fromString("0000180d-0000-1000-8000-00805f9b34fb");
+//        final static public UUID HEART_RATE               = UUID.fromString("180d");
     };
 
     public static class Characteristic {
         final static public UUID HEART_RATE_MEASUREMENT   = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
+//        final static public UUID HEART_RATE_MEASUREMENT   = UUID.fromString("2a37");
         final static public UUID MANUFACTURER_STRING      = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb");
         final static public UUID MODEL_NUMBER_STRING      = UUID.fromString("00002a24-0000-1000-8000-00805f9b34fb");
         final static public UUID FIRMWARE_REVISION_STRING = UUID.fromString("00002a26-0000-1000-8000-00805f9b34fb");
@@ -24,6 +26,7 @@ public class BleUUIDs {
 
     public static class Descriptor {
         final static public UUID CHAR_CLIENT_CONFIG       = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+//        final static public UUID CHAR_CLIENT_CONFIG       = UUID.fromString("2902");
 //        final static public UUID CHAR_CLIENT_CONFIG       = UUID.fromString("0000180d-0000-1000-8000-00805f9b34fb");
     }
 

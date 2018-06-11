@@ -11,9 +11,12 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.provider.ContactsContract;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -27,17 +30,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.astri.spitfire.ble.activity.DeviceControlActivity;
-import org.astri.spitfire.ble.common.ToastUtil;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
 import static android.bluetooth.BluetoothProfile.STATE_DISCONNECTED;
+import static com.vise.baseble.model.resolver.GattAttributeResolver.HEART_RATE;
 
 public class HeartRate extends AppCompatActivity {
 
@@ -54,8 +54,6 @@ public class HeartRate extends AppCompatActivity {
     public final static String ACTION_GATT_DISCONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
 
-
-
     private int mConnectionState = STATE_DISCONNECTED;//jia
 
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
@@ -65,6 +63,8 @@ public class HeartRate extends AppCompatActivity {
 
     private BluetoothGattCharacteristic mHearRateCharac;
 
+    final static private UUID mHeartRateServiceUuid = BleUUIDs.Service.HEART_RATE;
+    final static private UUID mHeartRateCharacteristicUuid = BleUUIDs.Characteristic.HEART_RATE_MEASUREMENT;
 
     /**
      * 寻找服务
@@ -74,7 +74,6 @@ public class HeartRate extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heart_rate);
@@ -132,10 +131,6 @@ public class HeartRate extends AppCompatActivity {
 
     }
 
-    final static private UUID mHeartRateServiceUuid = BleUUIDs.Service.HEART_RATE;
-    final static private UUID mHeartRateCharacteristicUuid = BleUUIDs.Characteristic.HEART_RATE_MEASUREMENT;
-
-
     private class LeGattCallback extends BluetoothGattCallback{
 
         private BluetoothGattCharacteristic mCharacteristic;
@@ -153,23 +148,23 @@ public class HeartRate extends AppCompatActivity {
             if (newState == STATE_CONNECTED) {
                 Log.d(TAG,"设备已连接");
 
+                //寻找设备中的服务
+                gatt.discoverServices();
                 intentAction = ACTION_GATT_CONNECTED;//jia
                 mConnectionState = STATE_CONNECTED;//jia
                 broadcastUpdate(intentAction);//jia
-                //寻找设备中的服务
-                gatt.discoverServices();
-                mGgatt=gatt;
-            } else if (newState == STATE_DISCONNECTED) {
+                mGgatt=gatt;//0601shan
+//                onCharacteristicChanged(mGgatt,mCharacteristic);//1111111111111111111111111111111111
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d(TAG,"设备已断开连接");
 
                 intentAction = ACTION_GATT_DISCONNECTED;//jia
                 mConnectionState = STATE_DISCONNECTED;//jia
+                Log.i(TAG, "Disconnected from GATT server.");//jia
                 broadcastUpdate(intentAction);//jia
             }
         }
 
-
-        //00002a37-0000-1000-8000-00805f9b34fb
 
         /**
          * 当服务发现后所调用的方法
@@ -178,40 +173,48 @@ public class HeartRate extends AppCompatActivity {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-
-                System.out.println("Services discovered");
-
-
-
+                Log.d(TAG, "Services discovered");
+                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);//0529
                 List<BluetoothGattService> services = gatt.getServices();
                 if (services != null) {
                     Log.d(TAG, "onServicesDiscovered num: " + services.size());
+                }else {
+                    Log.w(TAG, "onServicesDiscovered received: " + status);
                 }
-
                 for (BluetoothGattService bluetoothGattService : services) {
                     Log.d(TAG, "onServicesDiscovered service: " + bluetoothGattService.getUuid());
                     List<BluetoothGattCharacteristic> charc = bluetoothGattService.getCharacteristics();
 
                     for (BluetoothGattCharacteristic charac : charc) {
-
                         // 设备的Characteristic UUID
                         Log.d(TAG, "Characteristic UUID: " + charac.getUuid().toString());
+//                        mGgatt.setCharacteristicNotification(charac, true);//HK
+                        // 适配某些手机！！！比如小米...
+                        gatt.readCharacteristic(charac);
+//                        mGgatt.readCharacteristic(charac);//gai0601
+                        /*for (BluetoothGattDescriptor descriptor : charac.getDescriptors()) {
+                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                            mGgatt.writeDescriptor(descriptor);
+                        }//HK*///shan:31xia
+
                         if(charac.getUuid().equals(mHeartRateCharacteristicUuid)){
                             // HEART_RATE_MEASUREMENT
                             Log.d(TAG, "mHearRateCharac found!");
+                            // 依据协议订阅相关信息,否则接收不到数据
+//                            Log.d(TAG, "onServicesDiscovered: " + charac.getValue());
+//                            setCharacteristicNotification(mHearRateCharac,true);
                             mHearRateCharac = charac;
-                            Log.d(TAG, "onServicesDiscovered: " + mHearRateCharac);
-                            setCharacteristicNotification(mHearRateCharac,true);
+                            setCharacteristicNotification(mHearRateCharac,true);//0601jia
+                            Log.d(TAG, "mHearRateCharac.getValue(): " + mHearRateCharac.getValue());
+                            Log.d(TAG, "mHearRateCharac: " + mHearRateCharac);
+//                            boolean notifyResult = gatt.setCharacteristicNotification(mCharacteristic,true);//HK
+//                            Log.d(TAG, "notifyResult: "+notifyResult);
+                            boolean readResult = gatt.readCharacteristic(mHearRateCharac);//false 读不到数据
+                            Log.d(TAG, "readResult: "+readResult);
+
                         }
                     }
                 }
-
-//                Log.d(TAG, "mHearRateCharac: " +mHearRateCharac.getValue().toString());
-
-                // ? 确认一下
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);//xin
-
-
 
                 //得到心率信息的service
                 BluetoothGattService service = gatt
@@ -223,28 +226,22 @@ public class HeartRate extends AppCompatActivity {
                     mCharacteristic = service
                             .getCharacteristic(mHeartRateCharacteristicUuid);
 
+                    Log.d(TAG, "mCharacteristic: "+mCharacteristic);
+                    Log.d(TAG, "mCharacteristics.getValue(): "+mCharacteristic.getValue());
 
-
-                    System.out.println("++++++++++++++++++++++++++++++++++++++++++11111");
-                    System.out.println(mCharacteristic.getValue());
-//                        Log.e("CharacteristicChanged中", "数据接收了哦"+bytesToHexString(characteristic.getValue()));
-//                        tx_receive.append(bytesToHexString(characteristic.getValue()) + "\n");
-
-                    System.out.println("++++++++++++++++++++++++++++++++++++++++++");
-                  /*  if (!isHexData(mCharacteristic.toString())) {
-//                       System.out.print("asdasdas");
-                    }
-*/
                     if (mCharacteristic == null) {
                         Log.d(TAG,"不能找到心率");
                     } else {
+                        gatt.readCharacteristic(mCharacteristic);
+//                        onCharacteristicRead(gatt,mCharacteristic,BluetoothGatt.GATT_SUCCESS);//0601jia
+                        Log.d(TAG,"mHeartRateServiceUuid.toString():"+mHeartRateServiceUuid.toString());
                         boolean success = gatt.setCharacteristicNotification(
                                 mCharacteristic, true);
+                        Log.d(TAG,"success:"+success);
                         if (!success) {
                             Log.d(TAG,"Enabling notification failed!");
                             return;
                         }
-
                         BluetoothGattDescriptor descriptor = mCharacteristic
                                 .getDescriptor(BleUUIDs.Descriptor.CHAR_CLIENT_CONFIG);
                         if (descriptor != null) {
@@ -262,35 +259,33 @@ public class HeartRate extends AppCompatActivity {
             }
         }
 
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt,
+                                         BluetoothGattCharacteristic characteristic, int status) {
+            Log.d(TAG, "onCharacteristicRead UUID : " + characteristic.getUuid());
+            Log.d(TAG, "onCharacteristicRead value: " + Arrays.toString(characteristic.getValue()));
+
+            if (status == BluetoothGatt.GATT_SUCCESS){
+                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                if (characteristic.getUuid().equals (HEART_RATE)) {
+//                HeartRate parser = new HeartRate();
+                    Log.d(TAG, "battery osnCharacteristicRead: " + characteristic.getValue());
+
+                }//zijijia
+            }
+
+        }
+
         /**
          * 当service里边的characteristic发生改变调用
          */
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
 
             Log.d(TAG, "onCharacteristicChanged UUID : " + characteristic.getUuid());
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);//jia
-
-            //得到心率数据
-            if (characteristic.equals(mHearRateCharac)) {
-
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);//jia
-                byte[] raw = characteristic.getValue();
-                Log.d(TAG,"心率****=" + raw);
-                int index = ((raw[0] & 0x01) == 1) ? 2 : 1;
-                int format = (index == 1) ? BluetoothGattCharacteristic.FORMAT_UINT8 : BluetoothGattCharacteristic.FORMAT_UINT16;
-                int value = mCharacteristic.getIntValue(format, index);
-                final String description = value + " bpm";
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("心率：" + description);
-                    }
-                });
-
-            }
         }
 
         /* the rest of callbacks are not interested for us */
@@ -311,12 +306,15 @@ public class HeartRate extends AppCompatActivity {
                 int flag = characteristic.getProperties();
                 int format = -1;
                 if ((flag & 0x01) != 0) {
+                    Log.d(TAG, "format: "+format);
                     format = BluetoothGattCharacteristic.FORMAT_UINT16;
                     Log.d(TAG, "Heart rate format UINT16.");
                 } else {
+                    Log.d(TAG, "format: "+format);
                     format = BluetoothGattCharacteristic.FORMAT_UINT8;
                     Log.d(TAG, "Heart rate format UINT8.");
                 }
+                Log.d(TAG, "1111111111111111111111111111111111122222222222222222222222222");
                 final int heartRate = characteristic.getIntValue(format, 1);
                 Log.d(TAG, String.format("Received heart rate: %d", heartRate));
                 intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
@@ -333,20 +331,100 @@ public class HeartRate extends AppCompatActivity {
             sendBroadcast(intent);
         }
 
-
-
-        @Override
-        public void onCharacteristicRead(BluetoothGatt gatt,
-                                         BluetoothGattCharacteristic characteristic, int status) {
-            Log.d(TAG, "onCharacteristicRead UUID : " + characteristic.getUuid());
-            Log.d(TAG, "onCharacteristicRead: " + characteristic.getValue());
-            System.out.println("onCharacteristicRead");
-            if (status == BluetoothGatt.GATT_SUCCESS)
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-            Log.d(TAG, "characteristic----------1:" + characteristic);
-            Log.d(TAG, "mGgatt----------1:" + mGgatt.getServices().size());
+        /*private final IBinder mBinder = new LocalBinder();
+        public class LocalBinder extends Binder {
+            HeartRate getService() {
+                return HeartRate.this;
+            }
         }
 
+
+        public IBinder onBind(Intent intent) {
+            return mBinder;
+        }*/
+
+        /*public boolean onUnbind(Intent intent) {
+            // After using a given device, you should make sure that BluetoothGatt.close() is called
+            // such that resources are cleaned up properly.  In this particular example, close() is
+            // invoked when the UI is disconnected from the Service.
+            close();
+            return super.onUnbind(intent);
+        }*/
+
+        public void close() {
+            if (mGgatt == null) {
+                return;
+            }
+            mGgatt.close();
+            mGgatt = null;
+        }
+        /**
+         * Enables or disables notification on a give characteristic.
+         *
+         * @param characteristic Characteristic to act on.
+         * @param enabled If true, enable notification.  False otherwise.
+         */
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+
+        public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
+                                                  boolean enabled) {
+            if (mBluetoothAdapter == null || mGgatt == null) {
+                Log.d(TAG, "BluetoothAdapter not initialized");
+                return;
+            }
+            mGgatt.setCharacteristicNotification(characteristic, enabled);
+//        boolean notification = mGgatt.setCharacteristicNotification(characteristic, enabled);
+//        System.out.print(notification);
+         /*//notifiction默认是关闭的  需要设置0x01打开
+                        List<BluetoothGattDescriptor> descriptors = localBluetoothGattCharacteristic.getDescriptors();
+                        for (int i = 0; i < descriptors.size(); i++) {
+                            if (descriptors.get(i).getUuid().toString().equals(DISENABLE)) {
+                                BluetoothGattDescriptor bluetoothGattDescriptor = descriptors.get(i);
+                                bluetoothGattDescriptor.setValue(BluetoothGattDescriptor.PERMISSION_READ);
+                                mBluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
+                            }
+                        }*/
+
+            // This is specific to Heart Rate Measurement.
+
+       /* for(BluetoothGattDescriptor dp:characteristic.getDescriptors()){
+            dp.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            mGgatt.writeDescriptor(dp);
+        }*/
+
+            if (mHeartRateCharacteristicUuid.equals(characteristic.getUuid())) {
+                for(BluetoothGattDescriptor dp:characteristic.getDescriptors()) {
+
+                    if (dp != null) {
+                        if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                            dp.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                        } else if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+                            dp.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+                        }
+                        mGgatt.writeDescriptor(dp);
+                    }
+                }
+               /* BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                        UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                mGgatt.writeDescriptor(descriptor);*/
+            }
+        }//jia
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+
+        public boolean writeDescriptor(BluetoothGattDescriptor bluetoothGattDescriptor) {
+            return !(bluetoothGattDescriptor == null || mGgatt == null)
+                    && mGgatt.writeDescriptor(bluetoothGattDescriptor);
+        }//0601jia
+
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorWrite(gatt, descriptor, status);
+            Log.d(TAG, "onDescriptorWrite: status=" + status + "   uuid=" + descriptor.getUuid().toString());
+        }//0601jia
+
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
@@ -360,8 +438,7 @@ public class HeartRate extends AppCompatActivity {
             Log.d(TAG, "onCharacteristicWrite" + Arrays.toString(characteristic.getValue()));
         }
 
-        ;
-
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
 
@@ -370,7 +447,20 @@ public class HeartRate extends AppCompatActivity {
 
     }
 
-
+    /**
+     * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
+     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
+     * callback.
+     *
+     * @param characteristic The characteristic to read from.
+     */
+    public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (mBluetoothAdapter == null || mGgatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+        mGgatt.readCharacteristic(characteristic);
+    }
 
 
 
@@ -506,53 +596,6 @@ public class HeartRate extends AppCompatActivity {
         TextView deviceAddress;
     }
 
-
-    /**
-     * Enables or disables notification on a give characteristic.
-     *
-     * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
-     */
-    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
-                                              boolean enabled) {
-        if (mBluetoothAdapter == null || mGgatt == null) {
-            Log.d(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-        mGgatt.setCharacteristicNotification(characteristic, enabled);
-//        boolean notification = mGgatt.setCharacteristicNotification(characteristic, enabled);
-//        System.out.print(notification);
-         /*//notifiction默认是关闭的  需要设置0x01打开
-                        List<BluetoothGattDescriptor> descriptors = localBluetoothGattCharacteristic.getDescriptors();
-                        for (int i = 0; i < descriptors.size(); i++) {
-                            if (descriptors.get(i).getUuid().toString().equals(DISENABLE)) {
-                                BluetoothGattDescriptor bluetoothGattDescriptor = descriptors.get(i);
-                                bluetoothGattDescriptor.setValue(BluetoothGattDescriptor.PERMISSION_READ);
-                                mBluetoothGatt.writeDescriptor(bluetoothGattDescriptor);
-                            }
-                        }*/
-
-        // This is specific to Heart Rate Measurement.
-
-       /* for(BluetoothGattDescriptor dp:characteristic.getDescriptors()){
-            dp.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mGgatt.writeDescriptor(dp);
-        }*/
-
-        if (mHeartRateCharacteristicUuid.equals(characteristic.getUuid())) {
-            for(BluetoothGattDescriptor dp:characteristic.getDescriptors()) {
-
-                if (dp != null) {
-                    if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
-                        dp.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                    } else if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
-                        dp.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
-                    }
-                    mGgatt.writeDescriptor(dp);
-                }
-            }
-        }
-    }//jia
 
     /*private boolean isHexData(String str) {
         if (str == null) {
