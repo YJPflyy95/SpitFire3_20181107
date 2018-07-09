@@ -27,9 +27,7 @@ public class MySearchActionConfirmed extends SimpleOnSearchActionListener {
 
     @Override
     public void onSearchConfirmed(CharSequence text) {
-        Log.d(TAG, "onSearchConfirmed: "+text.toString());
-
-
+        Log.d(TAG, "onSearchConfirmed: "+ text.toString());
         super.onSearchConfirmed(text);
     }
 

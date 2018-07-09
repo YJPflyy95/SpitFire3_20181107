@@ -90,6 +90,9 @@ public class MeFragment extends Fragment {
     private Fragment languagesFragment = new LanguagesFragment();
     private Fragment deviceControlFragment = new DeviceControlFragment();
 
+    private Fragment settingFragment = new SettingsFragment();
+
+
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_me, container, false);
@@ -145,6 +148,26 @@ public class MeFragment extends Fragment {
                 replaceFragment(deviceControlFragment);
             }
         });
+
+
+        // 设置： 算法
+        TextView settings = view.findViewById(R.id.forwardSetting_tv);
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replaceFragment(settingFragment);
+            }
+        });
+
+        ImageView forwardSettings = view.findViewById(R.id.forwardSetting_ib);
+        forwardSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replaceFragment(settingFragment);
+            }
+        });
+
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             /*
             * seekbar改变时的事件监听处理

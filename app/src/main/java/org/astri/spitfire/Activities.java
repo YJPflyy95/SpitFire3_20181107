@@ -118,29 +118,8 @@ public class Activities extends AppCompatActivity {
     }
 
     private void getData(){
-//        for (int i=0;i<2;i++){
-//            list.add(new String("第"+i+"个item"));
-//        }
-//        list.add(new String("\"陕A666\", \"黑色\", \"奥迪A6\""));
-//        list.add(3,"nihao");
         list.add("Jogging");
         list.add("Gym");
         list.add("Exam");
     }
-//private void initDatas() {
-//    List msg1 = new List("陕A666", "黑色", "奥迪A6");
-//    List msg2 = new List("陕A888", "黑色", "奥迪A11");
-//    List msg3 = new List("陕A999", "黑色", "奥迪A0");
-//    List msg4 = new List("陕A0000", "黑色", "奥迪A9");
-//
-//    Vehicle vh01 = new Vehicle(R.drawable.tab_icon_home_my, msg1, R.drawable.tab_icon_my_back);
-//    Vehicle vh02 = new Vehicle(R.drawable.tab_icon_home_my, msg2, R.drawable.tab_icon_my_back);
-//    Vehicle vh03 = new Vehicle(R.drawable.tab_icon_home_my, msg3, R.drawable.tab_icon_my_back);
-//    Vehicle vh04 = new Vehicle(R.drawable.tab_icon_home_my, msg4, R.drawable.tab_icon_my_back);
-//
-//    msg.add(vh01);
-//    msg.add(vh02);
-//    msg.add(vh03);
-//    msg.add(vh04);
-//}
 }
