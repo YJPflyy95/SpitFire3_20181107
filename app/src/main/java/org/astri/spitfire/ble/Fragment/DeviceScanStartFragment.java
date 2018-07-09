@@ -138,7 +138,7 @@ public class DeviceScanStartFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
 
-                LogUtil.d(TAG, "device...");
+                LogUtil.d(TAG, "点击某个扫描到的设备进入设备详细信息界面");
                 //点击某个扫描到的设备进入设备详细信息界面
                 BluetoothLeDevice device = (BluetoothLeDevice) adapter.getItem(position);
                 if (device == null) return;

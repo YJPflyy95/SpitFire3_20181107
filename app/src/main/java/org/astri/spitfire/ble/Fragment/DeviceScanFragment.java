@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +34,7 @@ import org.astri.spitfire.ble.activity.DeviceScanActivity;
 import org.astri.spitfire.ble.activity.DeviceScanActivityStart;
 import org.astri.spitfire.ble.adapter.DeviceAdapter;
 import org.astri.spitfire.fragment.MeFragment;
+import org.astri.spitfire.util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +43,7 @@ import java.util.TimerTask;
 
 import static android.hardware.camera2.params.RggbChannelVector.COUNT;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
+import static org.astri.spitfire.ble.Fragment.DeviceDetailFragment.EXTRA_DEVICE;
 
 /**
  * @Description: 主页，展示已连接设备列表
@@ -48,6 +51,8 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  * @date: 2017/10/20 17:35
  */
 public class DeviceScanFragment extends Fragment {
+
+    private static final String TAG = "DeviceScanFragment";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 100;
 
@@ -189,17 +194,41 @@ public class DeviceScanFragment extends Fragment {
         adapter = new DeviceAdapter(getContext());
         deviceLv.setAdapter(adapter);
 
+        LogUtil.d(TAG, "DeviceScanFragment: 点击某个扫描到的设备进入设备详细信息界面");
+
         deviceLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 //点击某个扫描到的设备进入设备详细信息界面
                 BluetoothLeDevice device = (BluetoothLeDevice) adapter.getItem(position);
                 if (device == null) return;
-                Intent intent = new Intent(getActivity(), DeviceDetailActivity.class);
-                intent.putExtra(DeviceDetailActivity.EXTRA_DEVICE, device);
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), DeviceDetailActivity.class);
+//                intent.putExtra(DeviceDetailActivity.EXTRA_DEVICE, device);
+//                startActivity(intent);
+
+                // 填充 fragment
+                Bundle bundle = new Bundle();
+                // 设备
+                bundle.putParcelable(EXTRA_DEVICE, device);
+                DeviceDetailFragment deviceDetailFragment = new DeviceDetailFragment();
+                // 设定设备
+                deviceDetailFragment.setArguments(bundle);
+                replaceFragment(deviceDetailFragment);
+
             }
         });
+    }
+
+    /**
+     * 填充Fragment
+     * @param fragment
+     */
+    private void replaceFragment(Fragment fragment){
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.ll_content, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     @SuppressLint("RestrictedApi")

@@ -40,6 +40,7 @@ import org.astri.spitfire.ble.common.ToastUtil;
 import org.astri.spitfire.ble.event.ConnectEvent;
 import org.astri.spitfire.ble.event.NotifyDataEvent;
 import org.astri.spitfire.fragment.HomeFragment;
+import org.astri.spitfire.util.LogUtil;
 
 import java.util.List;
 
@@ -54,6 +55,8 @@ import static org.litepal.LitePalBase.TAG;
  */
 public class BLEMainFragment extends Fragment {
 
+    public static final String TAG = "BLEMainFragment";
+
     private TextView supportTv;
     private TextView statusTv;
     private ListView deviceLv;
@@ -66,8 +69,11 @@ public class BLEMainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+        LogUtil.d(TAG, "onCreateView");
+
         ViseLog.getLogConfig().configAllowLog(true);//配置日志信息
         ViseLog.plant(new LogcatTree());//添加Logcat打印信息
+
         BluetoothDeviceManager.getInstance().init(getContext());
         BusManager.getBus().register(this);
         init(view);

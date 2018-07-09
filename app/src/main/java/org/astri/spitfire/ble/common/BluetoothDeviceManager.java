@@ -21,6 +21,7 @@ import org.astri.spitfire.ble.event.CallbackDataEvent;
 import org.astri.spitfire.ble.event.ConnectEvent;
 import org.astri.spitfire.ble.event.NotifyDataEvent;
 import org.astri.spitfire.ble.event.ScanEvent;
+import org.astri.spitfire.util.LogUtil;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -32,6 +33,8 @@ import java.util.UUID;
  * @date: 2017/10/27 17:09
  */
 public class BluetoothDeviceManager {
+
+    private static final String TAG = "BluetoothDeviceManager";
 
     private static BluetoothDeviceManager instance;
     private DeviceMirrorPool mDeviceMirrorPool;
@@ -59,7 +62,7 @@ public class BluetoothDeviceManager {
 
         @Override
         public void onDisconnect(boolean isActive) {
-            ViseLog.i("Disconnect!");
+            ViseLog.i("onDisconnect!");
             BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(true));
         }
     };
@@ -155,14 +158,17 @@ public class BluetoothDeviceManager {
     }
 
     public void connect(BluetoothLeDevice bluetoothLeDevice) {
+        LogUtil.d(TAG, "connect");
         ViseBle.getInstance().connect(bluetoothLeDevice, connectCallback);
     }
 
     public void disconnect(BluetoothLeDevice bluetoothLeDevice) {
+        LogUtil.d(TAG, "disconnect");
         ViseBle.getInstance().disconnect(bluetoothLeDevice);
     }
 
     public boolean isConnected(BluetoothLeDevice bluetoothLeDevice) {
+        LogUtil.d(TAG, "isConnected");
         return ViseBle.getInstance().isConnect(bluetoothLeDevice);
     }
 

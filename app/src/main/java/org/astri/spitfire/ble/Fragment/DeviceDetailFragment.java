@@ -47,6 +47,7 @@ import org.astri.spitfire.ble.adapter.DeviceAdapter;
 import org.astri.spitfire.ble.adapter.MergeAdapter;
 import org.astri.spitfire.ble.common.BluetoothDeviceManager;
 import org.astri.spitfire.fragment.NewActivityFragment;
+import org.astri.spitfire.util.LogUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,6 +69,8 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  * @date:
  */
 public class DeviceDetailFragment extends Fragment {
+
+    public static final String TAG = "DeviceDetailFragment";
 
     public static final String EXTRA_DEVICE = "extra_device";
     private ListView mList;
@@ -98,6 +101,60 @@ public class DeviceDetailFragment extends Fragment {
     private List<BluetoothGattService> mGattServices = new ArrayList<>();
     //设备特征值集合
     private List<List<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<>();
+
+
+    /**
+     * 创建视图
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_device_detail, container, false);
+        init(view);
+        Button connect = (Button) view.findViewById(R.id.Connect_bt);
+//        add.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(getActivity(),DeviceControlActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+        connect.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+                LogUtil.d(TAG, "点击 Connect 按钮，连接设备。");
+
+
+                if (!BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+                    LogUtil.d(TAG, "设备未连接。");
+                    BluetoothDeviceManager.getInstance().connect(mDevice);
+                    getActivity().invalidateOptionsMenu();
+                }else{
+                    LogUtil.d(TAG, "设备已连接。");
+                }
+
+                LogUtil.d(TAG, "准备跳转Fragment");
+//                FragmentManager fm = getActivity().getSupportFragmentManager();
+//                fm.beginTransaction()
+//                        .replace(R.id.ll_content,new DeviceControlFragment())
+//                        .commit();
+            }
+        });
+        Button back = (Button) view.findViewById(R.id.Back_bt);
+        back.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                fm.beginTransaction()
+                        .replace(R.id.ll_content,new DeviceScanFragment())
+                        .commit();
+            }
+        });
+//        onCreateOptionsMenu(view);
+        return view;
+    }
 
     /**
      * 追加广播包信息
@@ -219,51 +276,12 @@ public class DeviceDetailFragment extends Fragment {
         return getString(R.string.formatter_db, String.valueOf(rssi));
     }
 
-
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_device_detail, container, false);
-        init(view);
-        Button add = (Button) view.findViewById(R.id.Connect_bt);
-//        add.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(getActivity(),DeviceControlActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-        add.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v) {
-                if (!BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
-                    BluetoothDeviceManager.getInstance().connect(mDevice);
-                    getActivity().invalidateOptionsMenu();
-                }
-//                FragmentManager fm = getActivity().getSupportFragmentManager();
-//                fm.beginTransaction()
-//                        .replace(R.id.ll_content,new DeviceControlFragment())
-//                        .commit();
-            }
-        });
-        Button back = (Button) view.findViewById(R.id.Back_bt);
-        back.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v) {
-
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                fm.beginTransaction()
-                        .replace(R.id.ll_content,new DeviceScanFragment())
-                        .commit();
-            }
-        });
-//        onCreateOptionsMenu(view);
-        return view;
-    }
     private void init(View view) {
         mEmpty = view.findViewById(android.R.id.empty);
         mList = (ListView) view.findViewById(android.R.id.list);
         mConnectionState = (TextView) view.findViewById(R.id.connection_state);
         mList.setEmptyView(mEmpty);
-        mDevice = getActivity().getIntent().getParcelableExtra(EXTRA_DEVICE);
+        mDevice = getArguments().getParcelable(EXTRA_DEVICE);
         pupulateDetails(mDevice);
     }
 //jiashangbu
