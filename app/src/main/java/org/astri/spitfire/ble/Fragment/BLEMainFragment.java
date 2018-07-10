@@ -77,6 +77,8 @@ public class BLEMainFragment extends Fragment {
         BluetoothDeviceManager.getInstance().init(getContext());
         BusManager.getBus().register(this);
         init(view);
+
+        // 扫描设备fragment
         Button add = (Button) view.findViewById(R.id.Add_bt);
         add.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
@@ -87,6 +89,8 @@ public class BLEMainFragment extends Fragment {
                         .commit();
             }
         });
+
+        // 返回到home
         Button Back = (Button) view.findViewById(R.id.Back_bt);
         Back.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
@@ -110,8 +114,12 @@ public class BLEMainFragment extends Fragment {
         deviceLv.setAdapter(adapter);
 
         deviceLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+                LogUtil.d(TAG, "deviceLv: onItemClick");
+
                 BluetoothLeDevice device = (BluetoothLeDevice) adapter.getItem(position);
                 if (device == null) return;
                 Intent intent = new Intent(getActivity(), DeviceControlActivity.class);

@@ -49,10 +49,12 @@ import com.vise.xsnow.cache.SpCache;
 import com.vise.xsnow.event.BusManager;
 import com.vise.xsnow.event.Subscribe;
 
+import org.astri.spitfire.BleUUIDs;
 import org.astri.spitfire.R;
 import org.astri.spitfire.ble.activity.DeviceControlActivity;
 import org.astri.spitfire.ble.activity.DeviceDetailActivity;
 import org.astri.spitfire.ble.adapter.DeviceAdapter;
+import org.astri.spitfire.ble.adapter.MergeAdapter;
 import org.astri.spitfire.ble.common.BluetoothDeviceManager;
 import org.astri.spitfire.ble.common.ToastUtil;
 import org.astri.spitfire.ble.event.CallbackDataEvent;
@@ -61,6 +63,7 @@ import org.astri.spitfire.ble.event.NotifyDataEvent;
 import org.astri.spitfire.component.CircleImageView;
 import org.astri.spitfire.fragment.ChangePasswordFragment;
 import org.astri.spitfire.fragment.MeFragment;
+import org.astri.spitfire.util.LogUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -73,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.zip.Inflater;
 
 import static android.hardware.camera2.params.RggbChannelVector.COUNT;
@@ -85,6 +89,8 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  */
 public class DeviceControlFragment extends Fragment {
 
+    private static final String TAG = "DeviceControlFragment";
+
     private static final String LIST_NAME = "NAME";
     private static final String LIST_UUID = "UUID";
     public static final String WRITE_CHARACTERISTI_UUID_KEY = "write_uuid_key";
@@ -92,7 +98,18 @@ public class DeviceControlFragment extends Fragment {
     public static final String WRITE_DATA_KEY = "write_data_key";
 
     private SimpleExpandableListAdapter simpleExpandableListAdapter;
+
     private TextView mConnectionState;
+    private TextView mDeviceAddress;
+    private TextView mDeviceName;
+
+    private Button btShowHeartRate;
+    private BluetoothGattCharacteristic heartRateChara;
+
+    final static private UUID mHeartRateServiceUuid = BleUUIDs.Service.HEART_RATE;
+    final static private UUID mHeartRateCharacteristicUuid = BleUUIDs.Characteristic.HEART_RATE_MEASUREMENT;
+
+
     private TextView mGattUUID;
     private TextView mGattUUIDDesc;
     private TextView mDataAsString;
@@ -121,17 +138,17 @@ public class DeviceControlFragment extends Fragment {
         setHasOptionsMenu(true);
         BusManager.getBus().register(this);
         Button back = view.findViewById(R.id.Back_bt);
-        back.setOnClickListener(new View.OnClickListener(){
+        back.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 fm.beginTransaction()
-                        .replace(R.id.ll_content,new MeFragment())
+                        .replace(R.id.ll_content, new MeFragment())
                         .commit();
             }
         });
         Button connect = view.findViewById(R.id.connect);
-        connect.setOnClickListener(new View.OnClickListener(){
+        connect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 //        if (!BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
 //            BluetoothDeviceManager.getInstance().connect(mDevice);
@@ -139,7 +156,7 @@ public class DeviceControlFragment extends Fragment {
 //        }
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 fm.beginTransaction()
-                        .replace(R.id.ll_content,new BLEMainFragment())
+                        .replace(R.id.ll_content, new BLEMainFragment())
                         .commit();
             }
         });
@@ -150,6 +167,7 @@ public class DeviceControlFragment extends Fragment {
 //        showConnectedDevice(event);
         return view;
     }
+
     private void initView(View view) {
 
         headIcon = (CircleImageView) view.findViewById(R.id.headIcon);
@@ -167,6 +185,7 @@ public class DeviceControlFragment extends Fragment {
             headIcon.setImageURI(Uri.fromFile(file));
         }
     }
+
     private void changeTheme() {
         Calendar c = Calendar.getInstance();
         System.out.println(c.get(Calendar.HOUR_OF_DAY));
@@ -176,8 +195,9 @@ public class DeviceControlFragment extends Fragment {
             headIcon.setImageResource(R.drawable.my);
         }
     }
+
     private void changeHeadIcon() {
-        final CharSequence[] items = { "相册", "拍照" };
+        final CharSequence[] items = {"相册", "拍照"};
         AlertDialog dlg = new AlertDialog.Builder(getContext()).setTitle("选择图片").setItems(items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 // 这里item是根据选择的方式，
@@ -193,7 +213,7 @@ public class DeviceControlFragment extends Fragment {
                                 PHOTO_FILE_NAME);
                         Uri uri = Uri.fromFile(tempFile);
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                        startActivityForResult(intent,PHOTO_REQUEST_CAREMA);
+                        startActivityForResult(intent, PHOTO_REQUEST_CAREMA);
                     } else {
                         Toast.makeText(getContext(), "未找到存储卡，无法存储照片！",
                                 Toast.LENGTH_SHORT).show();
@@ -266,31 +286,65 @@ public class DeviceControlFragment extends Fragment {
         intent.putExtra("return-data", true);
         startActivityForResult(intent, PHOTO_REQUEST_CUT);
     }
+
     private void init(View view) {
+
+        // 设备名，和地址
+        mDeviceName = view.findViewById(R.id.AddYourDeviceName_et);
+        mDeviceAddress = view.findViewById(R.id.device_address);
+
+        btShowHeartRate = view.findViewById(R.id.bt_show_heart_rate);
+
+        btShowHeartRate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showGattServices();
+
+            }
+        });
+
         mConnectionState = (TextView) view.findViewById(R.id.connection_state);
 
         mDataAsString = (TextView) view.findViewById(R.id.data_as_string);
         mDataAsArray = (TextView) view.findViewById(R.id.data_as_array);
 
-        mDevice = getActivity().getIntent().getParcelableExtra(DeviceDetailFragment.EXTRA_DEVICE);
+//        mDevice = getActivity().getIntent().getParcelableExtra(DeviceDetailFragment.EXTRA_DEVICE);
+
+
+        // 已经连接的设备
+        if (getArguments() != null) { // getArguments 可能为null
+            mDevice = getArguments().getParcelable(DeviceDetailFragment.EXTRA_DEVICE);
+        }
+
         if (mDevice != null) {
-            ((TextView) view.findViewById(R.id.device_address)).setText(mDevice.getAddress());
+            // 显示名字
+            mDeviceAddress.setText(mDevice.getAddress());
+            mDeviceName.setText(mDevice.getName());
         }
 
         mSpCache = new SpCache(getContext());
 
     }
 
+
     @SuppressLint("RestrictedApi")
     @Subscribe
     public void showConnectedDevice(ConnectEvent event) {
+//        event.getDeviceMirror().getBluetoothLeDevice()
         if (event != null) {
             if (event.isSuccess()) {
                 ToastUtil.showToast(getContext(), "Connect Success!");
+                mDevice = event.getDeviceMirror().getBluetoothLeDevice();
+
+                // 显示设备 详细信息
+                mDeviceAddress.setText(mDevice.getAddress());
+                mDeviceName.setText(mDevice.getName());
                 mConnectionState.setText("true");
 //                getActivity().invalidateOptionsMenu();
                 if (event.getDeviceMirror() != null && event.getDeviceMirror().getBluetoothGatt() != null) {
-                    simpleExpandableListAdapter = displayGattServices(event.getDeviceMirror().getBluetoothGatt().getServices());
+                    LogUtil.d(TAG, "显示属性");
+                    displayGattServices(event.getDeviceMirror().getBluetoothGatt().getServices());
+//                    simpleExpandableListAdapter = displayGattServices(event.getDeviceMirror().getBluetoothGatt().getServices());
                 }
             } else {
                 if (event.isDisconnected()) {
@@ -305,8 +359,90 @@ public class DeviceControlFragment extends Fragment {
         }
     }
 
+
+
+    /**
+     * 根据GATT服务显示该服务下的所有特征值
+     *
+     * @param gattServices GATT服务
+     * @return
+     */
+    private void displayGattServices(final List<BluetoothGattService> gattServices) {
+        if (gattServices == null) return;
+        String uuid;
+        final String unknownServiceString = "Unknown service";
+        final String unknownCharaString = "Unknown characteristic";
+
+        final List<Map<String, String>> gattServiceData = new ArrayList<>();
+        final List<List<Map<String, String>>> gattCharacteristicData = new ArrayList<>();
+
+        mGattServices = new ArrayList<>();
+        mGattCharacteristics = new ArrayList<>();
+
+        // Loops through available GATT Services.
+        for (final BluetoothGattService gattService : gattServices) {
+            final Map<String, String> currentServiceData = new HashMap<>();
+            uuid = gattService.getUuid().toString();
+            currentServiceData.put(LIST_NAME, GattAttributeResolver.getAttributeName(uuid, unknownServiceString));
+            currentServiceData.put(LIST_UUID, uuid);
+            gattServiceData.add(currentServiceData);
+
+            final List<Map<String, String>> gattCharacteristicGroupData = new ArrayList<>();
+            final List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+            final List<BluetoothGattCharacteristic> charas = new ArrayList<>();
+
+            // Loops through available Characteristics.
+            for (final BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                charas.add(gattCharacteristic);
+                final Map<String, String> currentCharaData = new HashMap<>();
+                uuid = gattCharacteristic.getUuid().toString();
+                currentCharaData.put(LIST_NAME, GattAttributeResolver.getAttributeName(uuid, unknownCharaString));
+                currentCharaData.put(LIST_UUID, uuid);
+                gattCharacteristicGroupData.add(currentCharaData);
+            }
+
+            mGattServices.add(gattService);
+            mGattCharacteristics.add(charas);
+            gattCharacteristicData.add(gattCharacteristicGroupData);
+        }
+
+        LogUtil.d(TAG, gattCharacteristicData.toString());
+//        showGattServices();
+    }
+
+
+    private void showGattServices() {
+
+        LogUtil.d(TAG, "read");
+        BluetoothGattService service = null;
+        BluetoothGattCharacteristic characteristic = null;
+
+        for(BluetoothGattService svc : mGattServices){
+            if(svc.getUuid().equals( mHeartRateServiceUuid)){
+                service = svc;
+                for(BluetoothGattCharacteristic chrc : service.getCharacteristics()){
+                    if(chrc.getUuid().equals(mHeartRateCharacteristicUuid)){
+                        characteristic = chrc;
+                        heartRateChara = chrc;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        int charaProp = characteristic.getProperties();
+
+        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+            mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
+            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_NOTIFY, service.getUuid(), characteristic.getUuid(), null);
+            BluetoothDeviceManager.getInstance().registerNotify(mDevice, false);
+        }
+
+    }
+
     @Subscribe
     public void showDeviceCallbackData(CallbackDataEvent event) {
+        LogUtil.d(TAG, "showDeviceNotifyData");
         if (event != null) {
             if (event.isSuccess()) {
                 if (event.getBluetoothGattChannel() != null && event.getBluetoothGattChannel().getCharacteristic() != null
@@ -323,10 +459,39 @@ public class DeviceControlFragment extends Fragment {
 
     @Subscribe
     public void showDeviceNotifyData(NotifyDataEvent event) {
+        LogUtil.d(TAG, "showDeviceNotifyData");
         if (event != null && event.getData() != null && event.getBluetoothLeDevice() != null
                 && event.getBluetoothLeDevice().getAddress().equals(mDevice.getAddress())) {
-            mOutputInfo.append(HexUtil.encodeHexStr(event.getData())).append("\n");
-            mOutput.setText(mOutputInfo.toString());
+
+            BluetoothGattCharacteristic characteristic = event.getBluetoothGattChannel().getCharacteristic();
+            if (mHeartRateCharacteristicUuid.equals(characteristic.getUuid())) {
+                int flag = characteristic.getProperties();
+                int format = -1;
+                if ((flag & 0x01) != 0) {
+                    Log.d(TAG, "format: "+format);
+                    format = BluetoothGattCharacteristic.FORMAT_UINT16;
+                    Log.d(TAG, "Heart rate format UINT16.");
+                } else {
+                    Log.d(TAG, "format: "+format);
+                    format = BluetoothGattCharacteristic.FORMAT_UINT8;
+                    Log.d(TAG, "Heart rate format UINT8.");
+                }
+                final int heartRate = characteristic.getIntValue(format, 1);
+                Log.d(TAG, String.format("Received heart rate: %d", heartRate));
+            } else {
+                // For all other profiles, writes the data formatted in HEX.
+                final byte[] data = characteristic.getValue();
+                if (data != null && data.length > 0) {
+                    final StringBuilder stringBuilder = new StringBuilder(data.length);
+                    for(byte byteChar : data)
+                        stringBuilder.append(String.format("%02X ", byteChar));
+                }
+            }
+
+            // 暂时注释掉
+//            mOutputInfo.append(HexUtil.encodeHexStr(event.getData())).append("\n");
+//            LogUtil.d(TAG, mOutputInfo.toString());
+//            mOutput.setText(mOutputInfo.toString());
         }
     }
 
@@ -346,7 +511,7 @@ public class DeviceControlFragment extends Fragment {
             mConnectionState.setText("true");
             DeviceMirror deviceMirror = ViseBle.getInstance().getDeviceMirror(mDevice);
             if (deviceMirror != null) {
-                simpleExpandableListAdapter = displayGattServices(deviceMirror.getBluetoothGatt().getServices());
+//                simpleExpandableListAdapter = displayGattServices(deviceMirror.getBluetoothGatt().getServices());
             }
 //            showDefaultInfo();
         } else {
@@ -411,56 +576,56 @@ public class DeviceControlFragment extends Fragment {
         super.onDestroy();
     }
 
-    /**
-     * 根据GATT服务显示该服务下的所有特征值
-     *
-     * @param gattServices GATT服务
-     * @return
-     */
-    private SimpleExpandableListAdapter displayGattServices(final List<BluetoothGattService> gattServices) {
-        if (gattServices == null) return null;
-        String uuid;
-        final String unknownServiceString = getResources().getString(R.string.unknown_service);
-        final String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
-        final List<Map<String, String>> gattServiceData = new ArrayList<>();
-        final List<List<Map<String, String>>> gattCharacteristicData = new ArrayList<>();
-
-        mGattServices = new ArrayList<>();
-        mGattCharacteristics = new ArrayList<>();
-
-        // Loops through available GATT Services.
-        for (final BluetoothGattService gattService : gattServices) {
-            final Map<String, String> currentServiceData = new HashMap<>();
-            uuid = gattService.getUuid().toString();
-            currentServiceData.put(LIST_NAME, GattAttributeResolver.getAttributeName(uuid, unknownServiceString));
-            currentServiceData.put(LIST_UUID, uuid);
-            gattServiceData.add(currentServiceData);
-
-            final List<Map<String, String>> gattCharacteristicGroupData = new ArrayList<>();
-            final List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-            final List<BluetoothGattCharacteristic> charas = new ArrayList<>();
-
-            // Loops through available Characteristics.
-            for (final BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                charas.add(gattCharacteristic);
-                final Map<String, String> currentCharaData = new HashMap<>();
-                uuid = gattCharacteristic.getUuid().toString();
-                currentCharaData.put(LIST_NAME, GattAttributeResolver.getAttributeName(uuid, unknownCharaString));
-                currentCharaData.put(LIST_UUID, uuid);
-                gattCharacteristicGroupData.add(currentCharaData);
-            }
-
-            mGattServices.add(gattService);
-            mGattCharacteristics.add(charas);
-            gattCharacteristicData.add(gattCharacteristicGroupData);
-        }
-
-        final SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(getContext(), gattServiceData, android.R.layout
-                .simple_expandable_list_item_2, new String[]{LIST_NAME, LIST_UUID}, new int[]{android.R.id.text1, android.R.id.text2},
-                gattCharacteristicData, android.R.layout.simple_expandable_list_item_2, new String[]{LIST_NAME, LIST_UUID}, new
-                int[]{android.R.id.text1, android.R.id.text2});
-        return gattServiceAdapter;
-    }
+//    /**
+//     * 根据GATT服务显示该服务下的所有特征值
+//     *
+//     * @param gattServices GATT服务
+//     * @return
+//     */
+//    private SimpleExpandableListAdapter displayGattServices(final List<BluetoothGattService> gattServices) {
+//        if (gattServices == null) return null;
+//        String uuid;
+//        final String unknownServiceString = getResources().getString(R.string.unknown_service);
+//        final String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
+//        final List<Map<String, String>> gattServiceData = new ArrayList<>();
+//        final List<List<Map<String, String>>> gattCharacteristicData = new ArrayList<>();
+//
+//        mGattServices = new ArrayList<>();
+//        mGattCharacteristics = new ArrayList<>();
+//
+//        // Loops through available GATT Services.
+//        for (final BluetoothGattService gattService : gattServices) {
+//            final Map<String, String> currentServiceData = new HashMap<>();
+//            uuid = gattService.getUuid().toString();
+//            currentServiceData.put(LIST_NAME, GattAttributeResolver.getAttributeName(uuid, unknownServiceString));
+//            currentServiceData.put(LIST_UUID, uuid);
+//            gattServiceData.add(currentServiceData);
+//
+//            final List<Map<String, String>> gattCharacteristicGroupData = new ArrayList<>();
+//            final List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+//            final List<BluetoothGattCharacteristic> charas = new ArrayList<>();
+//
+//            // Loops through available Characteristics.
+//            for (final BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+//                charas.add(gattCharacteristic);
+//                final Map<String, String> currentCharaData = new HashMap<>();
+//                uuid = gattCharacteristic.getUuid().toString();
+//                currentCharaData.put(LIST_NAME, GattAttributeResolver.getAttributeName(uuid, unknownCharaString));
+//                currentCharaData.put(LIST_UUID, uuid);
+//                gattCharacteristicGroupData.add(currentCharaData);
+//            }
+//
+//            mGattServices.add(gattService);
+//            mGattCharacteristics.add(charas);
+//            gattCharacteristicData.add(gattCharacteristicGroupData);
+//        }
+//
+//        final SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(getContext(), gattServiceData, android.R.layout
+//                .simple_expandable_list_item_2, new String[]{LIST_NAME, LIST_UUID}, new int[]{android.R.id.text1, android.R.id.text2},
+//                gattCharacteristicData, android.R.layout.simple_expandable_list_item_2, new String[]{LIST_NAME, LIST_UUID}, new
+//                int[]{android.R.id.text1, android.R.id.text2});
+//        return gattServiceAdapter;
+//    }
 
     private void showReadInfo(String uuid, byte[] dataArr) {
         mGattUUID.setText(uuid != null ? uuid : getString(R.string.no_data));
@@ -497,49 +662,49 @@ public class DeviceControlFragment extends Fragment {
 //        mSpCache.remove(WRITE_DATA_KEY + mDevice.getAddress());
 //    }
 
-    /**
-     * 显示GATT服务展示的信息
-     */
-    private void showGattServices() {
-        if (simpleExpandableListAdapter == null) {
-            return;
-        }
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.item_gatt_services, null);
-        ExpandableListView expandableListView = (ExpandableListView) view.findViewById(R.id.dialog_gatt_services_list);
-        expandableListView.setAdapter(simpleExpandableListAdapter);
-        builder.setView(view);
-        final AlertDialog dialog = builder.show();
-//        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-//            @Override
-//            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-//                dialog.dismiss();
-//                final BluetoothGattService service = mGattServices.get(groupPosition);
-//                final BluetoothGattCharacteristic characteristic = mGattCharacteristics.get(groupPosition).get(childPosition);
-//                final int charaProp = characteristic.getProperties();
-//                if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
-//                    mSpCache.put(WRITE_CHARACTERISTI_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
-//                    ((EditText) findViewById(R.id.show_write_characteristic)).setText(characteristic.getUuid().toString());
-//                    BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
-//                } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-//                    BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
-//                    BluetoothDeviceManager.getInstance().read(mDevice);
-//                }
-//                if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-//                    mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
-//                    ((EditText) findViewById(R.id.show_notify_characteristic)).setText(characteristic.getUuid().toString());
-//                    BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_NOTIFY, service.getUuid(), characteristic.getUuid(), null);
-//                    BluetoothDeviceManager.getInstance().registerNotify(mDevice, false);
-//                } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_INDICATE) > 0) {
-//                    mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
-//                    ((EditText) findViewById(R.id.show_notify_characteristic)).setText(characteristic.getUuid().toString());
-//                    BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_INDICATE, service.getUuid(), characteristic.getUuid(), null);
-//                    BluetoothDeviceManager.getInstance().registerNotify(mDevice, true);
-//                }
-//                return true;
-//            }
-//        });
-    }
+//    /**
+//     * 显示GATT服务展示的信息
+//     */
+//    private void showGattServices() {
+//        if (simpleExpandableListAdapter == null) {
+//            return;
+//        }
+//        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//        View view = LayoutInflater.from(getContext()).inflate(R.layout.item_gatt_services, null);
+//        ExpandableListView expandableListView = (ExpandableListView) view.findViewById(R.id.dialog_gatt_services_list);
+//        expandableListView.setAdapter(simpleExpandableListAdapter);
+//        builder.setView(view);
+//        final AlertDialog dialog = builder.show();
+////        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+////            @Override
+////            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+////                dialog.dismiss();
+////                final BluetoothGattService service = mGattServices.get(groupPosition);
+////                final BluetoothGattCharacteristic characteristic = mGattCharacteristics.get(groupPosition).get(childPosition);
+////                final int charaProp = characteristic.getProperties();
+////                if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+////                    mSpCache.put(WRITE_CHARACTERISTI_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
+////                    ((EditText) findViewById(R.id.show_write_characteristic)).setText(characteristic.getUuid().toString());
+////                    BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
+////                } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+////                    BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
+////                    BluetoothDeviceManager.getInstance().read(mDevice);
+////                }
+////                if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+////                    mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
+////                    ((EditText) findViewById(R.id.show_notify_characteristic)).setText(characteristic.getUuid().toString());
+////                    BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_NOTIFY, service.getUuid(), characteristic.getUuid(), null);
+////                    BluetoothDeviceManager.getInstance().registerNotify(mDevice, false);
+////                } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_INDICATE) > 0) {
+////                    mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
+////                    ((EditText) findViewById(R.id.show_notify_characteristic)).setText(characteristic.getUuid().toString());
+////                    BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_INDICATE, service.getUuid(), characteristic.getUuid(), null);
+////                    BluetoothDeviceManager.getInstance().registerNotify(mDevice, true);
+////                }
+////                return true;
+////            }
+////        });
+//    }
 
     private boolean isHexData(String str) {
         if (str == null) {

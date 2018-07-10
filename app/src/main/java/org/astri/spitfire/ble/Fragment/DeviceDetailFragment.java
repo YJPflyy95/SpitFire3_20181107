@@ -136,10 +136,10 @@ public class DeviceDetailFragment extends Fragment {
                 }
 
                 LogUtil.d(TAG, "准备跳转Fragment");
-//                FragmentManager fm = getActivity().getSupportFragmentManager();
-//                fm.beginTransaction()
-//                        .replace(R.id.ll_content,new DeviceControlFragment())
-//                        .commit();
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                fm.beginTransaction()
+                        .replace(R.id.ll_content,new DeviceControlFragment())
+                        .commit();
             }
         });
         Button back = (Button) view.findViewById(R.id.Back_bt);
@@ -366,6 +366,56 @@ public class DeviceDetailFragment extends Fragment {
 //        mDataAsString.setText(new String(dataArr));
 //    }
 ////////////jiadibu
+
+    /**
+     * 根据GATT服务显示该服务下的所有特征值
+     *
+     * @param gattServices GATT服务
+     * @return
+     */
+    private void displayGattServices(final List<BluetoothGattService> gattServices) {
+        if (gattServices == null) return;
+        String uuid;
+        final String unknownServiceString = getResources().getString(R.string.unknown_service);
+        final String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
+        final List<Map<String, String>> gattServiceData = new ArrayList<>();
+        final List<List<Map<String, String>>> gattCharacteristicData = new ArrayList<>();
+
+        mGattServices = new ArrayList<>();
+        mGattCharacteristics = new ArrayList<>();
+
+        // Loops through available GATT Services.
+        for (final BluetoothGattService gattService : gattServices) {
+            final Map<String, String> currentServiceData = new HashMap<>();
+            uuid = gattService.getUuid().toString();
+            currentServiceData.put(LIST_NAME, GattAttributeResolver.getAttributeName(uuid, unknownServiceString));
+            currentServiceData.put(LIST_UUID, uuid);
+            gattServiceData.add(currentServiceData);
+
+            final List<Map<String, String>> gattCharacteristicGroupData = new ArrayList<>();
+            final List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+            final List<BluetoothGattCharacteristic> charas = new ArrayList<>();
+
+            // Loops through available Characteristics.
+            for (final BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                charas.add(gattCharacteristic);
+                final Map<String, String> currentCharaData = new HashMap<>();
+                uuid = gattCharacteristic.getUuid().toString();
+                currentCharaData.put(LIST_NAME, GattAttributeResolver.getAttributeName(uuid, unknownCharaString));
+                currentCharaData.put(LIST_UUID, uuid);
+                gattCharacteristicGroupData.add(currentCharaData);
+            }
+
+            mGattServices.add(gattService);
+            mGattCharacteristics.add(charas);
+            gattCharacteristicData.add(gattCharacteristicGroupData);
+        }
+
+        LogUtil.d(TAG, gattCharacteristicData.toString());
+
+    }
+
+
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         menu.clear();
         inflater.inflate(R.menu.scan, menu);
