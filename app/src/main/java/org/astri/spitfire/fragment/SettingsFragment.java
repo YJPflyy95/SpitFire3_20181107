@@ -297,7 +297,6 @@ public class SettingsFragment extends Fragment {
 
 
     private void setAlgCharaPropBindNotifyChnnel(BluetoothGattService service, BluetoothGattCharacteristic characteristic){
-        setAlgCharaPropBindReadChnnel(service, characteristic);
         final int charaProp = characteristic.getProperties();
         mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
         BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_NOTIFY, service.getUuid(), characteristic.getUuid(), null);
