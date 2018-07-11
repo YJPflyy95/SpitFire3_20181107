@@ -108,6 +108,8 @@ public class DeviceControlFragment extends Fragment {
 
     final static private UUID mHeartRateServiceUuid = BleUUIDs.Service.HEART_RATE;
     final static private UUID mHeartRateCharacteristicUuid = BleUUIDs.Characteristic.HEART_RATE_MEASUREMENT;
+    final static private UUID mAlgorithmServiceUuid = BleUUIDs.Service.ALGORITHEM_SERVICE;
+    final static private UUID mAlgorithmIntensifyUuid = BleUUIDs.Characteristic.ALGORITHEM_AND_INTENSIFY;
 
 
     private TextView mGattUUID;
@@ -145,6 +147,8 @@ public class DeviceControlFragment extends Fragment {
                 fm.beginTransaction()
                         .replace(R.id.ll_content, new MeFragment())
                         .commit();
+
+
             }
         });
         Button connect = view.findViewById(R.id.connect);
@@ -418,10 +422,10 @@ public class DeviceControlFragment extends Fragment {
         BluetoothGattCharacteristic characteristic = null;
 
         for(BluetoothGattService svc : mGattServices){
-            if(svc.getUuid().equals( mHeartRateServiceUuid)){
+            if(svc.getUuid().equals( mAlgorithmServiceUuid)){
                 service = svc;
                 for(BluetoothGattCharacteristic chrc : service.getCharacteristics()){
-                    if(chrc.getUuid().equals(mHeartRateCharacteristicUuid)){
+                    if(chrc.getUuid().equals(mAlgorithmIntensifyUuid)){
                         characteristic = chrc;
                         heartRateChara = chrc;
                         break;
@@ -430,14 +434,67 @@ public class DeviceControlFragment extends Fragment {
                 break;
             }
         }
-        int charaProp = characteristic.getProperties();
 
+        setCharaPropBindChnnel(service, characteristic);
+
+    }
+
+
+    /**
+     * 设定服务：读，写，通知等
+     * @param service
+     * @param characteristic
+     */
+    private void setCharaPropBindChnnel(BluetoothGattService service,BluetoothGattCharacteristic characteristic){
+
+        final int charaProp = characteristic.getProperties();
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+            mSpCache.put(WRITE_CHARACTERISTI_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
+            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
+            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
+            BluetoothDeviceManager.getInstance().read(mDevice);
+        } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
+            BluetoothDeviceManager.getInstance().read(mDevice);
+        }
         if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
             mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
             BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_NOTIFY, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().registerNotify(mDevice, false);
+        } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_INDICATE) > 0) {
+            mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
+            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_INDICATE, service.getUuid(), characteristic.getUuid(), null);
+            BluetoothDeviceManager.getInstance().registerNotify(mDevice, true);
         }
+    }
 
+
+    private void setReadAndWrite(){
+
+//        LogUtil.d(TAG, "read");
+//        BluetoothGattService service = null;
+//        BluetoothGattCharacteristic characteristic = null;
+//        for(BluetoothGattService svc : mGattServices){
+//            if(svc.getUuid().equals( mHeartRateServiceUuid)){
+//                service = svc;
+//                for(BluetoothGattCharacteristic chrc : service.getCharacteristics()){
+//                    if(chrc.getUuid().equals(mHeartRateCharacteristicUuid)){
+//                        characteristic = chrc;
+//                        heartRateChara = chrc;
+//                        break;
+//                    }
+//                }
+//                break;
+//            }
+//        }
+//        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+//            mSpCache.put(WRITE_CHARACTERISTI_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
+//            ((EditText) findViewById(R.id.show_write_characteristic)).setText(characteristic.getUuid().toString());
+//            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
+//        } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+//            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
+//            BluetoothDeviceManager.getInstance().read(mDevice);
+//        }
     }
 
     @Subscribe
@@ -457,6 +514,11 @@ public class DeviceControlFragment extends Fragment {
         }
     }
 
+
+    /**
+     * 显示通知数据
+     * @param event
+     */
     @Subscribe
     public void showDeviceNotifyData(NotifyDataEvent event) {
         LogUtil.d(TAG, "showDeviceNotifyData");
@@ -628,10 +690,12 @@ public class DeviceControlFragment extends Fragment {
 //    }
 
     private void showReadInfo(String uuid, byte[] dataArr) {
-        mGattUUID.setText(uuid != null ? uuid : getString(R.string.no_data));
-        mGattUUIDDesc.setText(GattAttributeResolver.getAttributeName(uuid, getString(R.string.unknown)));
-        mDataAsArray.setText(HexUtil.encodeHexStr(dataArr));
-        mDataAsString.setText(new String(dataArr));
+
+        LogUtil.d(TAG, uuid + ": "+HexUtil.encodeHexStr(dataArr));
+//        mGattUUID.setText(uuid != null ? uuid : getString(R.string.no_data));
+//        mGattUUIDDesc.setText(GattAttributeResolver.getAttributeName(uuid, getString(R.string.unknown)));
+//        mDataAsArray.setText(HexUtil.encodeHexStr(dataArr));
+//        mDataAsString.setText(new String(dataArr));
     }
 
 //    private void showDefaultInfo() {
@@ -706,6 +770,12 @@ public class DeviceControlFragment extends Fragment {
 ////        });
 //    }
 
+
+    /**
+     * 判断是否是16进制数
+     * @param str
+     * @return
+     */
     private boolean isHexData(String str) {
         if (str == null) {
             return false;

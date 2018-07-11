@@ -1,5 +1,6 @@
 package org.astri.spitfire;
 
+import com.vise.baseble.model.BluetoothLeDevice;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -34,6 +35,8 @@ import org.astri.spitfire.util.LogUtil;
  */
 public class GodActivity extends AppCompatActivity implements BottomNavigationBar.OnTabSelectedListener {
 
+
+
     private static final String TAG = "GodActivity";
 
     private Fragment homeFragment;
@@ -45,6 +48,8 @@ public class GodActivity extends AppCompatActivity implements BottomNavigationBa
     private Fragment mContent;
 
     private BottomNavigationBar bottomNavigationBar;
+
+    private static BluetoothLeDevice mDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +185,16 @@ public class GodActivity extends AppCompatActivity implements BottomNavigationBa
         if (meFragment != null) {
             transaction.hide(meFragment);
         }
+    }
+
+    public static void setDevice(BluetoothLeDevice device){
+        if(device!=null){
+            mDevice = device;
+        }
+    }
+
+    public static BluetoothLeDevice getDevice(){
+        return mDevice;
     }
 
 }

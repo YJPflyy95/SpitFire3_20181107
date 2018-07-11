@@ -11,12 +11,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.vise.baseble.utils.HexUtil;
 import com.xw.repo.BubbleSeekBar;
 
+import org.astri.spitfire.GodActivity;
 import org.astri.spitfire.R;
+import org.astri.spitfire.ble.common.BluetoothDeviceManager;
 import org.astri.spitfire.util.LogUtil;
+import org.w3c.dom.Text;
 
 import java.util.Locale;
 
@@ -39,6 +45,10 @@ public class SettingsFragment extends Fragment {
 
     private Activity mActivity;
 
+    private TextView settingAlgTv;
+    private TextView settingAlgResultTv;
+    private Button settingAlgBtn;
+
     // 一共四种算法
     private String[] algorithms = {
            "Learning Zone",
@@ -53,6 +63,10 @@ public class SettingsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, algorithms);
         ListView alglist = view.findViewById(R.id.algorithm_list);
+
+        // TODO: 添加点击事件监听器
+//        alglist.getOnItemClickListener(new ListView);
+
         alglist.setAdapter(adapter);
         init(view);
         LogUtil.d(TAG, "onCreate");
@@ -97,6 +111,9 @@ public class SettingsFragment extends Fragment {
 
             @Override
             public void getProgressOnActionUp(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
+
+                // TODO: 此处设置 算法强度
+                // 写入蓝牙设备
                 String s = String.format(Locale.CHINA, "onActionUp int:%d, float:%.1f", progress, progressFloat);
                 LogUtil.d(TAG, s);
             }
@@ -115,6 +132,20 @@ public class SettingsFragment extends Fragment {
     }
 
     private void init(View view) {
+
+        settingAlgTv = view.findViewById(R.id.algorithm_setting_tv);
+        settingAlgResultTv = view.findViewById(R.id.algorithm_setting_result_tv);
+
+        settingAlgBtn = view.findViewById(R.id.algorithm_setting_btn);
+        settingAlgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(GodActivity.getDevice()!=null){
+                    LogUtil.d(TAG, "已经存在连接的设备！");
+                    BluetoothDeviceManager.getInstance().write(GodActivity.getDevice(), HexUtil.decodeHex(settingAlgTv.getText().toString().toCharArray()));
+                }
+            }
+        });
 
     }
     @Override

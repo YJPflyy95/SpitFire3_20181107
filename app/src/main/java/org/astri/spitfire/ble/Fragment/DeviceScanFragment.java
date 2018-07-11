@@ -28,6 +28,7 @@ import com.vise.baseble.model.BluetoothLeDeviceStore;
 import com.vise.log.ViseLog;
 
 import org.astri.spitfire.ConnectedDeviceActivity;
+import org.astri.spitfire.GodActivity;
 import org.astri.spitfire.R;
 import org.astri.spitfire.ble.activity.DeviceDetailActivity;
 import org.astri.spitfire.ble.activity.DeviceScanActivity;
@@ -209,7 +210,11 @@ public class DeviceScanFragment extends Fragment {
                 // 填充 fragment
                 Bundle bundle = new Bundle();
                 // 设备
+                GodActivity.setDevice(device);
+
+                // 全局设备
                 bundle.putParcelable(EXTRA_DEVICE, device);
+
                 DeviceDetailFragment deviceDetailFragment = new DeviceDetailFragment();
                 // 设定设备
                 deviceDetailFragment.setArguments(bundle);
