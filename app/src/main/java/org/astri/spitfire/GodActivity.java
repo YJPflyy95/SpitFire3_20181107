@@ -1,6 +1,9 @@
 package org.astri.spitfire;
 
 import com.vise.baseble.model.BluetoothLeDevice;
+
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,6 +22,9 @@ import org.astri.spitfire.fragment.LiveFragment;
 import org.astri.spitfire.fragment.MeFragment;
 import org.astri.spitfire.util.DataUtil;
 import org.astri.spitfire.util.LogUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <pre>
@@ -49,7 +55,10 @@ public class GodActivity extends AppCompatActivity implements BottomNavigationBa
 
     private BottomNavigationBar bottomNavigationBar;
 
+    // 保存 设备，服务，属性
     private static BluetoothLeDevice mDevice;
+    public static Map<String, BluetoothGattService> SERVICE_MAP = new HashMap<>();
+    public static Map<String, BluetoothGattCharacteristic> CHARA_MAP = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

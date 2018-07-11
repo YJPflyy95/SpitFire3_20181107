@@ -79,19 +79,19 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/ll_pltgrp"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:orientation="vertical"
-            android:padding="5dp">
+        <!--<LinearLayout-->
+            <!--android:id="@+id/ll_pltgrp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="200dp"-->
+            <!--android:orientation="vertical"-->
+            <!--android:padding="5dp">-->
 
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/ct_bmp"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-        </LinearLayout>
+            <!--<com.github.mikephil.charting.charts.LineChart-->
+                <!--android:id="@+id/ct_bmp"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="0dp"-->
+                <!--android:layout_weight="1" />-->
+        <!--</LinearLayout>-->
 
 
         <TextView
