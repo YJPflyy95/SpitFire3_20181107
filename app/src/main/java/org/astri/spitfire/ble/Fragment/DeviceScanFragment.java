@@ -218,6 +218,7 @@ public class DeviceScanFragment extends Fragment {
                 DeviceDetailFragment deviceDetailFragment = new DeviceDetailFragment();
                 // 设定设备
                 deviceDetailFragment.setArguments(bundle);
+
                 replaceFragment(deviceDetailFragment);
 
             }

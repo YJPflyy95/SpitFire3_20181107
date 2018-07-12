@@ -512,51 +512,39 @@ public class DeviceControlFragment extends Fragment {
     }
 
 
-    /**
-     * 显示通知数据
-     * @param event
-     */
-    @Subscribe
-    public void showDeviceNotifyData(NotifyDataEvent event) {
-        LogUtil.d(TAG, "showDeviceNotifyData");
-        if (event != null && event.getData() != null && event.getBluetoothLeDevice() != null
-                && event.getBluetoothLeDevice().getAddress().equals(mDevice.getAddress())) {
-
-            BluetoothGattCharacteristic characteristic = event.getBluetoothGattChannel().getCharacteristic();
-            if (mHeartRateCharacteristicUuid.equals(characteristic.getUuid())) {
-                int flag = characteristic.getProperties();
-                int format = -1;
-                if ((flag & 0x01) != 0) {
-                    Log.d(TAG, "format: "+format);
-                    format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                    Log.d(TAG, "Heart rate format UINT16.");
-                } else {
-                    Log.d(TAG, "format: "+format);
-                    format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                    Log.d(TAG, "Heart rate format UINT8.");
-                }
-                final int heartRate = characteristic.getIntValue(format, 1);
-                Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-            } else {
-                // For all other profiles, writes the data formatted in HEX.
-                final byte[] data = characteristic.getValue();
-                LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(data));
-//                if (data != null && data.length > 0) {
-//                    final StringBuilder stringBuilder = new StringBuilder(data.length);
-//                    for(byte byteChar : data)
-//                        stringBuilder.append(String.format("%02X ", byteChar));
+//    /**
+//     * 显示通知数据
+//     * @param event
+//     */
+//    @Subscribe
+//    public void showDeviceNotifyData(NotifyDataEvent event) {
+//        LogUtil.d(TAG, "showDeviceNotifyData");
+//        if (event != null && event.getData() != null && event.getBluetoothLeDevice() != null
+//                && event.getBluetoothLeDevice().getAddress().equals(mDevice.getAddress())) {
+//
+//            BluetoothGattCharacteristic characteristic = event.getBluetoothGattChannel().getCharacteristic();
+//            if (mHeartRateCharacteristicUuid.equals(characteristic.getUuid())) {
+//                int flag = characteristic.getProperties();
+//                int format = -1;
+//                if ((flag & 0x01) != 0) {
+//                    Log.d(TAG, "format: "+format);
+//                    format = BluetoothGattCharacteristic.FORMAT_UINT16;
+//                    Log.d(TAG, "Heart rate format UINT16.");
+//                } else {
+//                    Log.d(TAG, "format: "+format);
+//                    format = BluetoothGattCharacteristic.FORMAT_UINT8;
+//                    Log.d(TAG, "Heart rate format UINT8.");
 //                }
-            }
-
-            final byte[] data = characteristic.getValue();
-            LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(data));
-
-            // 暂时注释掉
-//            mOutputInfo.append(HexUtil.encodeHexStr(event.getData())).append("\n");
-//            LogUtil.d(TAG, mOutputInfo.toString());
-//            mOutput.setText(mOutputInfo.toString());
-        }
-    }
+//                final int heartRate = characteristic.getIntValue(format, 1);
+//                Log.d(TAG, String.format("Received heart rate: %d", heartRate));
+//            } else {
+//                // For all other profiles, writes the data formatted in HEX.
+//                final byte[] data = characteristic.getValue();
+//                LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(data));
+//            }
+//
+//        }
+//    }
 
     @SuppressLint("RestrictedApi")
     @Override
