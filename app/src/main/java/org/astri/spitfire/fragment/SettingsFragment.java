@@ -14,8 +14,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -29,20 +29,22 @@ import com.vise.baseble.model.BluetoothLeDevice;
 import com.vise.baseble.utils.HexUtil;
 import com.vise.log.ViseLog;
 import com.vise.xsnow.cache.SpCache;
-import com.vise.xsnow.event.BusManager;
 import com.vise.xsnow.event.Subscribe;
 import com.xw.repo.BubbleSeekBar;
 
 import org.astri.spitfire.BleUUIDs;
 import org.astri.spitfire.GodActivity;
 import org.astri.spitfire.R;
+import org.astri.spitfire.adapter.Algorithm;
+import org.astri.spitfire.adapter.AlgorithmAdapter;
 import org.astri.spitfire.ble.common.BluetoothDeviceManager;
 import org.astri.spitfire.ble.common.ToastUtil;
 import org.astri.spitfire.ble.event.CallbackDataEvent;
 import org.astri.spitfire.ble.event.NotifyDataEvent;
 import org.astri.spitfire.util.LogUtil;
-import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -93,20 +95,45 @@ public class SettingsFragment extends Fragment {
            "Relaxing Zone",
     };
 
+    private List<Algorithm> algorithmList = new ArrayList<>();
+
+
+    // 算法点击view
+    private int lastPosition = -1;
+    private ImageView oldImageView;
+    private ImageView newImageView;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, algorithms);
+
+
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, algorithms);
+        // 初始化算法
+        initAlgorithms();
+        AlgorithmAdapter adapter = new AlgorithmAdapter(getActivity(), R.layout.list_view_item_algorithms, algorithmList);
+
         ListView alglist = view.findViewById(R.id.algorithm_list);
 
         // TODO: 添加点击事件监听器
-//        alglist.getOnItemClickListener(new ListView);
         alglist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                 ToastUtil.showShortToast(getContext(), ""+position);
+
+                Algorithm alg = algorithmList.get(position);
+                oldImageView = view.findViewById(R.id.algorithm_index_img);
+
+                // 设定选中
+                oldImageView.setImageResource(R.drawable.checkmark);
+                if (lastPosition != -1 && lastPosition != position){
+                    //如果已经单击过条目并且上次保存的item位置和当前位置不同
+                    // TODO: 暂时使用白色透明图片代替
+                    newImageView.setImageResource(R.drawable.blank);//把上次选中的样式去掉
+                }
+                newImageView = oldImageView;//把当前的条目保存下来
+                lastPosition = position;//把当前的位置保存下来
             }
         });
 
@@ -114,6 +141,8 @@ public class SettingsFragment extends Fragment {
         init(view);
         LogUtil.d(TAG, "onCreate");
 
+
+        // 设置 算法 强度调整进度条
         BubbleSeekBar bubbleSeekBar1 = view.findViewById(R.id.intense_seek_bar_1);
 
         bubbleSeekBar1.getConfigBuilder()
@@ -184,7 +213,7 @@ public class SettingsFragment extends Fragment {
 
     private void init(View view) {
 
-        settingAlgTv = view.findViewById(R.id.algorithm_setting_tv);
+//        settingAlgTv = view.findViewById(R.id.algorithm_setting_tv);
         settingAlgResultTv = view.findViewById(R.id.algorithm_setting_result_tv);
 
         settingAlgBtn = view.findViewById(R.id.algorithm_setting_btn);
@@ -193,6 +222,8 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(GodActivity.getDevice()!=null){
+
+                    ToastUtil.showShortToast(getContext(), "设备已连接");
                     LogUtil.d(TAG, "已经存在连接的设备！");
                     // 尝试读数据
                     BluetoothGattService algService = SERVICE_MAP.get(mAlgorithmServiceUuid.toString());
@@ -200,6 +231,7 @@ public class SettingsFragment extends Fragment {
                     setAlgCharaPropBindReadChnnel(algService,algCharacteristic);
 
                 }else {
+                    ToastUtil.showShortToast(getContext(), "设备未连接");
                     LogUtil.d(TAG, "设备未连接！");
                 }
             }
@@ -224,7 +256,7 @@ public class SettingsFragment extends Fragment {
 
 
             // 绑定channel
-//            setHearRateCharaPropBindChnnel(heartRateService, heartRateCharacteristic);
+            //setHearRateCharaPropBindChnnel(heartRateService, heartRateCharacteristic);
             setAlgCharaPropBindNotifyChnnel(algService, algCharacteristic);
             setAlgCharaPropBindWriteChnnel(algService, algCharacteristic);
 
@@ -434,6 +466,18 @@ public class SettingsFragment extends Fragment {
 
 
     private void stopAlg(){
+
+    }
+
+    /**
+     * 初始化算法
+     * 用于在listview中显示
+     */
+    private void initAlgorithms(){
+        for(int i = 0; i<algorithms.length ; i++){
+            Algorithm alg = new Algorithm(algorithms[i]);
+            algorithmList.add(alg);
+        }
 
     }
 }

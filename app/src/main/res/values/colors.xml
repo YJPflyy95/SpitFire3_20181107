@@ -150,4 +150,7 @@
     <color name="navy">#000080</color> <!-- 海军色 -->
     <color name="black">#000000</color> <!-- 黑色 -->
     <color name="appmain">#21D347</color> <!-- app颜色 -->
+    <!-- TODO：这个背景颜色有点深，留作后期调整吧   -->
+    <color name="appbackground">#D4D4D4</color> <!-- app颜色 -->
+
 </resources>

@@ -11,57 +11,40 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.vise.baseble.ViseBle;
-import com.vise.baseble.callback.scan.IScanCallback;
-import com.vise.baseble.callback.scan.ScanCallback;
 import com.vise.baseble.common.ConnectState;
 import com.vise.baseble.common.PropertyType;
 import com.vise.baseble.core.DeviceMirror;
 import com.vise.baseble.model.BluetoothLeDevice;
-import com.vise.baseble.model.BluetoothLeDeviceStore;
 import com.vise.baseble.model.resolver.GattAttributeResolver;
 import com.vise.baseble.utils.HexUtil;
-import com.vise.log.ViseLog;
 import com.vise.xsnow.cache.SpCache;
 import com.vise.xsnow.event.BusManager;
 import com.vise.xsnow.event.Subscribe;
 
 import org.astri.spitfire.BleUUIDs;
 import org.astri.spitfire.R;
-import org.astri.spitfire.ble.activity.DeviceControlActivity;
-import org.astri.spitfire.ble.activity.DeviceDetailActivity;
-import org.astri.spitfire.ble.adapter.DeviceAdapter;
-import org.astri.spitfire.ble.adapter.MergeAdapter;
 import org.astri.spitfire.ble.common.BluetoothDeviceManager;
 import org.astri.spitfire.ble.common.ToastUtil;
 import org.astri.spitfire.ble.event.CallbackDataEvent;
 import org.astri.spitfire.ble.event.ConnectEvent;
 import org.astri.spitfire.ble.event.NotifyDataEvent;
 import org.astri.spitfire.component.CircleImageView;
-import org.astri.spitfire.fragment.ChangePasswordFragment;
 import org.astri.spitfire.fragment.MeFragment;
 import org.astri.spitfire.util.LogUtil;
 
@@ -70,17 +53,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
-import java.util.zip.Inflater;
 
-import static android.hardware.camera2.params.RggbChannelVector.COUNT;
-import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
+import static org.astri.spitfire.GodActivity.CHARA_MAP;
+import static org.astri.spitfire.GodActivity.SERVICE_MAP;
 
 /**
  * @Description: 主页，展示已连接设备列表
@@ -417,25 +396,36 @@ public class DeviceControlFragment extends Fragment {
 
     private void showGattServices() {
 
-        LogUtil.d(TAG, "read");
+        LogUtil.d(TAG, "将服务和属性保存在MAP中");
         BluetoothGattService service = null;
         BluetoothGattCharacteristic characteristic = null;
 
         for(BluetoothGattService svc : mGattServices){
-            if(svc.getUuid().equals( mAlgorithmServiceUuid)){
+            if(svc.getUuid().equals( mAlgorithmServiceUuid)
+                    || svc.getUuid().equals(mHeartRateServiceUuid)){
                 service = svc;
+
+
+                // TODO: 这样做合适么？
+                // 保存service
+                SERVICE_MAP.put(service.getUuid().toString(), service);
+
                 for(BluetoothGattCharacteristic chrc : service.getCharacteristics()){
-                    if(chrc.getUuid().equals(mAlgorithmIntensifyUuid)){
+                    if(chrc.getUuid().equals(mAlgorithmIntensifyUuid)
+                            || chrc.getUuid().equals(mHeartRateCharacteristicUuid)){
+
+                        // 保存chara
+                        CHARA_MAP.put(chrc.getUuid().toString(), chrc);
+
+
                         characteristic = chrc;
                         heartRateChara = chrc;
-                        break;
                     }
                 }
-                break;
             }
         }
 
-        setCharaPropBindChnnel(service, characteristic);
+//        setCharaPropBindChnnel(service, characteristic);
 
     }
 
@@ -469,6 +459,9 @@ public class DeviceControlFragment extends Fragment {
     }
 
 
+
+
+
     private void setReadAndWrite(){
 
 //        LogUtil.d(TAG, "read");
@@ -499,13 +492,17 @@ public class DeviceControlFragment extends Fragment {
 
     @Subscribe
     public void showDeviceCallbackData(CallbackDataEvent event) {
-        LogUtil.d(TAG, "showDeviceNotifyData");
+        LogUtil.d(TAG, "showDeviceCallbackData");
         if (event != null) {
             if (event.isSuccess()) {
                 if (event.getBluetoothGattChannel() != null && event.getBluetoothGattChannel().getCharacteristic() != null
                         && event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_READ) {
                     showReadInfo(event.getBluetoothGattChannel().getCharacteristic().getUuid().toString(), event.getData());
                 }
+//                if (event.getBluetoothGattChannel() != null && event.getBluetoothGattChannel().getCharacteristic() != null
+//                        && event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_NOTIFY) {
+//                    showReadInfo(event.getBluetoothGattChannel().getCharacteristic().getUuid().toString(), event.getData());
+//                }
             }
 //            else {
 //                ((EditText) findViewById(R.id.show_write_characteristic)).setText("");
@@ -543,12 +540,16 @@ public class DeviceControlFragment extends Fragment {
             } else {
                 // For all other profiles, writes the data formatted in HEX.
                 final byte[] data = characteristic.getValue();
-                if (data != null && data.length > 0) {
-                    final StringBuilder stringBuilder = new StringBuilder(data.length);
-                    for(byte byteChar : data)
-                        stringBuilder.append(String.format("%02X ", byteChar));
-                }
+                LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(data));
+//                if (data != null && data.length > 0) {
+//                    final StringBuilder stringBuilder = new StringBuilder(data.length);
+//                    for(byte byteChar : data)
+//                        stringBuilder.append(String.format("%02X ", byteChar));
+//                }
             }
+
+            final byte[] data = characteristic.getValue();
+            LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(data));
 
             // 暂时注释掉
 //            mOutputInfo.append(HexUtil.encodeHexStr(event.getData())).append("\n");

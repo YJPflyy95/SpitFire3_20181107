@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
 
 
     <LinearLayout
@@ -15,7 +16,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="58dp"
-            android:background="#21D347">
+            android:background="@color/appmain">
 
             <Button
                 android:id="@+id/bt_me"
@@ -28,7 +29,7 @@
                 android:paddingTop="20dip"
                 android:text="＜ Me"
                 android:textAllCaps="false"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="20dp" />
 
             <TextView
@@ -38,7 +39,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Settings"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="24sp"
                 android:visibility="visible" />
 
@@ -52,52 +53,53 @@
                 android:paddingTop="20dip"
                 android:text="Stop"
                 android:textAllCaps="false"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="20dp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
         <Button
             android:id="@+id/algorithm_setting_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="设置算法"/>
-        <TextView
-            android:id="@+id/algorithm_setting_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="0301"/>
-
+            android:layout_weight="1"
+            android:text="算法回调显示"/>
         <TextView
             android:id="@+id/algorithm_setting_result_tv"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0301"/>
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:text=""/>
+
+        <Button
+            android:id="@+id/heartrate_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="心率显示"/>
+        <TextView
+            android:id="@+id/heartrate_result_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:text=""/>
 
         </LinearLayout>
 
-        <!--<LinearLayout-->
-            <!--android:id="@+id/ll_pltgrp"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="200dp"-->
-            <!--android:orientation="vertical"-->
-            <!--android:padding="5dp">-->
-
-            <!--<com.github.mikephil.charting.charts.LineChart-->
-                <!--android:id="@+id/ct_bmp"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="0dp"-->
-                <!--android:layout_weight="1" />-->
-        <!--</LinearLayout>-->
-
-
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ALGORITHM" />
+            android:layout_height="50dp"
+            android:text="ALGORITHM"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:textSize="18dp"
+            android:background="@color/appbackground"/>
 
         <ListView
             android:id="@+id/algorithm_list"
@@ -108,14 +110,18 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="INTENSITY" />
+            android:layout_height="50dp"
+            android:text="INTENSITY"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:textSize="18dp"
+            android:background="@color/appbackground"/>
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/intense_seek_bar_1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"/>
+            android:layout_height="50dp"
+            />
 
 
     </LinearLayout>
