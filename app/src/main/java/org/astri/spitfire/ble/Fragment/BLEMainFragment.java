@@ -71,10 +71,7 @@ public class BLEMainFragment extends Fragment {
 
         LogUtil.d(TAG, "onCreateView");
 
-        ViseLog.getLogConfig().configAllowLog(true);//配置日志信息
-        ViseLog.plant(new LogcatTree());//添加Logcat打印信息
 
-        BluetoothDeviceManager.getInstance().init(getContext());
         BusManager.getBus().register(this);
         init(view);
 

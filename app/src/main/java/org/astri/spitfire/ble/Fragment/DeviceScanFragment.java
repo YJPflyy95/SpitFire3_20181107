@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.vise.baseble.ViseBle;
 import com.vise.baseble.callback.scan.IScanCallback;
 import com.vise.baseble.callback.scan.ScanCallback;
+import com.vise.baseble.callback.scan.SingleFilterScanCallback;
 import com.vise.baseble.model.BluetoothLeDevice;
 import com.vise.baseble.model.BluetoothLeDeviceStore;
 import com.vise.log.ViseLog;
@@ -64,6 +65,10 @@ public class DeviceScanFragment extends Fragment {
     //设备扫描结果展示适配器
     private DeviceAdapter adapter;
 
+    // TODO : 指定设备名称和MAC
+    private static final String DEVICE_NAME = "SPITFIRE";
+    private static final String DEVICE_MAC = "MAC";
+
     private BluetoothLeDeviceStore bluetoothLeDeviceStore = new BluetoothLeDeviceStore();
 
     /**
@@ -95,6 +100,8 @@ public class DeviceScanFragment extends Fragment {
             ViseLog.i("scan timeout");
         }
     });
+
+
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_device_scan, container, false);
@@ -329,5 +336,49 @@ public class DeviceScanFragment extends Fragment {
     private void updateItemCount(final int count) {
 //        scanCountTv.setText(getString(R.string.formatter_item_count, String.valueOf(count)));
     }
+
+
+    /**
+     * 扫描指定设备【名称】的设备
+     *
+     */
+    private ScanCallback filterDeviceNameScanCallback = new SingleFilterScanCallback(new IScanCallback() {
+        @Override
+        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
+
+        }
+
+        @Override
+        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
+
+        }
+
+        @Override
+        public void onScanTimeout() {
+
+        }
+    }).setDeviceName(DEVICE_NAME);
+
+
+    /**
+     * 扫描指定设备【MAC】的设备
+     *
+     */
+    private ScanCallback filterDeviceMacScanCallback = new SingleFilterScanCallback(new IScanCallback() {
+        @Override
+        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
+
+        }
+
+        @Override
+        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
+
+        }
+
+        @Override
+        public void onScanTimeout() {
+
+        }
+    }).setDeviceMac(DEVICE_MAC);
 
 }
