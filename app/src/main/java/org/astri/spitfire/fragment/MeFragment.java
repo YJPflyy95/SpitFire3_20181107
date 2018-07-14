@@ -159,13 +159,13 @@ public class MeFragment extends Fragment {
             }
         });
 
-        ImageView forwardSettings = view.findViewById(R.id.forwardSetting_ib);
-        forwardSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                replaceFragment(settingFragment);
-            }
-        });
+//        ImageView forwardSettings = view.findViewById(R.id.forwardSetting_ib);
+//        forwardSettings.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                replaceFragment(settingFragment);
+//            }
+//        });
 
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

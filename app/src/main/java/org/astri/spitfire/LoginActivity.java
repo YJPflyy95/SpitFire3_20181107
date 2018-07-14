@@ -14,6 +14,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.vise.log.ViseLog;
+import com.vise.log.inner.LogcatTree;
+import com.vise.xsnow.event.BusManager;
+
+import org.astri.spitfire.ble.common.BluetoothDeviceManager;
 import org.astri.spitfire.entities.UserDataManager;
 
 /**
@@ -98,6 +103,13 @@ public class LoginActivity extends AppCompatActivity {
             mUserDataManager = new UserDataManager(this);
             mUserDataManager.openDataBase();                              //建立本地数据库
         }
+
+        // 全局初始化一次即可
+        ViseLog.getLogConfig().configAllowLog(true);//配置日志信息
+        ViseLog.plant(new LogcatTree());//添加Logcat打印信息
+        BluetoothDeviceManager.getInstance().init(this);
+        BusManager.getBus().register(this);
+
     }
     View.OnClickListener mListener = new View.OnClickListener() {                  //不同按钮按下的监听事件选择
         public void onClick(View v) {

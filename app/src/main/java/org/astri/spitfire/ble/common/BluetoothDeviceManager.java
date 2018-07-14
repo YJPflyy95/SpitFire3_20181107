@@ -1,5 +1,6 @@
 package org.astri.spitfire.ble.common;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +17,7 @@ import com.vise.baseble.model.BluetoothLeDevice;
 import com.vise.baseble.utils.HexUtil;
 import com.vise.log.ViseLog;
 import com.vise.xsnow.event.BusManager;
+import com.vise.xsnow.event.Subscribe;
 
 import org.astri.spitfire.ble.event.CallbackDataEvent;
 import org.astri.spitfire.ble.event.ConnectEvent;
@@ -263,5 +265,6 @@ public class BluetoothDeviceManager {
         }
         return dataInfoQueue;
     }
+
 
 }

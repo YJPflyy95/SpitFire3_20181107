@@ -1,19 +1,32 @@
 package org.astri.spitfire;
 
+import com.vise.baseble.ViseBle;
 import com.vise.baseble.model.BluetoothLeDevice;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
+import com.vise.baseble.utils.BleUtil;
+import com.vise.log.ViseLog;
+import com.vise.log.inner.LogcatTree;
+import com.vise.xsnow.event.BusManager;
+import com.vise.xsnow.permission.OnPermissionCallback;
+import com.vise.xsnow.permission.PermissionManager;
 
+import org.astri.spitfire.ble.common.BluetoothDeviceManager;
 import org.astri.spitfire.entities.History;
 import org.astri.spitfire.fragment.ActivitiesFragment;
 import org.astri.spitfire.fragment.HistoryFragment;
@@ -62,6 +75,7 @@ public class GodActivity extends AppCompatActivity implements BottomNavigationBa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_god);
         getSupportActionBar().hide();
@@ -204,6 +218,57 @@ public class GodActivity extends AppCompatActivity implements BottomNavigationBa
 
     public static BluetoothLeDevice getDevice(){
         return mDevice;
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkBluetoothPermission();
+    }
+
+    @Override
+    public void onDestroy() {
+        ViseBle.getInstance().clear();
+        BusManager.getBus().unregister(this);
+        super.onDestroy();
+    }
+
+    /**
+     * 检查蓝牙权限
+     */
+    private void checkBluetoothPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //校验是否已具有模糊定位权限
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                PermissionManager.instance().with(this).request(new OnPermissionCallback() {
+                    @Override
+                    public void onRequestAllow(String permissionName) {
+                        enableBluetooth();
+                    }
+
+                    @Override
+                    public void onRequestRefuse(String permissionName) {
+                        finish();
+                    }
+
+                    @Override
+                    public void onRequestNoAsk(String permissionName) {
+                        finish();
+                    }
+                }, Manifest.permission.ACCESS_COARSE_LOCATION);
+            } else {
+                enableBluetooth();
+            }
+        } else {
+            enableBluetooth();
+        }
+    }
+
+    private void enableBluetooth() {
+        if (!BleUtil.isBleEnable(this)) {
+            BleUtil.enableBluetooth(this, 1);
+        }
     }
 
 }

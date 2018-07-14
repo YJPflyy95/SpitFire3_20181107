@@ -1,13 +1,19 @@
 package org.astri.spitfire.fragment;
 
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,36 +27,44 @@ import android.widget.TextView;
 
 import com.vise.baseble.ViseBle;
 import com.vise.baseble.callback.IBleCallback;
+import com.vise.baseble.callback.IConnectCallback;
+import com.vise.baseble.callback.scan.IScanCallback;
+import com.vise.baseble.callback.scan.ScanCallback;
+import com.vise.baseble.callback.scan.SingleFilterScanCallback;
 import com.vise.baseble.common.PropertyType;
 import com.vise.baseble.core.BluetoothGattChannel;
 import com.vise.baseble.core.DeviceMirror;
 import com.vise.baseble.exception.BleException;
 import com.vise.baseble.model.BluetoothLeDevice;
+import com.vise.baseble.model.BluetoothLeDeviceStore;
+import com.vise.baseble.utils.BleUtil;
 import com.vise.baseble.utils.HexUtil;
 import com.vise.log.ViseLog;
 import com.vise.xsnow.cache.SpCache;
 import com.vise.xsnow.event.BusManager;
 import com.vise.xsnow.event.Subscribe;
+import com.vise.xsnow.permission.OnPermissionCallback;
+import com.vise.xsnow.permission.PermissionManager;
 import com.xw.repo.BubbleSeekBar;
 
 import org.astri.spitfire.BleUUIDs;
-import org.astri.spitfire.GodActivity;
 import org.astri.spitfire.R;
 import org.astri.spitfire.adapter.Algorithm;
 import org.astri.spitfire.adapter.AlgorithmAdapter;
 import org.astri.spitfire.ble.common.BluetoothDeviceManager;
+import org.astri.spitfire.ble.common.ServiceCharacUtil;
 import org.astri.spitfire.ble.common.ToastUtil;
 import org.astri.spitfire.ble.event.CallbackDataEvent;
+import org.astri.spitfire.ble.event.ConnectEvent;
 import org.astri.spitfire.ble.event.NotifyDataEvent;
 import org.astri.spitfire.util.LogUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
-
-import static org.astri.spitfire.GodActivity.CHARA_MAP;
-import static org.astri.spitfire.GodActivity.SERVICE_MAP;
 
 /**
  * <pre>
@@ -68,6 +82,7 @@ import static org.astri.spitfire.GodActivity.SERVICE_MAP;
 public class SettingsFragment extends Fragment {
 
     private static final String TAG = "SettingsFragment";
+    private static final String DEVICE_NAME = "Spitfire HRS";
 
     public static final String WRITE_CHARACTERISTI_UUID_KEY = "write_uuid_key";
     public static final String NOTIFY_CHARACTERISTIC_UUID_KEY = "notify_uuid_key";
@@ -84,12 +99,15 @@ public class SettingsFragment extends Fragment {
     private TextView settingAlgResultTv;
     private TextView heartReateTv;
     private Button settingAlgBtn;
+    private ListView alglist;
 
     private Button stopBtn;
+    private Button meBtn;
 
     private SpCache mSpCache;
 
     private BluetoothLeDevice mDevice;
+    private DeviceMirror mDeviceMirror;
 
     // 一共四种算法 index: 0, 1, 2, 3
     private String[] algorithms = {
@@ -114,25 +132,34 @@ public class SettingsFragment extends Fragment {
     //算法强度设置
     private BubbleSeekBar seekBar;
 
+    private NotifyDataEvent heartRateDataEvent = new NotifyDataEvent();
     private NotifyDataEvent notifyDataEvent = new NotifyDataEvent();
     private CallbackDataEvent callbackDataEvent = new CallbackDataEvent();
+    private ConnectEvent connectEvent = new ConnectEvent();
 
-//    /**
-//     * SingletonHolder is loaded on the first execution of Singleton.getInstance()
-//     * or the first access to SingletonHolder.INSTANCE, not before.
-//     */
-//    private static class SingletonHolder {
-//        public static final SettingsFragment INSTANCE = new SettingsFragment();
-//    }
-//
-//    public static SettingsFragment getInstance() {
-//        return SingletonHolder.INSTANCE;
-//    }
+    private Map<String, BluetoothGattService> serviceMap = new HashMap<>();
+    private Map<String, BluetoothGattCharacteristic> charaMap = new HashMap<>();
+
+
+    private void replaceFragment(Fragment fragment){
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.ll_content, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        // 重要：注册事件驱动， 祖册以后才能得到通知。
+        BusManager.getBus().register(this);
+
+//        // 连接设备
+//        connect();
 
         // 停止算法
         stopBtn = view.findViewById(R.id.bt_stop);
@@ -149,10 +176,34 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        // 点击Me Button
+        // 1. 停止算法, 断开蓝牙连接
+        // 2. 返回 Me Fragment
+        meBtn = view.findViewById(R.id.bt_me);
+        meBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // 1. 停止算法, 断开蓝牙连接
+                if(mDevice != null){
+                    if (BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+                        BluetoothDeviceManager.getInstance().disconnect(mDevice);
+                        ToastUtil.showShortToast(getContext(), "Device Disconnected!");
+                        LogUtil.d(TAG, "Device Disconnected!");
+                    }
+                }
+
+                // 2. 返回 Me Fragment
+                getFragmentManager().popBackStack();
+
+            }
+        });
+
+
         // 初始化算法
         initAlgorithms();
         AlgorithmAdapter adapter = new AlgorithmAdapter(getActivity(), R.layout.list_view_item_algorithms, algorithmList);
-        ListView alglist = view.findViewById(R.id.algorithm_list);
+        alglist = view.findViewById(R.id.algorithm_list);
 
         alglist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -187,9 +238,6 @@ public class SettingsFragment extends Fragment {
 
         alglist.setAdapter(adapter);
 
-        init(view);
-        LogUtil.d(TAG, "onCreate");
-
         // 设置 算法 强度调整进度条
         seekBar = view.findViewById(R.id.intense_seek_bar_1);
         seekBar.getConfigBuilder()
@@ -215,7 +263,7 @@ public class SettingsFragment extends Fragment {
                 .touchToSeek()
                 .sectionTextPosition(BubbleSeekBar.TextPosition.BELOW_SECTION_MARK)
                 .build();
-        
+
         seekBar.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListenerAdapter() {
 
             // 监听值的改变
@@ -251,51 +299,80 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        init(view);
+
         return view;
     }
 
     private void init(View view) {
 
+
         settingAlgResultTv = view.findViewById(R.id.algorithm_setting_result_tv);
         heartReateTv = view.findViewById(R.id.heartrate_result_tv);
         settingAlgBtn = view.findViewById(R.id.algorithm_setting_btn);
-        settingAlgBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (GodActivity.getDevice() != null) { // 设备
-                    ToastUtil.showShortToast(getContext(), "设备已连接");
-                    LogUtil.d(TAG, "已经存在连接的设备！");
-                    // 尝试读数据
-                    BluetoothGattService algService = SERVICE_MAP.get(mAlgorithmServiceUuid.toString());
-                    BluetoothGattCharacteristic algCharacteristic = CHARA_MAP.get(mAlgorithmIntensifyUuid.toString());
-                    setAlgCharaPropBindReadChnnel(algService, algCharacteristic);
-                } else {
-                    ToastUtil.showShortToast(getContext(), "设备未连接");
-                    LogUtil.d(TAG, "设备未连接！");
-                }
-            }
-        });
 
         mSpCache = new SpCache(getContext());
         // 获取已经连接的设备
-        mDevice = GodActivity.getDevice();
-        if (mDevice != null) {
 
-            // 重要：注册事件驱动， 祖册以后才能得到通知。
-            BusManager.getBus().register(this);
+//        mDevice = GodActivity.getDevice();
+
+        // 如果不存在设备，扫描，并连接设备
+
+
+        if (mDevice != null && ViseBle.getInstance().isConnect(mDevice)) {
 
             LogUtil.d(TAG, "已经存在设备，开始绑定通道！");
-            BluetoothGattService heartRateService = SERVICE_MAP.get(mHeartRateServiceUuid.toString());
-            BluetoothGattCharacteristic heartRateCharacteristic = CHARA_MAP.get(mHeartRateCharacteristicUuid.toString());
-            BluetoothGattService algService = SERVICE_MAP.get(mAlgorithmServiceUuid.toString());
-            BluetoothGattCharacteristic algCharacteristic = CHARA_MAP.get(mAlgorithmIntensifyUuid.toString());
-            // 绑定channel
-            // TODO: 设定心率
-            setHearRateCharaPropBindChnnel(heartRateService, heartRateCharacteristic);
-            // TODO: 设定算法
-            setAlgCharaPropBindReadChnnel(algService,algCharacteristic);
-            setAlgCharaPropBindNotifyChnnel(algService, algCharacteristic);
-            setAlgCharaPropBindWriteChnnel(algService, algCharacteristic);
+        } else {
+
+            connect();
+
+        }
+
+        setAlgBtn();
+
+    }
+
+    private void bindServiceCharac(){
+        BluetoothGattService heartRateService = serviceMap.get(mHeartRateServiceUuid.toString());
+        BluetoothGattCharacteristic heartRateCharacteristic = charaMap.get(mHeartRateCharacteristicUuid.toString());
+        BluetoothGattService algService = serviceMap.get(mAlgorithmServiceUuid.toString());
+        BluetoothGattCharacteristic algCharacteristic = charaMap.get(mAlgorithmIntensifyUuid.toString());
+        // 绑定channel
+        // TODO: 设定心率
+        try {
+
+            Thread.sleep(100);
+        }catch (Exception e){
+
+        }
+        setHearRateCharaPropBindChnnel(heartRateService, heartRateCharacteristic);
+        // TODO: 设定算法
+        try {
+
+            Thread.sleep(100);
+        }catch (Exception e){
+
+        }
+        setAlgCharaPropBindReadChnnel(algService,algCharacteristic);
+        try {
+
+            Thread.sleep(100);
+        }catch (Exception e){
+
+        }
+        setAlgCharaPropBindNotifyChnnel(algService, algCharacteristic);
+        try {
+
+            Thread.sleep(100);
+        }catch (Exception e){
+
+        }
+        setAlgCharaPropBindWriteChnnel(algService, algCharacteristic);
+        try {
+
+            Thread.sleep(100);
+        }catch (Exception e){
+
         }
     }
 
@@ -310,7 +387,7 @@ public class SettingsFragment extends Fragment {
         final int charaProp = characteristic.getProperties();
         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
             mSpCache.put(WRITE_CHARACTERISTI_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
-            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
+//            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().read(mDevice);
         } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
@@ -344,7 +421,7 @@ public class SettingsFragment extends Fragment {
                             || bluetoothGattInfo.getPropertyType() == PropertyType.PROPERTY_NOTIFY)) {
                         DeviceMirror deviceMirror = ViseBle.getInstance().getDeviceMirror(mDevice);
                         if (deviceMirror != null) {
-                            deviceMirror.setNotifyListener(bluetoothGattInfo.getGattInfoKey(), receiveAlgCallBack);
+                            deviceMirror.setNotifyListener(bluetoothGattInfo.getGattInfoKey(), receiveHeartRateCallBack);
                         }
                     }
                 }
@@ -379,7 +456,7 @@ public class SettingsFragment extends Fragment {
                 return;
             }
             ViseLog.i("receiveHeartRateCallBack notify success:" + HexUtil.encodeHexStr(data));
-            BusManager.getBus().post(notifyDataEvent.setData(data)
+            BusManager.getBus().post(heartRateDataEvent.setData(data)
                     .setBluetoothLeDevice(bluetoothLeDevice)
                     .setBluetoothGattChannel(bluetoothGattInfo));
         }
@@ -467,7 +544,7 @@ public class SettingsFragment extends Fragment {
                         || bluetoothGattInfo.getPropertyType() == PropertyType.PROPERTY_NOTIFY)) {
                     DeviceMirror deviceMirror = ViseBle.getInstance().getDeviceMirror(mDevice);
                     if (deviceMirror != null) {
-                        deviceMirror.setNotifyListener(bluetoothGattInfo.getGattInfoKey(), receiveHeartRateCallBack);
+                        deviceMirror.setNotifyListener(bluetoothGattInfo.getGattInfoKey(), receiveAlgCallBack);
                     }
                 }
 
@@ -509,13 +586,9 @@ public class SettingsFragment extends Fragment {
                 }
 
                 ViseLog.i("read callback success:" + HexUtil.encodeHexStr(data));
-
-                // 设定显示
-                String param = HexUtil.encodeHexStr(data);
-                int algIndex = Integer.parseInt(param.subSequence(1,2).toString());
-                int intense = Integer.parseInt(param.subSequence(3,param.length()).toString());
-                // TODO: 设定选中状态
-
+                BusManager.getBus().post(callbackDataEvent.setData(data).setSuccess(true)
+                        .setBluetoothLeDevice(bluetoothLeDevice)
+                        .setBluetoothGattChannel(bluetoothGattInfo));
             }
 
             @Override
@@ -532,12 +605,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showReadInfo(String uuid, byte[] dataArr) {
-
         LogUtil.d(TAG, uuid + ": " + HexUtil.encodeHexStr(dataArr));
-//        mGattUUID.setText(uuid != null ? uuid : getString(R.string.no_data));
-//        mGattUUIDDesc.setText(GattAttributeResolver.getAttributeName(uuid, getString(R.string.unknown)));
-//        mDataAsArray.setText(HexUtil.encodeHexStr(dataArr));
-//        mDataAsString.setText(new String(dataArr));
     }
 
     @Override
@@ -559,11 +627,87 @@ public class SettingsFragment extends Fragment {
 
     }
 
+
+    /**
+     * 连接设备
+     */
+    private void connect(){
+        LogUtil.d(TAG, "Start to connect device!");
+        ViseBle.getInstance().connectByName(DEVICE_NAME, deviceConnectCallback);
+    }
+
+    private IConnectCallback deviceConnectCallback = new IConnectCallback() {
+
+        @Override
+        public void onConnectSuccess(DeviceMirror deviceMirror) {
+            LogUtil.d(TAG, "onConnectSuccess");
+            mDeviceMirror = deviceMirror;
+            mDevice = mDeviceMirror.getBluetoothLeDevice();
+            BusManager.getBus().post(connectEvent.setDeviceMirror(deviceMirror).setSuccess(true));
+
+        }
+
+        @Override
+        public void onConnectFailure(BleException exception) {
+            ViseLog.i("Connect Failure!");
+            BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(false));
+        }
+
+        @Override
+        public void onDisconnect(boolean isActive) {
+            ViseLog.i("Disconnect!");
+            BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(true));
+        }
+    };
+
+
+    /**
+     * 开始扫描
+     */
+    @SuppressLint("RestrictedApi")
+    private void startScan() {
+
+        ViseBle.getInstance().startScan(filterDeviceNameScanCallback);
+        getActivity().invalidateOptionsMenu();
+    }
+
+    /**
+     * 停止扫描
+     */
+    @SuppressLint("RestrictedApi")
+    private void stopScan() {
+        ViseBle.getInstance().stopScan(filterDeviceNameScanCallback);
+        getActivity().invalidateOptionsMenu();
+    }
+
+
+    /**
+     * 扫描指定设备【名称】的设备
+     *
+     */
+    private ScanCallback filterDeviceNameScanCallback = new SingleFilterScanCallback(new IScanCallback() {
+        @Override
+        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
+
+        }
+
+        @Override
+        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
+
+        }
+
+        @Override
+        public void onScanTimeout() {
+
+        }
+    }).setDeviceName(DEVICE_NAME);
+
     /**
      * 初始化算法
      * 用于在listview中显示
      */
     private void initAlgorithms() {
+        algorithmList.clear();
         for (int i = 0; i < algorithms.length; i++) {
             Algorithm alg = new Algorithm(algorithms[i]);
             alg.setIndex(i + 1); // 注意加一
@@ -595,9 +739,11 @@ public class SettingsFragment extends Fragment {
                     format = BluetoothGattCharacteristic.FORMAT_UINT8;
                     Log.d(TAG, "Heart rate format UINT8.");
                 }
+                characteristic.setValue(event.getData());
                 final int heartRate = characteristic.getIntValue(format, 1);
                 heartReateTv.setText(heartRate + " BMP");
                 Log.d(TAG, String.format("Received heart rate: %d", heartRate));
+                LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(event.getData()));
             } else {
                 // For all other profiles, writes the data formatted in HEX.
                 final byte[] data = characteristic.getValue();
@@ -611,4 +757,176 @@ public class SettingsFragment extends Fragment {
 
         }
     }
+
+    @SuppressLint("RestrictedApi")
+    @Subscribe
+    public void showConnectedDevice(ConnectEvent event) {
+        LogUtil.d(TAG, "showConnectedDevice");
+        if (event != null) {
+            if (event.isSuccess()) {
+                ToastUtil.showToast(getContext(), "Connect Success!");
+                if (event.getDeviceMirror() != null && event.getDeviceMirror().getBluetoothGatt() != null) {
+                    mDevice = event.getDeviceMirror().getBluetoothLeDevice();
+                    LogUtil.d(TAG, "设定app的服务和属性到Map");
+
+                    // 获取服务和属性
+                    List<BluetoothGattService> gattServices = event.getDeviceMirror().getBluetoothGatt().getServices();
+                    ServiceCharacUtil.getAppServicesCharcs(gattServices,serviceMap, charaMap);
+
+                    // TODO: 线程等待一下才能成功！，没想明白原因。
+                    try{
+                        Thread.sleep(500);
+                    }catch (Exception e){
+
+                    }
+                    // 设定服务和通知
+                    bindServiceCharac();
+
+
+                    // 设定视图中的控件：
+                    // 此时设定按钮
+//                    setAlgBtn();
+                    LogUtil.d(TAG, "设定app的服务和属性成功！");
+                }
+            } else {
+                if (event.isDisconnected()) {
+                    clearData();
+                    //ToastUtil.showToast(getContext(), "Disconnect!");
+                } else {
+                    clearData();
+                    //ToastUtil.showToast(getContext(), "Connect Failure!");
+                }
+            }
+        }
+    }
+
+    private void setAlgBtn() {
+        settingAlgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mDevice != null) { // 设备
+                    ToastUtil.showShortToast(getContext(), "Connected!");
+                    LogUtil.d(TAG, "已经存在连接的设备！");
+                    // 尝试读数据
+                    BluetoothGattService algService = serviceMap.get(mAlgorithmServiceUuid.toString());
+                    BluetoothGattCharacteristic algCharacteristic = charaMap.get(mAlgorithmIntensifyUuid.toString());
+                    setAlgCharaPropBindReadChnnel(algService, algCharacteristic);
+                } else {
+                    ToastUtil.showShortToast(getContext(), "Not Connected!");
+                    LogUtil.d(TAG, "设备未连接！");
+                }
+            }
+        });
+    }
+
+
+    @Subscribe
+    public void showDeviceCallbackData(CallbackDataEvent event) {
+        LogUtil.d(TAG, "showDeviceCallbackData");
+        if (event != null) {
+            if (event.isSuccess()) {
+                if (event.getBluetoothGattChannel() != null && event.getBluetoothGattChannel().getCharacteristic() != null
+                        && event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_READ) {
+                    showReadInfo(event.getBluetoothGattChannel().getCharacteristic().getUuid().toString(), event.getData());
+
+                    BluetoothGattCharacteristic chara = event.getBluetoothGattChannel().getCharacteristic();
+                    // 如果是算法的chara，则做出相应的处理
+                    if(chara.getUuid().equals(mAlgorithmIntensifyUuid)){
+                        final byte[] data = event.getData(); // 使用这种方式才能拿到数据
+                        // 设定显示
+                        String param = HexUtil.encodeHexStr(data);
+                        int algIndex = Integer.parseInt(param.subSequence(1,2).toString());
+                        int intense = Integer.parseInt(param.subSequence(3,param.length()).toString());
+                        if(algIndex != 0){
+                            alg = algorithmList.get(algIndex - 1);
+                        }
+
+                        if(algIndex == 0){
+                            alg = algorithmList.get(algIndex);
+                        }
+
+                        // TODO: 设定选中状态
+                        alg.setIndex(algIndex);
+                        alg.setIntensify(intense);
+                        if(algIndex > 0){
+                            alg.setName(algorithms[algIndex - 1]);
+                        }
+
+                        seekBar.setProgress(intense + 1);
+                        if(algIndex > 0){
+                            newImageView = alglist.getChildAt(algIndex - 1).findViewById(R.id.algorithm_index_img);
+                            newImageView.setImageResource(R.drawable.checkmark);
+                            lastPosition = algIndex - 1;
+                        }
+
+
+                        settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
+
+                        LogUtil.d(TAG, "Alg Intense " + ": "+HexUtil.encodeHexStr(data));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 清空数据
+     */
+    private void clearData(){
+        serviceMap.clear();
+        charaMap.clear();
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkBluetoothPermission();
+    }
+
+    @Override
+    public void onDestroy() {
+        ViseBle.getInstance().clear();
+        BusManager.getBus().unregister(this);
+        super.onDestroy();
+    }
+
+    /**
+     * 检查蓝牙权限
+     */
+    private void checkBluetoothPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //校验是否已具有模糊定位权限
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                PermissionManager.instance().with(getActivity()).request(new OnPermissionCallback() {
+                    @Override
+                    public void onRequestAllow(String permissionName) {
+                        enableBluetooth();
+                    }
+
+                    @Override
+                    public void onRequestRefuse(String permissionName) {
+                        getActivity().finish();
+                    }
+
+                    @Override
+                    public void onRequestNoAsk(String permissionName) {
+                        getActivity().finish();
+                    }
+                }, Manifest.permission.ACCESS_COARSE_LOCATION);
+            } else {
+                enableBluetooth();
+            }
+        } else {
+            enableBluetooth();
+        }
+    }
+
+    @SuppressLint("RestrictedApi")
+    private void enableBluetooth() {
+        if (!BleUtil.isBleEnable(getContext())) {
+            BleUtil.enableBluetooth(getActivity(), 1);
+        }
+    }
+
 }
