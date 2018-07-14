@@ -3,485 +3,492 @@
     xmlns:circleimageView="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/pop_layout"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="org.astri.spitfire.MeActivity"
     tools:ignore="ResAuto">
+
     <ScrollView
         android:id="@+id/id_scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="wrap_content">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/Me_tv"
-            android:layout_width="326dp"
-            android:layout_height="46dp"
-            android:layout_weight="1"
-            android:background="#21D347"
-            android:gravity="center"
-            android:text="Me"
-            android:textColor="#FFFFFF"
-            android:paddingBottom="10dip"
-            android:textSize="24sp"
-            android:visibility="visible"
-            tools:text="Me" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/AccountProfile_tv"
-            android:layout_width="326dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#D4D4D4"
-            android:gravity="start"
-            android:text="Account Profile"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-            tools:text="Account Profile" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/Me_tv"
+                    android:layout_width="326dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:background="#21D347"
+                    android:gravity="center"
+                    android:paddingBottom="10dip"
+                    android:text="Me"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:visibility="visible"
+                    tools:text="Me" />
+            </LinearLayout>
 
-        <org.astri.spitfire.component.CircleImageView
-            android:id="@+id/headIcon"
-            android:layout_width="69dp"
-            android:layout_height="61dp"
-            android:layout_gravity="start"
-            android:layout_margin="5dp"
-            android:src="@drawable/_head_icon"
-            circleimageView:border_color="#ffffff"
-            circleimageView:border_width="1dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/AddYourName_et"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+                <TextView
+                    android:id="@+id/AccountProfile_tv"
+                    android:layout_width="326dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="#D4D4D4"
+                    android:gravity="start"
+                    android:text="Account Profile"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    tools:text="Account Profile" />
+            </LinearLayout>
 
-            android:layout_weight="1"
-            android:background="@android:color/white"
-            android:gravity="left"
-            android:hint="Add Your Name"
-            android:text=" Imma Mustard "
-            android:padding="25dip"
-            android:textSize="20sp"
-            android:selectAllOnFocus="false"
-            android:singleLine="false" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="#9FB6CD" />
-    </LinearLayout>
+                <org.astri.spitfire.component.CircleImageView
+                    android:id="@+id/headIcon"
+                    android:layout_width="69dp"
+                    android:layout_height="61dp"
+                    android:layout_gravity="start"
+                    android:layout_margin="5dp"
+                    android:src="@drawable/_head_icon"
+                    circleimageView:border_color="#ffffff"
+                    circleimageView:border_width="1dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/AddYourName_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
 
-        <TextView
-            android:id="@+id/Email_tv"
-            android:layout_width="76dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:text="  Email"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-            tools:text="   Email" />
+                    android:layout_weight="1"
+                    android:background="@android:color/white"
+                    android:gravity="left"
+                    android:hint="Add Your Name"
+                    android:padding="25dip"
+                    android:selectAllOnFocus="false"
+                    android:singleLine="false"
+                    android:text=" Imma Mustard "
+                    android:textSize="20sp" />
+            </LinearLayout>
 
-        <EditText
-            android:id="@+id/Email_et"
-            android:layout_width="295dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:background="@null"
-            android:gravity="start"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:text="  imma@foo.com "
-            android:visibility="visible" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="#9FB6CD" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="#9FB6CD" />
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/Birthday_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="39dp"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:text="  Birthday"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-            tools:text="   Birthday" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/dateDisplay"
-            android:layout_width="251dp"
-            android:layout_height="42dp"
-            android:layout_margin="5dp"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:text="Please select a date"
-            android:textSize="20sp" />
+                <TextView
+                    android:id="@+id/Email_tv"
+                    android:layout_width="76dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:text="  Email"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="visible"
+                    tools:text="   Email" />
 
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+                <EditText
+                    android:id="@+id/Email_et"
+                    android:layout_width="295dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:gravity="start"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:text="  imma@foo.com "
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="visible" />
+            </LinearLayout>
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="#9FB6CD" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/Gender_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="#9FB6CD" />
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/Gender_tv"
-            android:layout_width="101dp"
-            android:layout_height="50dp"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:paddingBottom="10dip"
-            android:paddingTop="10dip"
-            android:text="  Gender"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-            tools:text="   Gender" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/boy_ib"
-            android:layout_width="113dp"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:layout_height="wrap_content"
-            android:src="@drawable/boy" />
-        <!--<ImageView-->
-            <!--android:id="@+id/boy_ib1"-->
-            <!--android:layout_width="113dp"-->
-            <!--android:paddingBottom="5dip"-->
-            <!--android:paddingTop="5dip"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/boyfilled" />-->
+                <TextView
+                    android:id="@+id/Birthday_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="39dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:text="  Birthday"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="visible"
+                    tools:text="   Birthday" />
 
-        <ImageView
-            android:id="@+id/girl_ib"
-            android:layout_width="117dp"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:layout_height="wrap_content"
-            android:src="@drawable/girlfilled" />
-        <!--<ImageView-->
-            <!--android:id="@+id/girl_ib1"-->
-            <!--android:layout_width="113dp"-->
-            <!--android:paddingBottom="5dip"-->
-            <!--android:paddingTop="5dip"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/girlfilled" />-->
-        <!--<LinearLayout-->
-            <!--android:id="@+id/ll_content"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="0dp"-->
-            <!--android:layout_weight="1"-->
-            <!--android:orientation="vertical"-->
-            <!--android:text="Hello World!"></LinearLayout>-->
+                <TextView
+                    android:id="@+id/dateDisplay"
+                    android:layout_width="251dp"
+                    android:layout_height="42dp"
+                    android:layout_margin="5dp"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:text="Please select a date"
+                    android:textSize="20sp" />
 
+            </LinearLayout>
 
-        <!--<com.ashokvarma.bottomnavigation.BottomNavigationBar-->
-            <!--android:id="@+id/bottom_navigation_bar"-->
-            <!--android:layout_width="260dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentBottom="true" />-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="#9FB6CD" />
+            </LinearLayout>
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="#9FB6CD" />
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/Gender_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/Gender_tv"
+                    android:layout_width="101dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:paddingBottom="10dip"
+                    android:paddingTop="10dip"
+                    android:text="  Gender"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="visible"
+                    tools:text="   Gender" />
 
-        <TextView
-            android:id="@+id/ChangePassword_tv"
-            android:layout_width="327dp"
-            android:layout_height="42dp"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="  Change Password"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-            tools:text="   Change Password" />
+                <ImageView
+                    android:id="@+id/boy_ib"
+                    android:layout_width="113dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:src="@drawable/boy" />
+                <!--<ImageView-->
+                <!--android:id="@+id/boy_ib1"-->
+                <!--android:layout_width="113dp"-->
+                <!--android:paddingBottom="5dip"-->
+                <!--android:paddingTop="5dip"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:src="@drawable/boyfilled" />-->
 
-        <ImageView
-            android:id="@+id/forwardChangePassword_ib"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:src="@drawable/forward" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/Preferences_tv"
-            android:layout_width="326dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#D4D4D4"
-            android:gravity="start"
-            android:text="Preferences"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-            tools:text="Preferences" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/Languages_tv"
-            android:layout_width="327dp"
-            android:layout_height="42dp"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="  Languages"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-            tools:text="   Languages" />
-
-        <ImageView
-            android:id="@+id/forwardLanguages_ib"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:src="@drawable/forward" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="#9FB6CD" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/result"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/seekBar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_margin="5dp"
-            android:padding="5dip"
-            android:textSize="20sp"
-            android:layout_marginBottom="23dp"
-            android:textColor="#000000"
-            android:text=" Morning Readiness Duration   0 mins" />
-
-        <SeekBar
-            android:id="@+id/seekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="5dp"
-            android:indeterminate="false"
-            android:layout_margin="5dp"
-            android:padding="5dip"
-            android:max="10"
-            android:progress="0"
-            android:secondaryProgress="0"
-            android:thumbTint="#0099FF" />
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/Device_tv"
-            android:layout_width="326dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#D4D4D4"
-            android:gravity="start"
-            android:text="Device"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-            tools:text="Device" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/ConnectedDevice_tv"
-            android:layout_width="327dp"
-            android:layout_height="42dp"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="  Connected Device"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:visibility="visible"
-            tools:text="   Connected Device" />
-
-        <ImageView
-            android:id="@+id/forwardConnectedDevice_ib"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:src="@drawable/forward" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/Setting_tv"
-            android:layout_width="326dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#D4D4D4"
-            android:gravity="start"
-            android:text="Settings"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:visibility="visible"
-             />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/forwardSetting_tv"
-            android:layout_width="327dp"
-            android:layout_height="42dp"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="  Forward Settings"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:visibility="visible"
-            tools:text="   Connected Device" />
-
-        <ImageView
-            android:id="@+id/forwardSetting_ib"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip"
-            android:src="@drawable/forward" />
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/girl_ib"
+                    android:layout_width="117dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:src="@drawable/girlfilled" />
+                <!--<ImageView-->
+                <!--android:id="@+id/girl_ib1"-->
+                <!--android:layout_width="113dp"-->
+                <!--android:paddingBottom="5dip"-->
+                <!--android:paddingTop="5dip"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:src="@drawable/girlfilled" />-->
+                <!--<LinearLayout-->
+                <!--android:id="@+id/ll_content"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="0dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:orientation="vertical"-->
+                <!--android:text="Hello World!"></LinearLayout>-->
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+                <!--<com.ashokvarma.bottomnavigation.BottomNavigationBar-->
+                <!--android:id="@+id/bottom_navigation_bar"-->
+                <!--android:layout_width="260dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentBottom="true" />-->
 
-        <TextView
-            android:id="@+id/Empty_tv"
-            android:layout_width="326dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="#D4D4D4"
-            android:gravity="start"
-            android:textColor="#FFFFFF"
-            android:visibility="visible"
-            />
-    </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="#9FB6CD" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/ChangePassword_tv"
+                    android:layout_width="327dp"
+                    android:layout_height="42dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:text="  Change Password"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="visible"
+                    tools:text="   Change Password" />
+
+                <ImageView
+                    android:id="@+id/forwardChangePassword_ib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:src="@drawable/forward" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/Preferences_tv"
+                    android:layout_width="326dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="#D4D4D4"
+                    android:gravity="start"
+                    android:text="Preferences"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    tools:text="Preferences" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/Languages_tv"
+                    android:layout_width="327dp"
+                    android:layout_height="42dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:text="  Languages"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="visible"
+                    tools:text="   Languages" />
+
+                <ImageView
+                    android:id="@+id/forwardLanguages_ib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:src="@drawable/forward" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="#9FB6CD" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/result"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/seekBar"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_margin="5dp"
+                    android:layout_marginBottom="23dp"
+                    android:padding="5dip"
+                    android:text=" Morning Readiness Duration   0 mins"
+                    android:textColor="#000000"
+                    android:textSize="20sp" />
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_margin="5dp"
+                    android:layout_marginTop="5dp"
+                    android:indeterminate="false"
+                    android:max="10"
+                    android:padding="5dip"
+                    android:progress="0"
+                    android:secondaryProgress="0"
+                    android:thumbTint="#0099FF" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/Device_tv"
+                    android:layout_width="326dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="#D4D4D4"
+                    android:gravity="start"
+                    android:text="Device"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    tools:text="Device" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/ConnectedDevice_tv"
+                    android:layout_width="327dp"
+                    android:layout_height="42dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:text="  Connected Device"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="visible"
+                    tools:text="   Connected Device" />
+
+                <ImageView
+                    android:id="@+id/forwardConnectedDevice_ib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:src="@drawable/forward" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="#9FB6CD" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/forwardSetting_tv"
+                    android:layout_width="327dp"
+                    android:layout_height="42dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:text="  Settings"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="visible"
+                    tools:text="   Settings" />
+
+                <ImageView
+                    android:id="@+id/forwardSetting_ib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="5dip"
+                    android:paddingTop="5dip"
+                    android:src="@drawable/forward" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/Empty_tv"
+                    android:layout_width="326dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#D4D4D4"
+                    android:gravity="start"
+                    android:textColor="#FFFFFF"
+                    android:visibility="visible" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
