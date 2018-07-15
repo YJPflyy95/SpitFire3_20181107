@@ -154,7 +154,14 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
                 Toast.makeText(this, getString(R.string.login_success),Toast.LENGTH_SHORT).show();//登录成功提示
             }else if(result==0){
-                Toast.makeText(this, getString(R.string.login_fail),Toast.LENGTH_SHORT).show();  //登录失败提示
+//                Toast.makeText(this, getString(R.string.login_fail),Toast.LENGTH_SHORT).show();  //登录失败提示
+
+                // TODO: 修改此处，不判断用户名和密码
+                Intent intent = new Intent(LoginActivity.this,GodActivity.class) ;    //切换Login Activity至User Activity
+                startActivity(intent);
+                finish();
+                Toast.makeText(this, getString(R.string.login_success),Toast.LENGTH_SHORT).show();//登录成功提示
+
             }
         }
     }

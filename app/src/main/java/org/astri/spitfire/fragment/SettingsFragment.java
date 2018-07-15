@@ -163,6 +163,13 @@ public class SettingsFragment extends Fragment {
                     }
                     alg.setIndex(ALGORITHM_STOP);
                     alg.setName(STOP);
+
+                    // list 列表取消选中
+                    if(newImageView!=null){
+                        newImageView.setImageResource(R.drawable.blank); // 取消勾选状态
+                        lastPosition = -1; // 重置position
+                    }
+
                     String algParam = alg.genAlgSettingPara();
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
                     LogUtil.d(TAG, "停止算法，当前算法为：" + alg);
