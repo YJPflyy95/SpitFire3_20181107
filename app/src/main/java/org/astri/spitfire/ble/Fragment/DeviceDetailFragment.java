@@ -62,6 +62,7 @@ import java.util.TimerTask;
 
 import static android.hardware.camera2.params.RggbChannelVector.COUNT;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
+import static org.astri.spitfire.util.Constants.IS_PRODUCTION;
 
 /**
  * @Description: 主页，展示已连接设备列表
@@ -124,22 +125,25 @@ public class DeviceDetailFragment extends Fragment {
 //        });
         connect.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-                LogUtil.d(TAG, "点击 Connect 按钮，连接设备。");
+
+                if(!IS_PRODUCTION){
+                    LogUtil.d(TAG, "点击 Connect 按钮，连接设备。");
 
 
-                if (!BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
-                    LogUtil.d(TAG, "设备未连接。");
-                    BluetoothDeviceManager.getInstance().connect(mDevice);
-                    getActivity().invalidateOptionsMenu();
-                }else{
-                    LogUtil.d(TAG, "设备已连接。");
+                    if (!BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+                        LogUtil.d(TAG, "设备未连接。");
+                        BluetoothDeviceManager.getInstance().connect(mDevice);
+                        getActivity().invalidateOptionsMenu();
+                    }else{
+                        LogUtil.d(TAG, "设备已连接。");
+                    }
+
+                    LogUtil.d(TAG, "准备跳转Fragment");
+                    FragmentManager fm = getActivity().getSupportFragmentManager();
+                    fm.beginTransaction()
+                            .replace(R.id.ll_content,new DeviceControlFragment())
+                            .commit();
                 }
-
-                LogUtil.d(TAG, "准备跳转Fragment");
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                fm.beginTransaction()
-                        .replace(R.id.ll_content,new DeviceControlFragment())
-                        .commit();
             }
         });
         Button back = (Button) view.findViewById(R.id.Back_bt);

@@ -60,6 +60,7 @@ import java.util.UUID;
 
 import static org.astri.spitfire.GodActivity.CHARA_MAP;
 import static org.astri.spitfire.GodActivity.SERVICE_MAP;
+import static org.astri.spitfire.util.Constants.IS_PRODUCTION;
 
 /**
  * @Description: 主页，展示已连接设备列表
@@ -277,6 +278,9 @@ public class DeviceControlFragment extends Fragment {
         mDeviceAddress = view.findViewById(R.id.device_address);
 
         btShowHeartRate = view.findViewById(R.id.bt_show_heart_rate);
+        if(IS_PRODUCTION){
+            btShowHeartRate.setVisibility(View.GONE);
+        }
 
         btShowHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
