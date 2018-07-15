@@ -12,8 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -66,6 +64,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.astri.spitfire.util.Constants.IS_PRODUCTION;
+
 /**
  * <pre>
  *     author : HuGuoDong
@@ -97,7 +97,8 @@ public class SettingsFragment extends Fragment {
 
     private TextView settingAlgTv;
     private TextView settingAlgResultTv;
-    private TextView heartReateTv;
+    private TextView heartRateTv;
+    private Button heartRateBtn;
     private Button settingAlgBtn;
     private ListView alglist;
 
@@ -140,15 +141,6 @@ public class SettingsFragment extends Fragment {
     private Map<String, BluetoothGattService> serviceMap = new HashMap<>();
     private Map<String, BluetoothGattCharacteristic> charaMap = new HashMap<>();
 
-
-    private void replaceFragment(Fragment fragment){
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.ll_content, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -158,21 +150,28 @@ public class SettingsFragment extends Fragment {
         // 重要：注册事件驱动， 祖册以后才能得到通知。
         BusManager.getBus().register(this);
 
-//        // 连接设备
-//        connect();
-
         // 停止算法
         stopBtn = view.findViewById(R.id.bt_stop);
         stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 停止算法
-                alg.setIndex(ALGORITHM_STOP);
-                alg.setName(STOP);
-                String algParam = alg.genAlgSettingPara();
-                BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
-                LogUtil.d(TAG, "停止算法，当前算法为：" + alg);
-                ToastUtil.showShortToast(getContext(), "" + algParam);
+
+                if(isConnected()){
+                    // 停止算法
+                    if(alg == null){
+                        alg = new Algorithm("");
+                    }
+                    alg.setIndex(ALGORITHM_STOP);
+                    alg.setName(STOP);
+                    String algParam = alg.genAlgSettingPara();
+                    BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
+                    LogUtil.d(TAG, "停止算法，当前算法为：" + alg);
+                    ToastUtil.showShortToast(getContext(), "" + "Stop Algo success");
+                }else{
+                    ToastUtil.showShortToast(getContext(), "" + "No connected device");
+                }
+
+
             }
         });
 
@@ -185,7 +184,7 @@ public class SettingsFragment extends Fragment {
             public void onClick(View v) {
 
                 // 1. 停止算法, 断开蓝牙连接
-                if(mDevice != null){
+                if(isConnected()){
                     if (BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
                         BluetoothDeviceManager.getInstance().disconnect(mDevice);
                         ToastUtil.showShortToast(getContext(), "Device Disconnected!");
@@ -202,14 +201,13 @@ public class SettingsFragment extends Fragment {
 
         // 初始化算法
         initAlgorithms();
-        AlgorithmAdapter adapter = new AlgorithmAdapter(getActivity(), R.layout.list_view_item_algorithms, algorithmList);
+        final AlgorithmAdapter adapter = new AlgorithmAdapter(getActivity(), R.layout.list_view_item_algorithms, algorithmList);
         alglist = view.findViewById(R.id.algorithm_list);
 
         alglist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                ToastUtil.showShortToast(getContext(), "" + position);
                 oldImageView = view.findViewById(R.id.algorithm_index_img);
                 // 设定选中
                 oldImageView.setImageResource(R.drawable.checkmark);
@@ -222,7 +220,14 @@ public class SettingsFragment extends Fragment {
                 lastPosition = position;//把当前的位置保存下来
 
                 // 设定算法
-                alg = algorithmList.get(position);
+                try{
+                    alg = algorithmList.get(position);
+                } catch (Exception e){
+                    LogUtil.e(TAG, e.toString());
+                    alg = new Algorithm("");
+                }
+
+
                 int intense = seekBar.getProgress() - 1; // 注意减1
                 alg.setIntensify(intense);
                 alg.setIndex(position + 1);
@@ -230,9 +235,13 @@ public class SettingsFragment extends Fragment {
 
                 LogUtil.d(TAG, "调整算法序号，当前算法为：" + alg);
 
-                // 写入数据
-                BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
-                ToastUtil.showShortToast(getContext(), "" + algParam);
+                if(isConnected()){
+                    // 写入数据
+                    BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
+                    ToastUtil.showShortToast(getContext(), "" + "Adjust algo success");
+                }else {
+                    ToastUtil.showShortToast(getContext(), "" + "No connected device");
+                }
             }
         });
 
@@ -243,7 +252,7 @@ public class SettingsFragment extends Fragment {
         seekBar.getConfigBuilder()
                 .min(1)
                 .max(5)
-                .progress(2)
+                .progress(1) // 默认选中 开始
                 .sectionCount(4)
                 .trackColor(ContextCompat.getColor(mActivity, R.color.gray))
                 .secondTrackColor(ContextCompat.getColor(mActivity, R.color.appmain))
@@ -280,16 +289,28 @@ public class SettingsFragment extends Fragment {
                 // 写入蓝牙设备
                 String s = String.format(Locale.CHINA, "onActionUp int:%d, float:%.1f", progress, progressFloat);
                 LogUtil.d(TAG, s);
-                ToastUtil.showShortToast(getContext(), "" + s);
+//                ToastUtil.showShortToast(getContext(), "" + s);
 
-                // 只改变算法强度
-                int intense = (progress - 1);
-                alg.setIntensify(intense);
-                String algParam = alg.genAlgSettingPara();
 
-                BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
-                LogUtil.d(TAG, "调整算法强度，当前算法为：" + alg);
-                ToastUtil.showShortToast(getContext(), "" + algParam);
+
+                if(isConnected()){
+                    // 只改变算法强度
+                    int intense = (progress - 1);
+                    if(alg == null){
+                        alg = new Algorithm("");
+                        alg.setIndex(0);
+                        alg.setIntensify(intense);
+                    }else{
+                        alg.setIntensify(intense);
+                    }
+                    String algParam = alg.genAlgSettingPara();
+                    BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
+                    LogUtil.d(TAG, "调整算法强度，当前算法为：" + alg);
+//                    ToastUtil.showShortToast(getContext(), "" + algParam);
+                    ToastUtil.showShortToast(getContext(), "" + "Adjust intensity success");
+                }else{
+                    ToastUtil.showShortToast(getContext(), "" + "No connected device");
+                }
             }
 
             @Override
@@ -308,8 +329,17 @@ public class SettingsFragment extends Fragment {
 
 
         settingAlgResultTv = view.findViewById(R.id.algorithm_setting_result_tv);
-        heartReateTv = view.findViewById(R.id.heartrate_result_tv);
+        heartRateTv = view.findViewById(R.id.heartrate_result_tv);
+        heartRateBtn = view.findViewById(R.id.heartrate_btn);
         settingAlgBtn = view.findViewById(R.id.algorithm_setting_btn);
+
+        if(IS_PRODUCTION){
+            heartRateTv.setVisibility(View.GONE);
+            settingAlgResultTv.setVisibility(View.GONE);
+            settingAlgBtn.setVisibility(View.GONE);
+            heartRateBtn.setVisibility(View.GONE);
+        }
+
 
         mSpCache = new SpCache(getContext());
         // 获取已经连接的设备
@@ -650,6 +680,7 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onConnectFailure(BleException exception) {
             ViseLog.i("Connect Failure!");
+            ToastUtil.showShortToast(getContext(), "Device Not Found!");
             BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(false));
         }
 
@@ -741,7 +772,7 @@ public class SettingsFragment extends Fragment {
                 }
                 characteristic.setValue(event.getData());
                 final int heartRate = characteristic.getIntValue(format, 1);
-                heartReateTv.setText(heartRate + " BMP");
+                heartRateTv.setText(heartRate + " BMP");
                 Log.d(TAG, String.format("Received heart rate: %d", heartRate));
                 LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(event.getData()));
             } else {
@@ -845,6 +876,10 @@ public class SettingsFragment extends Fragment {
                             alg = algorithmList.get(algIndex);
                         }
 
+                        if(alg == null) {
+                            alg = new Algorithm("");
+                        }
+
                         // TODO: 设定选中状态
                         alg.setIndex(algIndex);
                         alg.setIntensify(intense);
@@ -927,6 +962,14 @@ public class SettingsFragment extends Fragment {
         if (!BleUtil.isBleEnable(getContext())) {
             BleUtil.enableBluetooth(getActivity(), 1);
         }
+    }
+
+    /**
+     * 判断设备是否已连接
+     * @return
+     */
+    private boolean isConnected(){
+        return mDevice != null && ViseBle.getInstance().isConnect(mDevice);
     }
 
 }
