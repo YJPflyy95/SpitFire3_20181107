@@ -26,4 +26,7 @@ public class Constants {
     public static final SimpleDateFormat FMT_HMS = new SimpleDateFormat("HH:mm:ss");
     public static final SimpleDateFormat FMT_HM = new SimpleDateFormat("HH:mm");
     public static final SimpleDateFormat FMT_MMddyyyy = new SimpleDateFormat("MM/dd/yyyy");
+
+    // 根据是否投产，显示一些功能
+    public static final boolean IS_PRODUCTION = true;
 }
