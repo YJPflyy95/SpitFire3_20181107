@@ -398,12 +398,12 @@
             android:layout_margin="5dp"
             android:background="@null"
             android:gravity="left"
-            android:text="Add your spitfire"
+            android:text="Add your Qey"
             android:textColor="#000000"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="DuplicateIds"
-            tools:text="Add your spitfire" />
+            tools:text="Add your Qey" />
 
         <TextView
             android:id="@+id/Addyourspitfirecontent_tv"
@@ -412,11 +412,11 @@
             android:layout_margin="5dp"
             android:background="@null"
             android:gravity="left"
-            android:text="   Spitfire is a wrist-based device for that has been clinically proven to improve the learning ability and memory of the user.Spitfire will also allow a user to improve their HRV readiness through monitoring and stimulation,it will also aid cognitive improvement through neuroplastic changes resulting from coactivation of smart apps and stimulation. "
+            android:text="   Qey is a wrist-based device for that has been clinically proven to improve the learning ability and memory of the user.Qey will also allow a user to improve their HRV readiness through monitoring and stimulation,it will also aid cognitive improvement through neuroplastic changes resulting from coactivation of smart apps and stimulation. "
             android:textColor="#000000"
             android:textSize="12sp"
             tools:ignore="DuplicateIds"
-            tools:text="   Spitfire is a wrist-based device for that has been clinically proven    to improve the learning ability and memory of the user.Spitfire will also allow a user to improve their HRV readiness through monitoring and stimulation,it will also aid cognitive improvement through neuroplastic changes resulting from coactivation of smart apps and stimulation. " />
+            tools:text="   Qey is a wrist-based device for that has been clinically proven    to improve the learning ability and memory of the user.Qey will also allow a user to improve their HRV readiness through monitoring and stimulation,it will also aid cognitive improvement through neuroplastic changes resulting from coactivation of smart apps and stimulation. " />
 
         <Button
             android:id="@+id/AddNow_bt"
