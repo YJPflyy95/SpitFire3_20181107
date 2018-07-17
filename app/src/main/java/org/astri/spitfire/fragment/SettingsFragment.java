@@ -850,7 +850,7 @@ public class SettingsFragment extends Fragment {
                     BluetoothGattCharacteristic algCharacteristic = charaMap.get(mAlgorithmIntensifyUuid.toString());
                     setAlgCharaPropBindReadChnnel(algService, algCharacteristic);
                 } else {
-                    ToastUtil.showShortToast(getContext(), "Not Connected!");
+                    ToastUtil.showShortToast(getContext(), "Device Not Connected!");
                     LogUtil.d(TAG, "设备未连接！");
                 }
             }
