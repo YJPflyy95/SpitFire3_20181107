@@ -21,6 +21,9 @@ import com.vise.xsnow.event.BusManager;
 import org.astri.spitfire.ble.common.BluetoothDeviceManager;
 import org.astri.spitfire.entities.UserDataManager;
 
+import static org.astri.spitfire.util.Constants.IS_PRODUCTION;
+import static org.astri.spitfire.util.Constants.IS_USER_TESTING;
+
 /**
  * <pre>
  *     author : ghf
@@ -68,10 +71,9 @@ public class LoginActivity extends AppCompatActivity {
 //        });
 
         mForgetPassword = (Button) findViewById(R.id.ForgetPassword_bt);
-        mForgetPassword.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v)
-            {
-                Intent intent = new Intent(LoginActivity.this,ResetPasswordActivity.class);
+        mForgetPassword.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
                 startActivity(intent);
             }
         });
@@ -86,12 +88,12 @@ public class LoginActivity extends AppCompatActivity {
 //        });
 
         login_sp = getSharedPreferences("userInfo", 0);
-        String name=login_sp.getString("USER_NAME", "");
-        String pwd =login_sp.getString("PASSWORD", "");
-        boolean choseRemember =login_sp.getBoolean("mRememberCheck", false);
-        boolean choseAutoLogin =login_sp.getBoolean("mAutologinCheck", false);
+        String name = login_sp.getString("USER_NAME", "");
+        String pwd = login_sp.getString("PASSWORD", "");
+        boolean choseRemember = login_sp.getBoolean("mRememberCheck", false);
+        boolean choseAutoLogin = login_sp.getBoolean("mAutologinCheck", false);
         //如果上次选了记住密码，那进入登录页面也自动勾选记住密码，并填上用户名和密码
-        if(choseRemember){
+        if (choseRemember) {
             mAccount.setText(name);
             password.setText(pwd);
             mRememberCheck.setChecked(true);
@@ -111,11 +113,12 @@ public class LoginActivity extends AppCompatActivity {
         BusManager.getBus().register(this);
 
     }
+
     View.OnClickListener mListener = new View.OnClickListener() {                  //不同按钮按下的监听事件选择
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.Register_bt:                            //登录界面的注册按钮
-                    Intent intent_Login_to_Register = new Intent(LoginActivity.this,RegisterActivity.class) ;    //切换Login Activity至User Activity
+                    Intent intent_Login_to_Register = new Intent(LoginActivity.this, RegisterActivity.class);    //切换Login Activity至User Activity
                     startActivity(intent_Login_to_Register);
                     finish();
                     break;
@@ -130,16 +133,21 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     };
-    public void login() {                                              //登录按钮监听事件
-        if (isUserNameAndPwdValid()) {
-            String userName = mAccount.getText().toString().trim();    //获取当前输入的用户名和密码信息
-            String userPwd = password.getText().toString().trim();
-            SharedPreferences.Editor editor =login_sp.edit();
-            int result=mUserDataManager.findUserByNameAndPwd(userName, userName);
-            if(result==1){                                             //返回1说明用户名和密码均正确
-                //保存用户名和密码
-                editor.putString("USER_NAME", userName);
-                editor.putString("PASSWORD", userPwd);
+
+    public void login() {
+
+
+        if (!IS_USER_TESTING) {
+            //登录按钮监听事件
+            if (isUserNameAndPwdValid()) {
+                String userName = mAccount.getText().toString().trim();    //获取当前输入的用户名和密码信息
+                String userPwd = password.getText().toString().trim();
+                SharedPreferences.Editor editor = login_sp.edit();
+                int result = mUserDataManager.findUserByNameAndPwd(userName, userName);
+                if (result == 1) {                                             //返回1说明用户名和密码均正确
+                    //保存用户名和密码
+                    editor.putString("USER_NAME", userName);
+                    editor.putString("PASSWORD", userPwd);
 
 //                //是否记住密码
 //                if(mRememberCheck.isChecked()){
@@ -147,24 +155,25 @@ public class LoginActivity extends AppCompatActivity {
 //                }else{
 //                    editor.putBoolean("mRememberCheck", false);
 //                }
-                editor.commit();
+                    editor.commit();
 
-                Intent intent = new Intent(LoginActivity.this,GodActivity.class) ;    //切换Login Activity至User Activity
-                startActivity(intent);
-                finish();
-                Toast.makeText(this, getString(R.string.login_success),Toast.LENGTH_SHORT).show();//登录成功提示
-            }else if(result==0){
-//                Toast.makeText(this, getString(R.string.login_fail),Toast.LENGTH_SHORT).show();  //登录失败提示
-
-                // TODO: 修改此处，不判断用户名和密码
-                Intent intent = new Intent(LoginActivity.this,GodActivity.class) ;    //切换Login Activity至User Activity
-                startActivity(intent);
-                finish();
-                Toast.makeText(this, getString(R.string.login_success),Toast.LENGTH_SHORT).show();//登录成功提示
-
+                    Intent intent = new Intent(LoginActivity.this, GodActivity.class);    //切换Login Activity至User Activity
+                    startActivity(intent);
+                    finish();
+                    Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();//登录成功提示
+                } else if (result == 0) {
+                    Toast.makeText(this, getString(R.string.login_fail), Toast.LENGTH_SHORT).show();  //登录失败提示
+                }
             }
+        } else {
+            // TODO: 修改此处，不判断用户名和密码
+            Intent intent = new Intent(LoginActivity.this, GodActivity.class);    //切换Login Activity至User Activity
+            startActivity(intent);
+            finish();
+            Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();//登录成功提示
         }
     }
+
     public boolean isUserNameAndPwdValid() {
         if (mAccount.getText().toString().trim().equals("")) {
             Toast.makeText(this, getString(R.string.account_empty),

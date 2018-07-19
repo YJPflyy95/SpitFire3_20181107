@@ -29,4 +29,7 @@ public class Constants {
 
     // 根据是否投产，显示一些功能
     public static final boolean IS_PRODUCTION = true;
+
+    // 判断是否是用户测试，去掉一些必要功能，例如注册校验等
+    public static final boolean IS_USER_TESTING = true;
 }
