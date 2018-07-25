@@ -94,6 +94,7 @@ public class SettingsFragment extends Fragment {
     final static private UUID mAlgorithmIntensifyUuid = BleUUIDs.Characteristic.ALGORITHEM_AND_INTENSIFY;
 
     private Activity mActivity;
+    private Context mContext;
 
     private TextView settingAlgTv;
     private TextView settingAlgResultTv;
@@ -141,6 +142,8 @@ public class SettingsFragment extends Fragment {
     private Map<String, BluetoothGattService> serviceMap = new HashMap<>();
     private Map<String, BluetoothGattCharacteristic> charaMap = new HashMap<>();
 
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -173,9 +176,9 @@ public class SettingsFragment extends Fragment {
                     String algParam = alg.genAlgSettingPara();
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
                     LogUtil.d(TAG, "停止算法，当前算法为：" + alg);
-                    ToastUtil.showShortToast(getContext(), "" + "Stop Algo success");
+                    ToastUtil.showShortToast(mActivity, "" + "Stop Algo success");
                 }else{
-                    ToastUtil.showShortToast(getContext(), "" + "No connected device");
+                    ToastUtil.showShortToast(mActivity, "" + "No connected device");
                 }
 
 
@@ -194,7 +197,7 @@ public class SettingsFragment extends Fragment {
                 if(isConnected()){
                     if (BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
                         BluetoothDeviceManager.getInstance().disconnect(mDevice);
-                        ToastUtil.showShortToast(getContext(), "Device Disconnected!");
+                        ToastUtil.showShortToast(mActivity, "Device Disconnected!");
                         LogUtil.d(TAG, "Device Disconnected!");
                     }
                 }
@@ -208,7 +211,7 @@ public class SettingsFragment extends Fragment {
 
         // 初始化算法
         initAlgorithms();
-        final AlgorithmAdapter adapter = new AlgorithmAdapter(getActivity(), R.layout.list_view_item_algorithms, algorithmList);
+        final AlgorithmAdapter adapter = new AlgorithmAdapter(mActivity, R.layout.list_view_item_algorithms, algorithmList);
         alglist = view.findViewById(R.id.algorithm_list);
 
         alglist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -245,9 +248,9 @@ public class SettingsFragment extends Fragment {
                 if(isConnected()){
                     // 写入数据
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
-                    ToastUtil.showShortToast(getContext(), "" + "Adjust algo success");
+                    ToastUtil.showShortToast(mActivity, "" + "Adjust algo success");
                 }else {
-                    ToastUtil.showShortToast(getContext(), "" + "No connected device");
+                    ToastUtil.showShortToast(mActivity, "" + "No connected device");
                 }
             }
         });
@@ -296,7 +299,7 @@ public class SettingsFragment extends Fragment {
                 // 写入蓝牙设备
                 String s = String.format(Locale.CHINA, "onActionUp int:%d, float:%.1f", progress, progressFloat);
                 LogUtil.d(TAG, s);
-//                ToastUtil.showShortToast(getContext(), "" + s);
+//                ToastUtil.showShortToast(mActivity, "" + s);
 
 
 
@@ -313,10 +316,10 @@ public class SettingsFragment extends Fragment {
                     String algParam = alg.genAlgSettingPara();
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
                     LogUtil.d(TAG, "调整算法强度，当前算法为：" + alg);
-//                    ToastUtil.showShortToast(getContext(), "" + algParam);
-                    ToastUtil.showShortToast(getContext(), "" + "Adjust intensity success");
+//                    ToastUtil.showShortToast(mActivity, "" + algParam);
+                    ToastUtil.showShortToast(mActivity, "" + "Adjust intensity success");
                 }else{
-                    ToastUtil.showShortToast(getContext(), "" + "No connected device");
+                    ToastUtil.showShortToast(mActivity, "" + "No connected device");
                 }
             }
 
@@ -348,7 +351,7 @@ public class SettingsFragment extends Fragment {
         }
 
 
-        mSpCache = new SpCache(getContext());
+        mSpCache = new SpCache(mActivity);
         // 获取已经连接的设备
 
 //        mDevice = GodActivity.getDevice();
@@ -687,7 +690,7 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onConnectFailure(BleException exception) {
             ViseLog.i("Connect Failure!");
-            ToastUtil.showShortToast(getContext(), "Device Not Found!");
+            ToastUtil.showShortToast(mActivity, "Device Not Found!");
             BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(false));
         }
 
@@ -706,7 +709,7 @@ public class SettingsFragment extends Fragment {
     private void startScan() {
 
         ViseBle.getInstance().startScan(filterDeviceNameScanCallback);
-        getActivity().invalidateOptionsMenu();
+        mActivity.invalidateOptionsMenu();
     }
 
     /**
@@ -715,7 +718,7 @@ public class SettingsFragment extends Fragment {
     @SuppressLint("RestrictedApi")
     private void stopScan() {
         ViseBle.getInstance().stopScan(filterDeviceNameScanCallback);
-        getActivity().invalidateOptionsMenu();
+        mActivity.invalidateOptionsMenu();
     }
 
 
@@ -802,7 +805,7 @@ public class SettingsFragment extends Fragment {
         LogUtil.d(TAG, "showConnectedDevice");
         if (event != null) {
             if (event.isSuccess()) {
-                ToastUtil.showToast(getContext(), "Connect Success!");
+                ToastUtil.showToast(mActivity, "Connect Success!");
                 if (event.getDeviceMirror() != null && event.getDeviceMirror().getBluetoothGatt() != null) {
                     mDevice = event.getDeviceMirror().getBluetoothLeDevice();
                     LogUtil.d(TAG, "设定app的服务和属性到Map");
@@ -829,10 +832,10 @@ public class SettingsFragment extends Fragment {
             } else {
                 if (event.isDisconnected()) {
                     clearData();
-                    //ToastUtil.showToast(getContext(), "Disconnect!");
+                    //ToastUtil.showToast(mActivity, "Disconnect!");
                 } else {
                     clearData();
-                    //ToastUtil.showToast(getContext(), "Connect Failure!");
+                    //ToastUtil.showToast(mActivity, "Connect Failure!");
                 }
             }
         }
@@ -843,14 +846,14 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (mDevice != null) { // 设备
-                    ToastUtil.showShortToast(getContext(), "Connected!");
+                    ToastUtil.showShortToast(mActivity, "Connected!");
                     LogUtil.d(TAG, "已经存在连接的设备！");
                     // 尝试读数据
                     BluetoothGattService algService = serviceMap.get(mAlgorithmServiceUuid.toString());
                     BluetoothGattCharacteristic algCharacteristic = charaMap.get(mAlgorithmIntensifyUuid.toString());
                     setAlgCharaPropBindReadChnnel(algService, algCharacteristic);
                 } else {
-                    ToastUtil.showShortToast(getContext(), "Device Not Connected!");
+                    ToastUtil.showShortToast(mActivity, "Device Not Connected!");
                     LogUtil.d(TAG, "设备未连接！");
                 }
             }
@@ -933,14 +936,20 @@ public class SettingsFragment extends Fragment {
         super.onDestroy();
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+//        mActivity = null;
+    }
+
     /**
      * 检查蓝牙权限
      */
     private void checkBluetoothPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //校验是否已具有模糊定位权限
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                PermissionManager.instance().with(getActivity()).request(new OnPermissionCallback() {
+            if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                PermissionManager.instance().with(mActivity).request(new OnPermissionCallback() {
                     @Override
                     public void onRequestAllow(String permissionName) {
                         enableBluetooth();
@@ -948,12 +957,12 @@ public class SettingsFragment extends Fragment {
 
                     @Override
                     public void onRequestRefuse(String permissionName) {
-                        getActivity().finish();
+                        mActivity.finish();
                     }
 
                     @Override
                     public void onRequestNoAsk(String permissionName) {
-                        getActivity().finish();
+                        mActivity.finish();
                     }
                 }, Manifest.permission.ACCESS_COARSE_LOCATION);
             } else {
@@ -966,8 +975,8 @@ public class SettingsFragment extends Fragment {
 
     @SuppressLint("RestrictedApi")
     private void enableBluetooth() {
-        if (!BleUtil.isBleEnable(getContext())) {
-            BleUtil.enableBluetooth(getActivity(), 1);
+        if (!BleUtil.isBleEnable(mActivity)) {
+            BleUtil.enableBluetooth(mActivity, 1);
         }
     }
 

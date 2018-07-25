@@ -1,6 +1,7 @@
 package org.astri.spitfire.ble.Fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -86,11 +87,23 @@ public class DeviceControlFragment extends Fragment {
     private Button btShowHeartRate;
     private BluetoothGattCharacteristic heartRateChara;
 
+    private Activity mActivity;
+    private Context mContext;
+
     final static private UUID mHeartRateServiceUuid = BleUUIDs.Service.HEART_RATE;
     final static private UUID mHeartRateCharacteristicUuid = BleUUIDs.Characteristic.HEART_RATE_MEASUREMENT;
     final static private UUID mAlgorithmServiceUuid = BleUUIDs.Service.ALGORITHEM_SERVICE;
     final static private UUID mAlgorithmIntensifyUuid = BleUUIDs.Characteristic.ALGORITHEM_AND_INTENSIFY;
 
+//    // Declare Context variable at class level in Fragment
+//    private Context mContext;
+//
+//    // Initialise it from onAttach()
+//    @Override
+//    public void onAttach(Context context) {
+//        super.onAttach(context);
+//        mContext = context;
+//    }
 
     private TextView mGattUUID;
     private TextView mGattUUIDDesc;
@@ -150,6 +163,18 @@ public class DeviceControlFragment extends Fragment {
         BusManager.getBus().register(this);
 //        showConnectedDevice(event);
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mActivity = (Activity) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+//        mActivity = null;
     }
 
     private void initView(View view) {
