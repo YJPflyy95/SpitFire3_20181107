@@ -207,7 +207,7 @@ public class DeviceControlFragment extends Fragment {
 
     private void changeHeadIcon() {
         final CharSequence[] items = {"相册", "拍照"};
-        AlertDialog dlg = new AlertDialog.Builder(getContext()).setTitle("选择图片").setItems(items, new DialogInterface.OnClickListener() {
+        AlertDialog dlg = new AlertDialog.Builder(mActivity).setTitle("选择图片").setItems(items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 // 这里item是根据选择的方式，
                 if (item == 0) {
@@ -224,7 +224,7 @@ public class DeviceControlFragment extends Fragment {
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                         startActivityForResult(intent, PHOTO_REQUEST_CAREMA);
                     } else {
-                        Toast.makeText(getContext(), "未找到存储卡，无法存储照片！",
+                        Toast.makeText(mActivity, "未找到存储卡，无法存储照片！",
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -247,7 +247,7 @@ public class DeviceControlFragment extends Fragment {
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 crop(Uri.fromFile(tempFile));
             } else {
-                Toast.makeText(getContext(), "未找到存储卡，无法存储照片！",
+                Toast.makeText(mActivity, "未找到存储卡，无法存储照片！",
                         Toast.LENGTH_SHORT).show();
             }
 
@@ -334,7 +334,7 @@ public class DeviceControlFragment extends Fragment {
             mDeviceName.setText(mDevice.getName());
         }
 
-        mSpCache = new SpCache(getContext());
+        mSpCache = new SpCache(mActivity);
 
     }
 
@@ -345,7 +345,7 @@ public class DeviceControlFragment extends Fragment {
 //        event.getDeviceMirror().getBluetoothLeDevice()
         if (event != null) {
             if (event.isSuccess()) {
-                ToastUtil.showToast(getContext(), "Connect Success!");
+                ToastUtil.showToast(mActivity, "Connect Success!");
                 mDevice = event.getDeviceMirror().getBluetoothLeDevice();
 
                 // 显示设备 详细信息
@@ -360,9 +360,9 @@ public class DeviceControlFragment extends Fragment {
                 }
             } else {
                 if (event.isDisconnected()) {
-                    ToastUtil.showToast(getContext(), "Disconnect!");
+                    ToastUtil.showToast(mActivity, "Disconnect!");
                 } else {
-                    ToastUtil.showToast(getContext(), "Connect Failure!");
+                    ToastUtil.showToast(mActivity, "Connect Failure!");
                 }
                 mConnectionState.setText("false");
 //                getActivity().invalidateOptionsMenu();
@@ -700,7 +700,7 @@ public class DeviceControlFragment extends Fragment {
 //            gattCharacteristicData.add(gattCharacteristicGroupData);
 //        }
 //
-//        final SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(getContext(), gattServiceData, android.R.layout
+//        final SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(mActivity, gattServiceData, android.R.layout
 //                .simple_expandable_list_item_2, new String[]{LIST_NAME, LIST_UUID}, new int[]{android.R.id.text1, android.R.id.text2},
 //                gattCharacteristicData, android.R.layout.simple_expandable_list_item_2, new String[]{LIST_NAME, LIST_UUID}, new
 //                int[]{android.R.id.text1, android.R.id.text2});
@@ -751,8 +751,8 @@ public class DeviceControlFragment extends Fragment {
 //        if (simpleExpandableListAdapter == null) {
 //            return;
 //        }
-//        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//        View view = LayoutInflater.from(getContext()).inflate(R.layout.item_gatt_services, null);
+//        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+//        View view = LayoutInflater.from(mActivity).inflate(R.layout.item_gatt_services, null);
 //        ExpandableListView expandableListView = (ExpandableListView) view.findViewById(R.id.dialog_gatt_services_list);
 //        expandableListView.setAdapter(simpleExpandableListAdapter);
 //        builder.setView(view);
