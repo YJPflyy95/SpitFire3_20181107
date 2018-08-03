@@ -143,6 +143,8 @@ public class SettingsFragment extends Fragment {
     private Map<String, BluetoothGattCharacteristic> charaMap = new HashMap<>();
 
 
+    private static final long SLEEP_INTERVAL = 100;
+
 
     @Nullable
     @Override
@@ -159,16 +161,16 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if(isConnected()){
+                if (isConnected()) {
                     // 停止算法
-                    if(alg == null){
+                    if (alg == null) {
                         alg = new Algorithm("");
                     }
                     alg.setIndex(ALGORITHM_STOP);
                     alg.setName(STOP);
 
                     // list 列表取消选中
-                    if(newImageView!=null){
+                    if (newImageView != null) {
                         newImageView.setImageResource(R.drawable.blank); // 取消勾选状态
                         lastPosition = -1; // 重置position
                     }
@@ -177,7 +179,7 @@ public class SettingsFragment extends Fragment {
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
                     LogUtil.d(TAG, "停止算法，当前算法为：" + alg);
                     ToastUtil.showShortToast(mActivity, "" + "Stop Algo success");
-                }else{
+                } else {
                     ToastUtil.showShortToast(mActivity, "" + "No connected device");
                 }
 
@@ -194,7 +196,7 @@ public class SettingsFragment extends Fragment {
             public void onClick(View v) {
 
                 // 1. 停止算法, 断开蓝牙连接
-                if(isConnected()){
+                if (isConnected()) {
                     if (BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
                         BluetoothDeviceManager.getInstance().disconnect(mDevice);
                         ToastUtil.showShortToast(mActivity, "Device Disconnected!");
@@ -230,9 +232,9 @@ public class SettingsFragment extends Fragment {
                 lastPosition = position;//把当前的位置保存下来
 
                 // 设定算法
-                try{
+                try {
                     alg = algorithmList.get(position);
-                } catch (Exception e){
+                } catch (Exception e) {
                     LogUtil.e(TAG, e.toString());
                     alg = new Algorithm("");
                 }
@@ -245,11 +247,11 @@ public class SettingsFragment extends Fragment {
 
                 LogUtil.d(TAG, "调整算法序号，当前算法为：" + alg);
 
-                if(isConnected()){
+                if (isConnected()) {
                     // 写入数据
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
                     ToastUtil.showShortToast(mActivity, "" + "Adjust algo success");
-                }else {
+                } else {
                     ToastUtil.showShortToast(mActivity, "" + "No connected device");
                 }
             }
@@ -302,15 +304,14 @@ public class SettingsFragment extends Fragment {
 //                ToastUtil.showShortToast(mActivity, "" + s);
 
 
-
-                if(isConnected()){
+                if (isConnected()) {
                     // 只改变算法强度
                     int intense = (progress - 1);
-                    if(alg == null){
+                    if (alg == null) {
                         alg = new Algorithm("");
                         alg.setIndex(0);
                         alg.setIntensify(intense);
-                    }else{
+                    } else {
                         alg.setIntensify(intense);
                     }
                     String algParam = alg.genAlgSettingPara();
@@ -318,7 +319,7 @@ public class SettingsFragment extends Fragment {
                     LogUtil.d(TAG, "调整算法强度，当前算法为：" + alg);
 //                    ToastUtil.showShortToast(mActivity, "" + algParam);
                     ToastUtil.showShortToast(mActivity, "" + "Adjust intensity success");
-                }else{
+                } else {
                     ToastUtil.showShortToast(mActivity, "" + "No connected device");
                 }
             }
@@ -343,7 +344,7 @@ public class SettingsFragment extends Fragment {
         heartRateBtn = view.findViewById(R.id.heartrate_btn);
         settingAlgBtn = view.findViewById(R.id.algorithm_setting_btn);
 
-        if(IS_PRODUCTION){
+        if (IS_PRODUCTION) {
             heartRateTv.setVisibility(View.GONE);
             settingAlgResultTv.setVisibility(View.GONE);
             settingAlgBtn.setVisibility(View.GONE);
@@ -372,53 +373,38 @@ public class SettingsFragment extends Fragment {
 
     }
 
-    private void bindServiceCharac(){
+    private void bindServiceCharac() {
         BluetoothGattService heartRateService = serviceMap.get(mHeartRateServiceUuid.toString());
         BluetoothGattCharacteristic heartRateCharacteristic = charaMap.get(mHeartRateCharacteristicUuid.toString());
         BluetoothGattService algService = serviceMap.get(mAlgorithmServiceUuid.toString());
         BluetoothGattCharacteristic algCharacteristic = charaMap.get(mAlgorithmIntensifyUuid.toString());
         // 绑定channel
-        // TODO: 设定心率
         try {
 
-            Thread.sleep(100);
-        }catch (Exception e){
+            // TODO: 设定心率
+            Thread.sleep(SLEEP_INTERVAL);
+            setHearRateCharaPropBindChnnel(heartRateService, heartRateCharacteristic);
+            // TODO: 设定算法
+            Thread.sleep(SLEEP_INTERVAL);
+            setAlgCharaPropBindReadChnnel(algService, algCharacteristic);
 
-        }
-        setHearRateCharaPropBindChnnel(heartRateService, heartRateCharacteristic);
-        // TODO: 设定算法
-        try {
+            Thread.sleep(SLEEP_INTERVAL);
+            setAlgCharaPropBindNotifyChnnel(algService, algCharacteristic);
 
-            Thread.sleep(100);
-        }catch (Exception e){
+            Thread.sleep(SLEEP_INTERVAL);
+            setAlgCharaPropBindWriteChnnel(algService, algCharacteristic);
 
-        }
-        setAlgCharaPropBindReadChnnel(algService,algCharacteristic);
-        try {
+            Thread.sleep(SLEEP_INTERVAL);
 
-            Thread.sleep(100);
-        }catch (Exception e){
-
-        }
-        setAlgCharaPropBindNotifyChnnel(algService, algCharacteristic);
-        try {
-
-            Thread.sleep(100);
-        }catch (Exception e){
-
-        }
-        setAlgCharaPropBindWriteChnnel(algService, algCharacteristic);
-        try {
-
-            Thread.sleep(100);
-        }catch (Exception e){
-
+        } catch (Exception e) {
+            Log.w(TAG, e.toString());
         }
     }
 
 
     /**
      * 设定 心率 绑定
+     *
      * @param service
      * @param characteristic
      */
@@ -531,12 +517,13 @@ public class SettingsFragment extends Fragment {
             if (exception == null) {
                 return;
             }
-            ViseLog.i("notify fail:" + exception.getDescription());
+            ViseLog.w("notify fail:" + exception.getDescription());
         }
     };
 
     /**
      * 设定 【算法】 write channel
+     *
      * @param service
      * @param characteristic
      */
@@ -548,10 +535,9 @@ public class SettingsFragment extends Fragment {
     }
 
 
-
-
     /**
      * 设定 【算法】 notify channel
+     *
      * @param service
      * @param characteristic
      */
@@ -636,7 +622,7 @@ public class SettingsFragment extends Fragment {
                 if (exception == null) {
                     return;
                 }
-                ViseLog.i("callback fail:" + exception.getDescription());
+                ViseLog.w("callback fail:" + exception.getDescription());
             }
         }, bluetoothGattChannel);
         deviceMirror.readData();
@@ -671,7 +657,7 @@ public class SettingsFragment extends Fragment {
     /**
      * 连接设备
      */
-    private void connect(){
+    private void connect() {
         LogUtil.d(TAG, "Start to connect device!");
         ViseBle.getInstance().connectByName(DEVICE_NAME, deviceConnectCallback);
     }
@@ -689,7 +675,7 @@ public class SettingsFragment extends Fragment {
 
         @Override
         public void onConnectFailure(BleException exception) {
-            ViseLog.i("Connect Failure!");
+            ViseLog.w("Connect Failure!");
             ToastUtil.showShortToast(mActivity, "Device Not Found!");
             BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(false));
         }
@@ -724,7 +710,6 @@ public class SettingsFragment extends Fragment {
 
     /**
      * 扫描指定设备【名称】的设备
-     *
      */
     private ScanCallback filterDeviceNameScanCallback = new SingleFilterScanCallback(new IScanCallback() {
         @Override
@@ -759,6 +744,7 @@ public class SettingsFragment extends Fragment {
 
     /**
      * 订阅：显示通知数据
+     *
      * @param event
      */
     @Subscribe
@@ -772,11 +758,11 @@ public class SettingsFragment extends Fragment {
                 int flag = characteristic.getProperties();
                 int format = -1;
                 if ((flag & 0x01) != 0) {
-                    Log.d(TAG, "format: "+format);
+                    Log.d(TAG, "format: " + format);
                     format = BluetoothGattCharacteristic.FORMAT_UINT16;
                     Log.d(TAG, "Heart rate format UINT16.");
                 } else {
-                    Log.d(TAG, "format: "+format);
+                    Log.d(TAG, "format: " + format);
                     format = BluetoothGattCharacteristic.FORMAT_UINT8;
                     Log.d(TAG, "Heart rate format UINT8.");
                 }
@@ -784,16 +770,16 @@ public class SettingsFragment extends Fragment {
                 final int heartRate = characteristic.getIntValue(format, 1);
                 heartRateTv.setText(heartRate + " BMP");
                 Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-                LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(event.getData()));
+                LogUtil.d(TAG, characteristic.getUuid() + ": " + HexUtil.encodeHexStr(event.getData()));
             } else {
                 // For all other profiles, writes the data formatted in HEX.
                 final byte[] data = characteristic.getValue();
 
                 // 如果是算法的chara，则做出相应的处理
-                if (characteristic.getUuid().equals(mAlgorithmIntensifyUuid)){
+                if (characteristic.getUuid().equals(mAlgorithmIntensifyUuid)) {
                     settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
                 }
-                LogUtil.d(TAG, characteristic.getUuid() + ": "+HexUtil.encodeHexStr(data));
+                LogUtil.d(TAG, characteristic.getUuid() + ": " + HexUtil.encodeHexStr(data));
             }
 
         }
@@ -812,12 +798,12 @@ public class SettingsFragment extends Fragment {
 
                     // 获取服务和属性
                     List<BluetoothGattService> gattServices = event.getDeviceMirror().getBluetoothGatt().getServices();
-                    ServiceCharacUtil.getAppServicesCharcs(gattServices,serviceMap, charaMap);
+                    ServiceCharacUtil.getAppServicesCharcs(gattServices, serviceMap, charaMap);
 
                     // TODO: 线程等待一下才能成功！，没想明白原因。
-                    try{
+                    try {
                         Thread.sleep(500);
-                    }catch (Exception e){
+                    } catch (Exception e) {
 
                     }
                     // 设定服务和通知
@@ -872,33 +858,33 @@ public class SettingsFragment extends Fragment {
 
                     BluetoothGattCharacteristic chara = event.getBluetoothGattChannel().getCharacteristic();
                     // 如果是算法的chara，则做出相应的处理
-                    if(chara.getUuid().equals(mAlgorithmIntensifyUuid)){
+                    if (chara.getUuid().equals(mAlgorithmIntensifyUuid)) {
                         final byte[] data = event.getData(); // 使用这种方式才能拿到数据
                         // 设定显示
                         String param = HexUtil.encodeHexStr(data);
-                        int algIndex = Integer.parseInt(param.subSequence(1,2).toString());
-                        int intense = Integer.parseInt(param.subSequence(3,param.length()).toString());
-                        if(algIndex != 0){
+                        int algIndex = Integer.parseInt(param.subSequence(1, 2).toString());
+                        int intense = Integer.parseInt(param.subSequence(3, param.length()).toString());
+                        if (algIndex != 0) {
                             alg = algorithmList.get(algIndex - 1);
                         }
 
-                        if(algIndex == 0){
+                        if (algIndex == 0) {
                             alg = algorithmList.get(algIndex);
                         }
 
-                        if(alg == null) {
+                        if (alg == null) {
                             alg = new Algorithm("");
                         }
 
                         // TODO: 设定选中状态
                         alg.setIndex(algIndex);
                         alg.setIntensify(intense);
-                        if(algIndex > 0){
+                        if (algIndex > 0) {
                             alg.setName(algorithms[algIndex - 1]);
                         }
 
                         seekBar.setProgress(intense + 1);
-                        if(algIndex > 0){
+                        if (algIndex > 0) {
                             newImageView = alglist.getChildAt(algIndex - 1).findViewById(R.id.algorithm_index_img);
                             newImageView.setImageResource(R.drawable.checkmark);
                             lastPosition = algIndex - 1;
@@ -907,7 +893,7 @@ public class SettingsFragment extends Fragment {
 
                         settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
 
-                        LogUtil.d(TAG, "Alg Intense " + ": "+HexUtil.encodeHexStr(data));
+                        LogUtil.d(TAG, "Alg Intense " + ": " + HexUtil.encodeHexStr(data));
                     }
                 }
             }
@@ -917,7 +903,7 @@ public class SettingsFragment extends Fragment {
     /**
      * 清空数据
      */
-    private void clearData(){
+    private void clearData() {
         serviceMap.clear();
         charaMap.clear();
     }
@@ -982,9 +968,10 @@ public class SettingsFragment extends Fragment {
 
     /**
      * 判断设备是否已连接
+     *
      * @return
      */
-    private boolean isConnected(){
+    private boolean isConnected() {
         return mDevice != null && ViseBle.getInstance().isConnect(mDevice);
     }
 
