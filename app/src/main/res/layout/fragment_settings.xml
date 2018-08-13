@@ -18,6 +18,7 @@
             android:layout_height="58dp"
             android:background="@color/appmain">
 
+            <!--android:text="＜ Me"-->
             <Button
                 android:id="@+id/bt_me"
                 style="@style/Widget.AppCompat.Button.Borderless"
@@ -27,7 +28,7 @@
                 android:layout_marginLeft="0dp"
                 android:paddingBottom="5dip"
                 android:paddingTop="20dip"
-                android:text="＜ Me"
+                android:text=""
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
@@ -38,7 +39,7 @@
                 android:layout_height="64dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Settings"
+                android:text="Qey moments"
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 android:visibility="visible" />

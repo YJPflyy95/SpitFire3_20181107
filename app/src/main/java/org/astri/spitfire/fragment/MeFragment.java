@@ -91,6 +91,7 @@ public class MeFragment extends Fragment {
     private Fragment deviceControlFragment = new DeviceControlFragment();
 
     private Fragment settingFragment = new SettingsFragment();
+    private Fragment activitiesFragment = new ActivitiesFragment();
 
 
 
@@ -150,12 +151,20 @@ public class MeFragment extends Fragment {
         });
 
 
-        // 设置： 算法
-        TextView settings = view.findViewById(R.id.forwardSetting_tv);
+//        // 设置： 算法
+//        TextView settings = view.findViewById(R.id.forwardSetting_tv);
+//        settings.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                replaceFragment(settingFragment);
+//            }
+//        });
+        // Activities
+        TextView settings = view.findViewById(R.id.forwardActivities_tv);
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                replaceFragment(settingFragment);
+                replaceFragment(activitiesFragment);
             }
         });
 

@@ -33,6 +33,7 @@ import org.astri.spitfire.fragment.HistoryFragment;
 import org.astri.spitfire.fragment.HomeFragment;
 import org.astri.spitfire.fragment.LiveFragment;
 import org.astri.spitfire.fragment.MeFragment;
+import org.astri.spitfire.fragment.SettingsFragment;
 import org.astri.spitfire.util.DataUtil;
 import org.astri.spitfire.util.LogUtil;
 
@@ -64,7 +65,8 @@ public class GodActivity extends AppCompatActivity implements BottomNavigationBa
     private Fragment activitiesFragment;
     private Fragment meFragment;
 
-    private Fragment mContent;
+    // settings -> moments
+    private Fragment momentsFragment;
 
     private BottomNavigationBar bottomNavigationBar;
 
@@ -88,7 +90,8 @@ public class GodActivity extends AppCompatActivity implements BottomNavigationBa
                 .addItem(new BottomNavigationItem(R.drawable.homefilled, "Home").setInactiveIconResource(R.drawable.home).setActiveColorResource(R.color.appmain))
                 .addItem(new BottomNavigationItem(R.drawable.livefilled, "Live").setInactiveIconResource(R.drawable.live).setActiveColorResource(R.color.appmain))
                 .addItem(new BottomNavigationItem(R.drawable.historyfilled, "History").setInactiveIconResource(R.drawable.history).setActiveColorResource(R.color.appmain))
-                .addItem(new BottomNavigationItem(R.drawable.exercisefilled, "Activities").setInactiveIconResource(R.drawable.exercise).setActiveColorResource(R.color.appmain))
+//                .addItem(new BottomNavigationItem(R.drawable.exercisefilled, "Activities").setInactiveIconResource(R.drawable.exercise).setActiveColorResource(R.color.appmain))
+                .addItem(new BottomNavigationItem(R.drawable.momentsfilled, "Moments").setInactiveIconResource(R.drawable.moments).setActiveColorResource(R.color.appmain))
                 .addItem(new BottomNavigationItem(R.drawable.myfilled, "Me").setInactiveIconResource(R.drawable.my).setActiveColorResource(R.color.appmain))
                 .initialise();
 
@@ -139,10 +142,16 @@ public class GodActivity extends AppCompatActivity implements BottomNavigationBa
 //                switchContent(historyFragment);
                 break;
             case 3:
-                if (activitiesFragment == null) {
-                    activitiesFragment = new ActivitiesFragment();
+//                if (activitiesFragment == null) {
+//                    activitiesFragment = new ActivitiesFragment();
+//                }
+//                replaceFragment(activitiesFragment);
+
+
+                if(momentsFragment == null){
+                    momentsFragment = new SettingsFragment();
                 }
-                replaceFragment(activitiesFragment);
+                replaceFragment(momentsFragment);
 //                switchContent(activitiesFragment);
                 break;
             case 4:

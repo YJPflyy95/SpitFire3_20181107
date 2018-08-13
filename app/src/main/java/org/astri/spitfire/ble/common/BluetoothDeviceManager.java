@@ -120,7 +120,7 @@ public class BluetoothDeviceManager {
             if (exception == null) {
                 return;
             }
-            ViseLog.i("callback fail:" + exception.getDescription());
+            ViseLog.w("callback fail:" + exception.getDescription());
             BusManager.getBus().post(callbackDataEvent.setSuccess(false));
         }
     };

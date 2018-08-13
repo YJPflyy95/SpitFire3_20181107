@@ -1,3 +1,19 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+
+
+    <!--修改navigation bar的默认设置-->
+    <!--https://github.com/Ashok-Varma/BottomNavigation/blob/master_v2/bottom-navigation-bar/src/main/res/values/dimens.xml-->
+
+    <dimen name="fixed_min_width">120dp</dimen>
+    <dimen name="fixed_min_width_small_views">104dp</dimen>
+    <dimen name="fixed_max_width">168dp</dimen>
+
+    <!-- override 12-->
+    <dimen name="fixed_width_padding">6dp</dimen>
+
+
+    <!-- override-->
+    <!--<dimen name="fixed_label_active">12sp</dimen>-->
+    <!--<dimen name="fixed_label_inactive">10sp</dimen>-->
 </resources>

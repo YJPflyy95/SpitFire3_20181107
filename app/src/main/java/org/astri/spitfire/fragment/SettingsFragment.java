@@ -81,7 +81,7 @@ import static org.astri.spitfire.util.Constants.IS_PRODUCTION;
  */
 public class SettingsFragment extends Fragment {
 
-    private static final String TAG = "SettingsFragment";
+    private static final String TAG = SettingsFragment.class.getSimpleName();
     private static final String DEVICE_NAME = "Spitfire HRS";
 
     public static final String WRITE_CHARACTERISTI_UUID_KEY = "write_uuid_key";
@@ -190,25 +190,25 @@ public class SettingsFragment extends Fragment {
         // 点击Me Button
         // 1. 停止算法, 断开蓝牙连接
         // 2. 返回 Me Fragment
-        meBtn = view.findViewById(R.id.bt_me);
-        meBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // 1. 停止算法, 断开蓝牙连接
-                if (isConnected()) {
-                    if (BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
-                        BluetoothDeviceManager.getInstance().disconnect(mDevice);
-                        ToastUtil.showShortToast(mActivity, "Device Disconnected!");
-                        LogUtil.d(TAG, "Device Disconnected!");
-                    }
-                }
-
-                // 2. 返回 Me Fragment
-                getFragmentManager().popBackStack();
-
-            }
-        });
+//        meBtn = view.findViewById(R.id.bt_me);
+//        meBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                // 1. 停止算法, 断开蓝牙连接
+//                if (isConnected()) {
+//                    if (BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+//                        BluetoothDeviceManager.getInstance().disconnect(mDevice);
+//                        ToastUtil.showShortToast(mActivity, "Device Disconnected!");
+//                        LogUtil.d(TAG, "Device Disconnected!");
+//                    }
+//                }
+//
+//                // 2. 返回 Me Fragment
+//                getFragmentManager().popBackStack();
+//
+//            }
+//        });
 
 
         // 初始化算法
