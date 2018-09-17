@@ -8,8 +8,10 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -145,15 +148,30 @@ public class SettingsFragment extends Fragment {
 
     private static final long SLEEP_INTERVAL = 100;
 
+    private class BLETask extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            // 设定服务和通知
+            bindServiceCharac();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+    }
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        // 重要：注册事件驱动， 注册以后才能得到通知。
+        BusManager.getBus().register(SettingsFragment.this);
 
-        // 重要：注册事件驱动， 祖册以后才能得到通知。
-        BusManager.getBus().register(this);
 
         // 停止算法
         stopBtn = view.findViewById(R.id.bt_stop);
@@ -187,32 +205,10 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        // 点击Me Button
-        // 1. 停止算法, 断开蓝牙连接
-        // 2. 返回 Me Fragment
-//        meBtn = view.findViewById(R.id.bt_me);
-//        meBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                // 1. 停止算法, 断开蓝牙连接
-//                if (isConnected()) {
-//                    if (BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
-//                        BluetoothDeviceManager.getInstance().disconnect(mDevice);
-//                        ToastUtil.showShortToast(mActivity, "Device Disconnected!");
-//                        LogUtil.d(TAG, "Device Disconnected!");
-//                    }
-//                }
-//
-//                // 2. 返回 Me Fragment
-//                getFragmentManager().popBackStack();
-//
-//            }
-//        });
-
 
         // 初始化算法
         initAlgorithms();
+
         final AlgorithmAdapter adapter = new AlgorithmAdapter(mActivity, R.layout.list_view_item_algorithms, algorithmList);
         alglist = view.findViewById(R.id.algorithm_list);
 
@@ -353,23 +349,10 @@ public class SettingsFragment extends Fragment {
 
 
         mSpCache = new SpCache(mActivity);
-        // 获取已经连接的设备
-
-//        mDevice = GodActivity.getDevice();
-
-        // 如果不存在设备，扫描，并连接设备
-
-
-        if (mDevice != null && ViseBle.getInstance().isConnect(mDevice)) {
-
-            LogUtil.d(TAG, "已经存在设备，开始绑定通道！");
-        } else {
-
-            connect();
-
-        }
 
         setAlgBtn();
+
+        connect();
 
     }
 
@@ -414,7 +397,7 @@ public class SettingsFragment extends Fragment {
         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
             mSpCache.put(WRITE_CHARACTERISTI_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
 //            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
-            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
+            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().read(mDevice);
         } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
             BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
@@ -422,48 +405,8 @@ public class SettingsFragment extends Fragment {
         }
         if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
             mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
-            DeviceMirror deviceMirror = ViseBle.getInstance().getDeviceMirror(mDevice);
-            BluetoothGattChannel bluetoothGattChannel = new BluetoothGattChannel.Builder()
-                    .setBluetoothGatt(deviceMirror.getBluetoothGatt())
-                    .setPropertyType(PropertyType.PROPERTY_NOTIFY)
-                    .setServiceUUID(service.getUuid())
-                    .setCharacteristicUUID(characteristic.getUuid())
-                    .setDescriptorUUID(null)
-                    .builder();
-            deviceMirror.bindChannel(new IBleCallback() {
-                @Override
-                public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice) {
-                    if (data == null) {
-                        return;
-                    }
-                    ViseLog.i("notify callback success:" + HexUtil.encodeHexStr(data));
-
-                    // 事件
-                    BusManager.getBus().post(callbackDataEvent.setData(data).setSuccess(true)
-                            .setBluetoothLeDevice(bluetoothLeDevice)
-                            .setBluetoothGattChannel(bluetoothGattInfo));
-
-                    if (bluetoothGattInfo != null && (bluetoothGattInfo.getPropertyType() == PropertyType.PROPERTY_INDICATE
-                            || bluetoothGattInfo.getPropertyType() == PropertyType.PROPERTY_NOTIFY)) {
-                        DeviceMirror deviceMirror = ViseBle.getInstance().getDeviceMirror(mDevice);
-                        if (deviceMirror != null) {
-                            deviceMirror.setNotifyListener(bluetoothGattInfo.getGattInfoKey(), receiveHeartRateCallBack);
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(BleException exception) {
-                    if (exception == null) {
-                        return;
-                    }
-                    ViseLog.i("callback fail:" + exception.getDescription());
-                    BusManager.getBus().post(callbackDataEvent.setSuccess(false));
-                }
-            }, bluetoothGattChannel);
-
-            deviceMirror.registerNotify(false);
-
+            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_NOTIFY, service.getUuid(), characteristic.getUuid(), null);
+            BluetoothDeviceManager.getInstance().registerNotify(mDevice, false);
 
         } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_INDICATE) > 0) {
             mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
@@ -471,30 +414,6 @@ public class SettingsFragment extends Fragment {
             BluetoothDeviceManager.getInstance().registerNotify(mDevice, true);
         }
     }
-
-    /**
-     * 接收数据回调
-     */
-    private IBleCallback receiveHeartRateCallBack = new IBleCallback() {
-        @Override
-        public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice) {
-            if (data == null) {
-                return;
-            }
-            ViseLog.i("receiveHeartRateCallBack notify success:" + HexUtil.encodeHexStr(data));
-            BusManager.getBus().post(heartRateDataEvent.setData(data)
-                    .setBluetoothLeDevice(bluetoothLeDevice)
-                    .setBluetoothGattChannel(bluetoothGattInfo));
-        }
-
-        @Override
-        public void onFailure(BleException exception) {
-            if (exception == null) {
-                return;
-            }
-            ViseLog.i("notify fail:" + exception.getDescription());
-        }
-    };
 
 
     /**
@@ -543,49 +462,8 @@ public class SettingsFragment extends Fragment {
      */
     private void setAlgCharaPropBindNotifyChnnel(BluetoothGattService service, BluetoothGattCharacteristic characteristic) {
         mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
-        DeviceMirror deviceMirror = ViseBle.getInstance().getDeviceMirror(mDevice);
-        BluetoothGattChannel bluetoothGattChannel = new BluetoothGattChannel.Builder()
-                .setBluetoothGatt(deviceMirror.getBluetoothGatt())
-                .setPropertyType(PropertyType.PROPERTY_NOTIFY)
-                .setServiceUUID(service.getUuid())
-                .setCharacteristicUUID(characteristic.getUuid())
-                .setDescriptorUUID(null)
-                .builder();
-        deviceMirror.bindChannel(new IBleCallback() {
-            @Override
-            public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice) {
-                if (data == null) {
-                    return;
-                }
-                // 读取成功，显示数
-                settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
-                ViseLog.i("notify callback success:" + HexUtil.encodeHexStr(data));
-                BusManager.getBus().post(callbackDataEvent.setData(data).setSuccess(true)
-                        .setBluetoothLeDevice(bluetoothLeDevice)
-                        .setBluetoothGattChannel(bluetoothGattInfo));
-                // 读取成功，显示数
-//                    settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
-
-                if (bluetoothGattInfo != null && (bluetoothGattInfo.getPropertyType() == PropertyType.PROPERTY_INDICATE
-                        || bluetoothGattInfo.getPropertyType() == PropertyType.PROPERTY_NOTIFY)) {
-                    DeviceMirror deviceMirror = ViseBle.getInstance().getDeviceMirror(mDevice);
-                    if (deviceMirror != null) {
-                        deviceMirror.setNotifyListener(bluetoothGattInfo.getGattInfoKey(), receiveAlgCallBack);
-                    }
-                }
-
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-                if (exception == null) {
-                    return;
-                }
-                ViseLog.i("callback fail:" + exception.getDescription());
-            }
-        }, bluetoothGattChannel);
-        deviceMirror.registerNotify(false);
-        LogUtil.d(TAG, "setAlgCharaPropBindNotifyChnnel done!");
+        BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_NOTIFY, service.getUuid(), characteristic.getUuid(), null);
+        BluetoothDeviceManager.getInstance().registerNotify(mDevice, false);
     }
 
 
@@ -596,39 +474,10 @@ public class SettingsFragment extends Fragment {
      * @param characteristic
      */
     private void setAlgCharaPropBindReadChnnel(BluetoothGattService service, BluetoothGattCharacteristic characteristic) {
-        DeviceMirror deviceMirror = ViseBle.getInstance().getDeviceMirror(mDevice);
-        BluetoothGattChannel bluetoothGattChannel = new BluetoothGattChannel.Builder()
-                .setBluetoothGatt(deviceMirror.getBluetoothGatt())
-                .setPropertyType(PropertyType.PROPERTY_READ)
-                .setServiceUUID(service.getUuid())
-                .setCharacteristicUUID(characteristic.getUuid())
-                .setDescriptorUUID(null)
-                .builder();
-        deviceMirror.bindChannel(new IBleCallback() {
-            @Override
-            public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice) {
-                if (data == null) {
-                    return;
-                }
-
-                ViseLog.i("read callback success:" + HexUtil.encodeHexStr(data));
-                BusManager.getBus().post(callbackDataEvent.setData(data).setSuccess(true)
-                        .setBluetoothLeDevice(bluetoothLeDevice)
-                        .setBluetoothGattChannel(bluetoothGattInfo));
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-                if (exception == null) {
-                    return;
-                }
-                ViseLog.w("callback fail:" + exception.getDescription());
-            }
-        }, bluetoothGattChannel);
-        deviceMirror.readData();
-
-
+        BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
+        BluetoothDeviceManager.getInstance().read(mDevice);
     }
+
 
     private void showReadInfo(String uuid, byte[] dataArr) {
         LogUtil.d(TAG, uuid + ": " + HexUtil.encodeHexStr(dataArr));
@@ -637,9 +486,9 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         mActivity = (Activity) context;
     }
+
 
     /**
      * 设置算法和强度
@@ -659,74 +508,9 @@ public class SettingsFragment extends Fragment {
      */
     private void connect() {
         LogUtil.d(TAG, "Start to connect device!");
-        ViseBle.getInstance().connectByName(DEVICE_NAME, deviceConnectCallback);
+        BluetoothDeviceManager.getInstance().connectByName(DEVICE_NAME);
+
     }
-
-    private IConnectCallback deviceConnectCallback = new IConnectCallback() {
-
-        @Override
-        public void onConnectSuccess(DeviceMirror deviceMirror) {
-            LogUtil.d(TAG, "onConnectSuccess");
-            mDeviceMirror = deviceMirror;
-            mDevice = mDeviceMirror.getBluetoothLeDevice();
-            BusManager.getBus().post(connectEvent.setDeviceMirror(deviceMirror).setSuccess(true));
-
-        }
-
-        @Override
-        public void onConnectFailure(BleException exception) {
-            ViseLog.w("Connect Failure!");
-            ToastUtil.showShortToast(mActivity, "Device Not Found!");
-            BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(false));
-        }
-
-        @Override
-        public void onDisconnect(boolean isActive) {
-            ViseLog.i("Disconnect!");
-            BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(true));
-        }
-    };
-
-
-    /**
-     * 开始扫描
-     */
-    @SuppressLint("RestrictedApi")
-    private void startScan() {
-
-        ViseBle.getInstance().startScan(filterDeviceNameScanCallback);
-        mActivity.invalidateOptionsMenu();
-    }
-
-    /**
-     * 停止扫描
-     */
-    @SuppressLint("RestrictedApi")
-    private void stopScan() {
-        ViseBle.getInstance().stopScan(filterDeviceNameScanCallback);
-        mActivity.invalidateOptionsMenu();
-    }
-
-
-    /**
-     * 扫描指定设备【名称】的设备
-     */
-    private ScanCallback filterDeviceNameScanCallback = new SingleFilterScanCallback(new IScanCallback() {
-        @Override
-        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
-
-        }
-
-        @Override
-        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
-
-        }
-
-        @Override
-        public void onScanTimeout() {
-
-        }
-    }).setDeviceName(DEVICE_NAME);
 
     /**
      * 初始化算法
@@ -771,14 +555,53 @@ public class SettingsFragment extends Fragment {
                 heartRateTv.setText(heartRate + " BMP");
                 Log.d(TAG, String.format("Received heart rate: %d", heartRate));
                 LogUtil.d(TAG, characteristic.getUuid() + ": " + HexUtil.encodeHexStr(event.getData()));
+
+            } else if (characteristic.getUuid().equals(mAlgorithmIntensifyUuid)) {
+                final byte[] data = characteristic.getValue(); // 使用这种方式才能拿到数据
+                // 如果是算法的chara，则做出相应的处理
+                settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
+                LogUtil.d(TAG, characteristic.getUuid() + ": " + HexUtil.encodeHexStr(data));
+
+                // 设定显示
+                String param = HexUtil.encodeHexStr(data);
+                LogUtil.d(TAG, "Alg Intense " + ": " + HexUtil.encodeHexStr(data));
+                try{
+                    int algIndex = Integer.parseInt(param.subSequence(1, 2).toString());
+                    int intense = Integer.parseInt(param.subSequence(3, param.length()).toString());
+                    if (algIndex != 0) {
+                        alg = algorithmList.get(algIndex - 1);
+                    }
+
+                    if (algIndex == 0) {
+                        alg = algorithmList.get(algIndex);
+                    }
+
+                    if (alg == null) {
+                        alg = new Algorithm("");
+                    }
+
+                    // TODO: 设定选中状态
+                    alg.setIndex(algIndex);
+                    alg.setIntensify(intense);
+                    if (algIndex > 0) {
+                        alg.setName(algorithms[algIndex - 1]);
+                    }
+
+                    seekBar.setProgress(intense + 1);
+                    if (algIndex > 0) {
+                        newImageView = alglist.getChildAt(algIndex - 1).findViewById(R.id.algorithm_index_img);
+                        newImageView.setImageResource(R.drawable.checkmark);
+                        lastPosition = algIndex - 1;
+                    }
+
+                    settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
+                } catch (Exception e){
+
+                }
+
             } else {
                 // For all other profiles, writes the data formatted in HEX.
                 final byte[] data = characteristic.getValue();
-
-                // 如果是算法的chara，则做出相应的处理
-                if (characteristic.getUuid().equals(mAlgorithmIntensifyUuid)) {
-                    settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
-                }
                 LogUtil.d(TAG, characteristic.getUuid() + ": " + HexUtil.encodeHexStr(data));
             }
 
@@ -806,9 +629,9 @@ public class SettingsFragment extends Fragment {
                     } catch (Exception e) {
 
                     }
-                    // 设定服务和通知
-                    bindServiceCharac();
 
+                    // 绑定服务
+                    new BLETask().execute();
 
                     // 设定视图中的控件：
                     // 此时设定按钮
@@ -818,10 +641,10 @@ public class SettingsFragment extends Fragment {
             } else {
                 if (event.isDisconnected()) {
                     clearData();
-                    //ToastUtil.showToast(mActivity, "Disconnect!");
+                    ToastUtil.showToast(mActivity, "Disconnect!");
                 } else {
                     clearData();
-                    //ToastUtil.showToast(mActivity, "Connect Failure!");
+                    ToastUtil.showToast(mActivity, "Connect Failure!");
                 }
             }
         }
@@ -859,41 +682,7 @@ public class SettingsFragment extends Fragment {
                     BluetoothGattCharacteristic chara = event.getBluetoothGattChannel().getCharacteristic();
                     // 如果是算法的chara，则做出相应的处理
                     if (chara.getUuid().equals(mAlgorithmIntensifyUuid)) {
-                        final byte[] data = event.getData(); // 使用这种方式才能拿到数据
-                        // 设定显示
-                        String param = HexUtil.encodeHexStr(data);
-                        int algIndex = Integer.parseInt(param.subSequence(1, 2).toString());
-                        int intense = Integer.parseInt(param.subSequence(3, param.length()).toString());
-                        if (algIndex != 0) {
-                            alg = algorithmList.get(algIndex - 1);
-                        }
 
-                        if (algIndex == 0) {
-                            alg = algorithmList.get(algIndex);
-                        }
-
-                        if (alg == null) {
-                            alg = new Algorithm("");
-                        }
-
-                        // TODO: 设定选中状态
-                        alg.setIndex(algIndex);
-                        alg.setIntensify(intense);
-                        if (algIndex > 0) {
-                            alg.setName(algorithms[algIndex - 1]);
-                        }
-
-                        seekBar.setProgress(intense + 1);
-                        if (algIndex > 0) {
-                            newImageView = alglist.getChildAt(algIndex - 1).findViewById(R.id.algorithm_index_img);
-                            newImageView.setImageResource(R.drawable.checkmark);
-                            lastPosition = algIndex - 1;
-                        }
-
-
-                        settingAlgResultTv.setText(HexUtil.encodeHexStr(data));
-
-                        LogUtil.d(TAG, "Alg Intense " + ": " + HexUtil.encodeHexStr(data));
                     }
                 }
             }
@@ -901,7 +690,7 @@ public class SettingsFragment extends Fragment {
     }
 
     /**
-     * 清空数据
+     * 清空数据 保存的 service 和 characteristic
      */
     private void clearData() {
         serviceMap.clear();
@@ -913,13 +702,28 @@ public class SettingsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         checkBluetoothPermission();
+        if (mDevice == null || !BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+            BluetoothDeviceManager.getInstance().connectByName(DEVICE_NAME);
+        }
     }
 
     @Override
     public void onDestroy() {
         ViseBle.getInstance().clear();
         BusManager.getBus().unregister(this);
+        if ( mDevice !=null && BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+            BluetoothDeviceManager.getInstance().disconnect(mDevice);
+        }
         super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        BusManager.getBus().unregister(this);
+        if ( mDevice !=null && BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+            BluetoothDeviceManager.getInstance().disconnect(mDevice);
+        }
+        super.onDestroyView();
     }
 
     @Override
@@ -972,7 +776,10 @@ public class SettingsFragment extends Fragment {
      * @return
      */
     private boolean isConnected() {
-        return mDevice != null && ViseBle.getInstance().isConnect(mDevice);
+        return mDevice != null && BluetoothDeviceManager.getInstance().isConnected(mDevice);
     }
+
+
+
 
 }

@@ -166,6 +166,11 @@ public class BluetoothDeviceManager {
         ViseBle.getInstance().connect(bluetoothLeDevice, connectCallback);
     }
 
+    public void connectByName(String deviceName) {
+        LogUtil.d(TAG, "connect");
+        ViseBle.getInstance().connectByName(deviceName, connectCallback);
+    }
+
     public void disconnect(BluetoothLeDevice bluetoothLeDevice) {
         LogUtil.d(TAG, "disconnect");
         ViseBle.getInstance().disconnect(bluetoothLeDevice);
