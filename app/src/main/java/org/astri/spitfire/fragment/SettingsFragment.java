@@ -564,8 +564,14 @@ public class SettingsFragment extends Fragment {
 
                 // 设定显示
                 String param = HexUtil.encodeHexStr(data);
-                LogUtil.d(TAG, "Alg Intense " + ": " + HexUtil.encodeHexStr(data));
+
                 try{
+
+
+                    LogUtil.d(TAG, "Alg Intense " + ": " + HexUtil.encodeHexStr(data));
+                    if(param.length() > 4){ // TODO: 返回的数据长度过长，此处截取4
+                        param = param.substring(0, 4);
+                    }
                     int algIndex = Integer.parseInt(param.subSequence(1, 2).toString());
                     int intense = Integer.parseInt(param.subSequence(3, param.length()).toString());
                     if (algIndex != 0) {
