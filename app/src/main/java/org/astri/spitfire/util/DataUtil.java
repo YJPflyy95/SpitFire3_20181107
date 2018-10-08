@@ -35,9 +35,6 @@ public class DataUtil {
 
     private static final String TAG = "DataUtil";
 
-
-
-
     /**
      * according to prototype, we generate some fake data.
      * generate History data
@@ -88,7 +85,7 @@ public class DataUtil {
 
 
     /**
-     * 生成HistoryExercise显示需要的数据
+     * generate data for showing HistoryExercise
      * @return
      */
     public static List<History> genFakeHistoryExerciseData(){
@@ -206,7 +203,7 @@ public class DataUtil {
     }
 
     /**
-     * 生成测试数据
+     * generate testing data.
      */
     public static void genFakeData2DB(){
         //saveData();
@@ -217,30 +214,6 @@ public class DataUtil {
         }else{
             Log.d(TAG, "genFakeData2DB: false");
         }
-    }
-
-
-
-    public static void genUsers(){
-        Log.d(TAG, "genUsers: ....");
-        List<User> list = new ArrayList<>();
-        User u = new User();
-        u.setName("海峰");
-        u.setName("");
-        u.save();
-        list.add(u);
-        u = new User();
-        u.setName("思宏");
-        u.setName("");
-        u.save();
-
-        List<User> users = DataSupport.where("name = '思宏'").find(User.class);
-        for (User ur:
-                users) {
-            Log.d(TAG, "genUsers: .... " + ur);
-        }
-
-
     }
 
 

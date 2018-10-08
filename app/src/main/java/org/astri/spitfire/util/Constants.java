@@ -27,9 +27,9 @@ public class Constants {
     public static final SimpleDateFormat FMT_HM = new SimpleDateFormat("HH:mm");
     public static final SimpleDateFormat FMT_MMddyyyy = new SimpleDateFormat("MM/dd/yyyy");
 
-    // 根据是否投产，显示一些功能
-    public static final boolean IS_PRODUCTION = true;
+    // According to Production phase, set IS_PRODUCTION to show specific functions.
+    public static final boolean IS_PRODUCTION = false;
 
-    // 判断是否是用户测试，去掉一些必要功能，例如注册校验等
+    // According to is in User Testing Phase, close specific functions, such as user login check.
     public static final boolean IS_USER_TESTING = true;
 }
