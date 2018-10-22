@@ -29,7 +29,7 @@ public class Constants {
     public static final String ALG_SETTING_PARAM = "ALG_SETTING_PARAM";
 
     // According to Production phase, set IS_PRODUCTION to show specific functions.
-    public static final boolean IS_PRODUCTION = false;
+    public static final boolean IS_PRODUCTION = true;
 
     // According to is in User Testing Phase, close specific functions, such as user login check.
     public static final boolean IS_USER_TESTING = true;
