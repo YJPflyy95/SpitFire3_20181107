@@ -1,6 +1,5 @@
 package org.astri.spitfire.ble.common;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,7 +16,6 @@ import com.vise.baseble.model.BluetoothLeDevice;
 import com.vise.baseble.utils.HexUtil;
 import com.vise.log.ViseLog;
 import com.vise.xsnow.event.BusManager;
-import com.vise.xsnow.event.Subscribe;
 
 import org.astri.spitfire.ble.event.CallbackDataEvent;
 import org.astri.spitfire.ble.event.ConnectEvent;
@@ -28,6 +26,7 @@ import org.astri.spitfire.util.LogUtil;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
+
 
 /**
  * @Description: 蓝牙设备管理
@@ -44,6 +43,8 @@ public class BluetoothDeviceManager {
     private ConnectEvent connectEvent = new ConnectEvent();
     private CallbackDataEvent callbackDataEvent = new CallbackDataEvent();
     private NotifyDataEvent notifyDataEvent = new NotifyDataEvent();
+
+    private static int count = 0;
 
     /**
      * 连接回调
@@ -204,6 +205,7 @@ public class BluetoothDeviceManager {
                 @Override
                 public void run() {
                     send(bluetoothLeDevice);
+                    LogUtil.d(TAG, " count :" + count++);
                 }
             });
         }
@@ -225,7 +227,13 @@ public class BluetoothDeviceManager {
 
     //发送队列，提供一种简单的处理方式，实际项目场景需要根据需求优化
     private Queue<byte[]> dataInfoQueue = new LinkedList<>();
+
+    /**
+     * 数据字节大于20分包长度
+     * @param bluetoothLeDevice
+     */
     private void send(final BluetoothLeDevice bluetoothLeDevice) {
+
         if (dataInfoQueue != null && !dataInfoQueue.isEmpty()) {
             DeviceMirror deviceMirror = mDeviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
             if (dataInfoQueue.peek() != null && deviceMirror != null) {
@@ -237,7 +245,7 @@ public class BluetoothDeviceManager {
                     public void run() {
                         send(bluetoothLeDevice);
                     }
-                }, 100);
+                }, 100); //100
             }
         }
     }

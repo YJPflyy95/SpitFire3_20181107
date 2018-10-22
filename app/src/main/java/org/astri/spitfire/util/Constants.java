@@ -26,6 +26,7 @@ public class Constants {
     public static final SimpleDateFormat FMT_HMS = new SimpleDateFormat("HH:mm:ss");
     public static final SimpleDateFormat FMT_HM = new SimpleDateFormat("HH:mm");
     public static final SimpleDateFormat FMT_MMddyyyy = new SimpleDateFormat("MM/dd/yyyy");
+    public static final String ALG_SETTING_PARAM = "ALG_SETTING_PARAM";
 
     // According to Production phase, set IS_PRODUCTION to show specific functions.
     public static final boolean IS_PRODUCTION = false;

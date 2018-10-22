@@ -3,9 +3,19 @@ package org.astri.spitfire.util;
 import android.content.Context;
 import android.util.TypedValue;
 
+
 /**
- * px与dp互相转换
- * Created by yangle on 2016/11/25.
+ * <pre>
+ *     author : HuGuoDong
+ *     e-mail : guodong_hu@126.com
+ *     time   : 2018/01/23
+ *     desc   : px and dp convert util
+ *     modified by :
+ *     e-mail : xx_xxx@xx
+ *     time   :
+ *     desc   :
+ *     version: 1.0
+ * </pre>
  */
 public class DensityUtils {
 

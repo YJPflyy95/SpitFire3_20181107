@@ -5,8 +5,17 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * 时间工具
- * Created by yangle on 2016/12/2.
+ * <pre>
+ *     author : HuGuoDong
+ *     e-mail : guodong_hu@126.com
+ *     time   : 2018/01/23
+ *     desc   : time util
+ *     modified by :
+ *     e-mail : xx_xxx@xx
+ *     time   :
+ *     desc   :
+ *     version: 1.0
+ * </pre>
  */
 public class MyTimeUtils {
 

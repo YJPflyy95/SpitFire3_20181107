@@ -634,7 +634,6 @@ public class SettingsFragmentBak extends Fragment {
         }, bluetoothGattChannel);
         deviceMirror.readData();
 
-
     }
 
     private void showReadInfo(String uuid, byte[] dataArr) {

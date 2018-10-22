@@ -7,7 +7,7 @@ import android.util.Log;
  *     author : HuGuoDong
  *     e-mail : guodong_hu@126.com
  *     time   : 2018/01/23
- *     desc   :
+ *     desc   : log
  *     modified by :
  *     e-mail : xx_xxx@xx
  *     time   :

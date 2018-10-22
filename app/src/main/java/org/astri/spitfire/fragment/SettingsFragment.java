@@ -57,11 +57,14 @@ import org.astri.spitfire.util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 
+import static org.astri.spitfire.util.Constants.ALG_SETTING_PARAM;
 import static org.astri.spitfire.util.Constants.IS_PRODUCTION;
 
 /**
@@ -80,6 +83,8 @@ import static org.astri.spitfire.util.Constants.IS_PRODUCTION;
 public class SettingsFragment extends Fragment {
 
     private static final String TAG = SettingsFragment.class.getSimpleName();
+
+    // hard code device name
     private static final String DEVICE_NAME = "Spitfire HRS";
 
     public static final String WRITE_CHARACTERISTI_UUID_KEY = "write_uuid_key";
@@ -94,7 +99,6 @@ public class SettingsFragment extends Fragment {
     private Activity mActivity;
     private Context mContext;
 
-    private TextView settingAlgTv;
     private TextView settingAlgResultTv;
     private TextView heartRateTv;
     private Button heartRateBtn;
@@ -102,17 +106,18 @@ public class SettingsFragment extends Fragment {
     private ListView alglist;
 
     private Button stopBtn;
-    private Button meBtn;
 
+    // mSpCache store key-value
+    // i.e. store alg setting, we can show setting on app UI, regardless device is connected or nor.
     private SpCache mSpCache;
 
     private BluetoothLeDevice mDevice;
     private DeviceMirror mDeviceMirror;
 
-    // 轮询设备
+    // polling data from device
     private PollingDevice mPollingDevice;
 
-    // 一共四种算法 index: 0, 1, 2, 3
+    // 4 algorithms indices are : 0, 1, 2, 3
     private String[] algorithms = {
             "Learning Zone",
             "Awareness Zone",
@@ -126,31 +131,31 @@ public class SettingsFragment extends Fragment {
     private static final int ALGORITHM_STOP = 0;
     private static final String STOP = "stop algorithm";
 
-
-    // 算法点击view
-    private int lastPosition = -1;
-    private ImageView oldImageView;
-    private ImageView newImageView;
-
-    //算法强度设置
+    // alg intense setting
     private BubbleSeekBar seekBar;
 
+    // event
     private NotifyDataEvent heartRateDataEvent = new NotifyDataEvent();
     private NotifyDataEvent notifyDataEvent = new NotifyDataEvent();
     private CallbackDataEvent callbackDataEvent = new CallbackDataEvent();
     private ConnectEvent connectEvent = new ConnectEvent();
 
+    // serviceMap, charaMap
     private Map<String, BluetoothGattService> serviceMap = new HashMap<>();
     private Map<String, BluetoothGattCharacteristic> charaMap = new HashMap<>();
 
-
+    // wait time
     private static final long SLEEP_INTERVAL = 100;
 
-    private class BLETask extends AsyncTask<Void, Void, Void>{
+    // DEFAULT_ALG_SETTING is used to show default setting ui
+    private static final String DEFAULT_ALG_SETTING = "0000";
+
+    // AsyncTask
+    private class BLETask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            // 设定服务和通知
+            // bind service and characteristic
             bindServiceCharac();
             return null;
         }
@@ -162,21 +167,52 @@ public class SettingsFragment extends Fragment {
     }
 
 
+    /**
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        LogUtil.d(TAG, "LifeCycle onCreateView");
+
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        // 重要：注册事件驱动， 注册以后才能得到通知。
+
+        // we must register event bus, then app can receive notification
         BusManager.getBus().register(SettingsFragment.this);
 
-        // 停止算法
+        // initAlgorithms
+        initAlgorithms();
+
+        // initMisc stop btn
+        initStopBtn(view);
+
+        // initMisc alg list view
+        initAlgListView(view);
+
+        // init seek bar
+        initSeekBar(view);
+
+        // init  miscellaneous: test, connect device ...
+        initMisc(view);
+
+        // connect device
+        connect();
+
+        return view;
+    }
+
+    private void initStopBtn(View view) {
+        // stop
         stopBtn = view.findViewById(R.id.bt_stop);
         stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (isConnected()) {
+                if (connected()) {
                     // stop algorithms, and set params, send to device
                     if (alg == null) {
                         alg = new Algorithm("");
@@ -186,8 +222,8 @@ public class SettingsFragment extends Fragment {
 
                     String algParam = alg.genAlgSettingPara();
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
-                    LogUtil.d(TAG, "停止算法，当前算法为：" + alg);
-                    ToastUtil.showShortToast(mActivity, "" + "Stop Algo success");
+                    LogUtil.d(TAG, "Stop alg, current setting is：" + alg);
+                    ToastUtil.showShortToast(mActivity, "" + "Stop Algo Success");
                 } else {
                     ToastUtil.showShortToast(mActivity, "" + "No connected device");
                 }
@@ -195,15 +231,16 @@ public class SettingsFragment extends Fragment {
         });
 
 
-        // 初始化算法
-        initAlgorithms();
 
+    }
+
+    private void initAlgListView(View view) {
         final AlgorithmAdapter adapter = new AlgorithmAdapter(mActivity, R.layout.list_view_item_algorithms, algorithmList);
         alglist = view.findViewById(R.id.algorithm_list);
         alglist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // 设定算法
+                // setting algorithm index
                 try {
                     alg = algorithmList.get(position);
                 } catch (Exception e) {
@@ -211,16 +248,18 @@ public class SettingsFragment extends Fragment {
                     alg = new Algorithm("");
                 }
 
-                int intense = seekBar.getProgress() - 1; // 注意减1
+                int intense = seekBar.getProgress() - 1; // attention minus 1 !
                 alg.setIntensify(intense);
                 alg.setIndex(position + 1);
-                String algParam = alg.genAlgSettingPara(); // 0303
+                String algParam = alg.genAlgSettingPara(); // i.e. 0303
 
-                LogUtil.d(TAG, "调整算法序号，当前算法为：" + alg);
+                LogUtil.d(TAG, "modify algorithm index，current index is：" + alg);
 
-                if (isConnected()) {
-                    // 写入数据
+                if (connected()) {
+                    // write data
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
+                    // write data, we end polling
+                    mPollingDevice.endPolling(r);
                     ToastUtil.showShortToast(mActivity, "" + "Adjust algo success");
                 } else {
                     ToastUtil.showShortToast(mActivity, "" + "No connected device");
@@ -228,19 +267,27 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        alglist.setAdapter(adapter);
 
-        // 设置 算法 强度调整进度条
+        alglist.setAdapter(adapter);
+    }
+
+
+    /**
+     * initSeekBar setting
+     * @param view
+     */
+    private void initSeekBar(View view) {
+        // Algorithm intense progress bar
         seekBar = view.findViewById(R.id.intense_seek_bar_1);
         seekBar.getConfigBuilder()
                 .min(1)
                 .max(5)
-                .progress(1) // 默认选中 开始
+                .progress(1) // default setting
                 .sectionCount(4)
                 .trackColor(ContextCompat.getColor(mActivity, R.color.gray))
                 .secondTrackColor(ContextCompat.getColor(mActivity, R.color.appmain))
                 .thumbColor(ContextCompat.getColor(mActivity, R.color.appmain))
-                .thumbRadius(10) // add by huguodong
+                .thumbRadius(10) // thumb scale add by huguodong
                 .showSectionText()
                 .sectionTextColor(ContextCompat.getColor(mActivity, R.color.gray))
                 .sectionTextSize(18)
@@ -258,7 +305,7 @@ public class SettingsFragment extends Fragment {
 
         seekBar.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListenerAdapter() {
 
-            // 监听值的改变
+            // Listener
             @Override
             public void onProgressChanged(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat, boolean fromUser) {
                 String s = String.format(Locale.CHINA, "onChanged int:%d, float:%.1f", progress, progressFloat);
@@ -267,14 +314,10 @@ public class SettingsFragment extends Fragment {
 
             @Override
             public void getProgressOnActionUp(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
-
-                // TODO: 此处设置 算法强度
-                // 写入蓝牙设备
                 String s = String.format(Locale.CHINA, "onActionUp int:%d, float:%.1f", progress, progressFloat);
                 LogUtil.d(TAG, s);
-//                ToastUtil.showShortToast(mActivity, "" + s);
-                if (isConnected()) {
-                    // 只改变算法强度
+
+                if (connected()) {
                     int intense = (progress - 1);
                     if (alg == null) {
                         alg = new Algorithm("");
@@ -283,10 +326,15 @@ public class SettingsFragment extends Fragment {
                     } else {
                         alg.setIntensify(intense);
                     }
+
                     String algParam = alg.genAlgSettingPara();
+
                     BluetoothDeviceManager.getInstance().write(mDevice, HexUtil.decodeHex(algParam.toCharArray()));
-                    LogUtil.d(TAG, "调整算法强度，当前算法为：" + alg);
-//                    ToastUtil.showShortToast(mActivity, "" + algParam);
+
+                    // write data, we end polling
+                    mPollingDevice.endPolling(r);
+
+                    LogUtil.d(TAG, "Algorithm intense setting is：" + alg);
                     ToastUtil.showShortToast(mActivity, "" + "Adjust intensity success");
                 } else {
                     ToastUtil.showShortToast(mActivity, "" + "No connected device");
@@ -299,50 +347,49 @@ public class SettingsFragment extends Fragment {
                 LogUtil.d(TAG, s);
             }
         });
-
-        init(view);
-
-        return view;
     }
 
-    private void init(View view) {
-
-
+    /**
+     * init  miscellaneous
+     * @param view
+     */
+    private void initMisc(View view) {
         settingAlgResultTv = view.findViewById(R.id.algorithm_setting_result_tv);
         heartRateTv = view.findViewById(R.id.heartrate_result_tv);
         heartRateBtn = view.findViewById(R.id.heartrate_btn);
         settingAlgBtn = view.findViewById(R.id.algorithm_setting_btn);
 
-        if (IS_PRODUCTION) {
+        if (IS_PRODUCTION) { // show some testing view or not
             heartRateTv.setVisibility(View.GONE);
             settingAlgResultTv.setVisibility(View.GONE);
             settingAlgBtn.setVisibility(View.GONE);
             heartRateBtn.setVisibility(View.GONE);
         }
 
-        // 初始化 PollingDevice
+        // init PollingDevice
         mPollingDevice = new PollingDevice(new Handler());
-
         mSpCache = new SpCache(mActivity);
 
+        // just for testing
         setAlgBtn();
-
-        connect();
-
     }
 
+    /**
+     * binding specific services and characteristic
+     */
     private void bindServiceCharac() {
         BluetoothGattService heartRateService = serviceMap.get(mHeartRateServiceUuid.toString());
         BluetoothGattCharacteristic heartRateCharacteristic = charaMap.get(mHeartRateCharacteristicUuid.toString());
         BluetoothGattService algService = serviceMap.get(mAlgorithmServiceUuid.toString());
         BluetoothGattCharacteristic algCharacteristic = charaMap.get(mAlgorithmIntensifyUuid.toString());
-        // 绑定channel
+        // bind channels
         try {
 
-            // TODO: 设定心率
+            // set hr
             Thread.sleep(SLEEP_INTERVAL);
             setHearRateCharaPropBindChnnel(heartRateService, heartRateCharacteristic);
-            // TODO: 设定算法
+
+            // set alg
             Thread.sleep(SLEEP_INTERVAL);
             setAlgCharaPropBindReadChnnel(algService, algCharacteristic);
 
@@ -355,13 +402,13 @@ public class SettingsFragment extends Fragment {
             Thread.sleep(SLEEP_INTERVAL);
 
         } catch (Exception e) {
-            Log.w(TAG, e.toString());
+            Log.e(TAG, e.toString());
         }
     }
 
 
     /**
-     * 设定 心率 绑定
+     * set HR binding
      *
      * @param service
      * @param characteristic
@@ -371,7 +418,6 @@ public class SettingsFragment extends Fragment {
         final int charaProp = characteristic.getProperties();
         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
             mSpCache.put(WRITE_CHARACTERISTI_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
-//            BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().read(mDevice);
         } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
@@ -392,7 +438,7 @@ public class SettingsFragment extends Fragment {
 
 
     /**
-     * 接收数据回调
+     * receive IBleCallback for setting
      */
     private IBleCallback receiveAlgCallBack = new IBleCallback() {
         @Override
@@ -461,8 +507,15 @@ public class SettingsFragment extends Fragment {
         LogUtil.d(TAG, uuid + ": " + HexUtil.encodeHexStr(dataArr));
     }
 
+    /**
+     * when fragment is created.
+     * first call onAttach
+     *
+     * @param context
+     */
     @Override
     public void onAttach(Context context) {
+        LogUtil.d(TAG, "LifeCycle onAttach");
         super.onAttach(context);
         mActivity = (Activity) context;
     }
@@ -477,21 +530,22 @@ public class SettingsFragment extends Fragment {
     }
 
     /**
-     * 初始化算法
-     * 用于在listview中显示
+     * initAlgorithms
+     * show in the ListView
      */
     private void initAlgorithms() {
         algorithmList.clear();
         for (int i = 0; i < algorithms.length; i++) {
             Algorithm alg = new Algorithm(algorithms[i]);
-            alg.setIndex(i + 1); // 注意加一
+            alg.setIndex(i + 1); // attention add 1
             algorithmList.add(alg);
         }
 
     }
 
     /**
-     * 订阅：显示通知数据
+     * IMPORTANT!!
+     * subscribe device notification data
      *
      * @param event
      */
@@ -536,42 +590,36 @@ public class SettingsFragment extends Fragment {
     }
 
 
-
-
     @SuppressLint("RestrictedApi")
     @Subscribe
     public void showConnectedDevice(ConnectEvent event) {
         LogUtil.d(TAG, "showConnectedDevice");
         if (event != null) {
             if (event.isSuccess()) {
-                ToastUtil.showToast(mActivity, "Connect Success!");
+                ToastUtil.showToast(mActivity, "Device Connected");
                 if (event.getDeviceMirror() != null && event.getDeviceMirror().getBluetoothGatt() != null) {
                     mDevice = event.getDeviceMirror().getBluetoothLeDevice();
-                    LogUtil.d(TAG, "设定app的服务和属性到Map");
 
-                    // 获取服务和属性
+                    // set device service and characteristic
                     List<BluetoothGattService> gattServices = event.getDeviceMirror().getBluetoothGatt().getServices();
                     ServiceCharacUtil.getAppServicesCharcs(gattServices, serviceMap, charaMap);
 
-                    // TODO: 线程等待一下才能成功！，没想明白原因。
+                    // TODO: must wait a little while, don't figure out why?
                     try {
                         Thread.sleep(500);
                     } catch (Exception e) {
 
                     }
 
-                    // 绑定服务
+                    // binding service
                     new BLETask().execute();
 
-                    // 设定视图中的控件：
-                    // 此时设定按钮
-//                    setAlgBtn();
-                    LogUtil.d(TAG, "设定app的服务和属性成功！");
+                    LogUtil.d(TAG, "set device service and characteristic success！");
                 }
             } else {
                 if (event.isDisconnected()) {
                     clearData();
-                    ToastUtil.showToast(mActivity, "Disconnect!");
+                    ToastUtil.showToast(mActivity, "Device Disconnected");
                 } else {
                     clearData();
                     ToastUtil.showToast(mActivity, "Connect Failure!");
@@ -581,6 +629,9 @@ public class SettingsFragment extends Fragment {
     }
 
 
+    /**
+     * just for testing
+     */
     private void setAlgBtn() {
         settingAlgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -601,88 +652,193 @@ public class SettingsFragment extends Fragment {
     }
 
 
+    /**
+     * get data from callback
+     * i.e. read characteristic
+     * @param event
+     */
     @Subscribe
     public void showDeviceCallbackData(CallbackDataEvent event) {
         LogUtil.d(TAG, "showDeviceCallbackData");
         if (event != null) {
             if (event.isSuccess()) {
-                if (event.getBluetoothGattChannel() != null && event.getBluetoothGattChannel().getCharacteristic() != null
-                        && event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_READ) {
-                    showReadInfo(event.getBluetoothGattChannel().getCharacteristic().getUuid().toString(), event.getData());
+                if (event.getBluetoothGattChannel() != null
+                        && event.getBluetoothGattChannel().getCharacteristic() != null) {
 
-                    BluetoothGattCharacteristic chara = event.getBluetoothGattChannel().getCharacteristic();
-                    // 如果是算法的chara，则做出相应的处理
-                    if (chara.getUuid().equals(mAlgorithmIntensifyUuid)) {
-                        LogUtil.d(TAG, "polling read device alg data...");
-                        setAlgUi(chara);
+                    // read data from device!
+                    if (event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_READ) {
+                        showReadInfo(event.getBluetoothGattChannel().getCharacteristic().getUuid().toString(), event.getData());
+
+                        BluetoothGattCharacteristic chara = event.getBluetoothGattChannel().getCharacteristic();
+                        // if chara is AlgorithmIntensify
+                        if (chara.getUuid().equals(mAlgorithmIntensifyUuid)) {
+                            LogUtil.d(TAG, "polling read device alg data...");
+
+                            // deal with param, get string like "0202"
+                            String param = getAlgSettingStringFromCharac(chara);
+
+                            // update alg setting UI
+                            preUpdateAlgSettingUI(param);
+                        }
+                    }
+
+                    if (event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_WRITE) {
+                        // start polling
+                        mPollingDevice.startPolling(r, 1000);
                     }
                 }
             }
         }
     }
 
+
     /**
-     * 设置算法强度的UI显示
-     * @param chara
+     * update Algorithm display in UI
+     *
+     * @param param
      */
-    private void setAlgUi(BluetoothGattCharacteristic chara){
-        final byte[] data = chara.getValue(); // 使用这种方式才能拿到数据
-        LogUtil.d(TAG, chara.getUuid() + ": " + HexUtil.encodeHexStr(data));
+    private void preUpdateAlgSettingUI(String  param, boolean isWaitShow) {
 
-        // 设定显示
-        String algParams = HexUtil.encodeHexStr(data);
+        try {
 
+            mSpCache.put(ALG_SETTING_PARAM, param); // store setting
 
-        try{
-            LogUtil.d(TAG, "Alg Intense " + ": " + HexUtil.encodeHexStr(data));
-            if(algParams.length() > 4){ // TODO: 返回的数据长度过长，此处截取4
-                algParams = algParams.substring(0, 4);
+            settingAlgResultTv.setText(param);
+            final int algIndex = Integer.parseInt(param.subSequence(1, 2).toString());
+            final int intense = Integer.parseInt(param.subSequence(3, param.length()).toString());
+            if (alg == null) {
+                alg = new Algorithm("");
             }
-
-            // 如果是算法的chara，则做出相应的处理
-            settingAlgResultTv.setText(algParams);
-
-            int algIndex = Integer.parseInt(algParams.subSequence(1, 2).toString());
-            int intense = Integer.parseInt(algParams.subSequence(3, algParams.length()).toString());
-
-            // set UI change
-            setAlgIndexUi(algIndex);
-
-            // TODO: 设定选中状态
             alg.setIndex(algIndex);
             alg.setIntensify(intense);
+            alglist.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateAlgIndexUi(algIndex);
+                }
+            });
 
-            // for intense set seekbar progress
-            seekBar.setProgress(intense + 1);
+            seekBar.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateSeekBarUi(intense);
+                }
+            });
 
+            stopBtn.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateStopBtnUi(algIndex);
+                }
+            });
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
     /**
+     * 1. prepare data
+     * 2. then update UI
+     * @param param
+     */
+    private void preUpdateAlgSettingUI(String  param) {
+
+        try {
+            mSpCache.put(ALG_SETTING_PARAM, param); // store
+            // 如果是算法的chara，则做出相应的处理
+            settingAlgResultTv.setText(param);
+            final int algIndex = Integer.parseInt(param.subSequence(1, 2).toString());
+            final int intense = Integer.parseInt(param.subSequence(3, param.length()).toString());
+            if (alg == null) {
+                alg = new Algorithm("");
+            }
+            alg.setIndex(algIndex);
+            alg.setIntensify(intense);
+
+            // update UI
+            updateAlgIndexUi(algIndex); // index
+            updateSeekBarUi(intense); // intense
+            updateStopBtnUi(algIndex); // stop button UI
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    /**
      * Set Alg list index checked or not
+     *
      * @param index
      */
-    private void setAlgIndexUi(int index) {
+    private void updateAlgIndexUi(int index) {
         int count = alglist.getCount();
         index -= 1;
-        for(int i=0; i<count; i++){
+        for (int i = 0; i < count; i++) {
             ImageView tempImageView = alglist.getChildAt(i).findViewById(R.id.algorithm_index_img);
             int blankId = R.drawable.blank;
             int checkedId = R.drawable.checkmark;
-            if(i == index && index >= 0){
+            if (i == index && index >= 0) {
                 tempImageView.setImageResource(checkedId);
-            }else{
+            } else {
                 tempImageView.setImageResource(blankId);
             }
         }
     }
 
     /**
-     * 清空数据 保存的 service 和 characteristic
+     * update progress bar
+     * @param intense
+     */
+    private void updateSeekBarUi(int intense) {
+        // for intense set seek bar progress
+        seekBar.setProgress(intense + 1);
+    }
+
+    /**
+     * stop btn setting
+     * @param algIndex
+     */
+    private void updateStopBtnUi(int algIndex){
+        if(algIndex==0){
+            stopBtn.setEnabled(false);
+            stopBtn.setTextColor(getResources().getColor(R.color.gray));
+        }else{
+            stopBtn.setEnabled(true);
+            stopBtn.setTextColor(getResources().getColor(R.color.white));
+        }
+    }
+
+    /**
+     * get length=4 string from charac
+     * @param chara
+     */
+    private String getAlgSettingStringFromCharac(BluetoothGattCharacteristic chara){
+        final byte[] data = chara.getValue();  // get data from characteristic
+        LogUtil.d(TAG, chara.getUuid() + ": " + HexUtil.encodeHexStr(data));
+
+        // setting param
+        String algParams = HexUtil.encodeHexStr(data);
+
+        try {
+            LogUtil.d(TAG, "Alg Intense " + ": " + HexUtil.encodeHexStr(data));
+            // TODO: if data length is larger than 4, sub str
+            if (algParams.length() > 4) {
+                algParams = algParams.substring(0, 4);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return algParams;
+    }
+
+
+    /**
+     * clear saved services and characteristics
      */
     private void clearData() {
         serviceMap.clear();
@@ -690,54 +846,73 @@ public class SettingsFragment extends Fragment {
     }
 
 
-
-
+    /**
+     * when fragment is visible to user
+     * call onResume
+     * Now we connect our device.
+     */
     @Override
     public void onResume() {
+        LogUtil.d(TAG, "LifeCycle onResume");
         super.onResume();
         checkBluetoothPermission();
         if (mDevice == null || !BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
             BluetoothDeviceManager.getInstance().connectByName(DEVICE_NAME);
         }
 
+        preUpdateAlgSettingUI(mSpCache.get(ALG_SETTING_PARAM, DEFAULT_ALG_SETTING), true);
+
         // 开始轮询
         mPollingDevice.startPolling(r, 1000);
+
     }
 
+
+    /**
+     * pause
+     * stop polling
+     */
     @Override
     public void onPause() {
-        super.onPause();
-        // 结束轮询
+        // end polling
         mPollingDevice.endPolling(r);
-    }
 
-    @Override
-    public void onDestroy() {
-        ViseBle.getInstance().clear();
-        BusManager.getBus().unregister(this);
-        if ( mDevice !=null && BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+        if (connected()) {
             BluetoothDeviceManager.getInstance().disconnect(mDevice);
         }
+        super.onPause();
+        LogUtil.d(TAG, "LifeCycle onPause");
+    }
+
+    /**
+     * when fragment is destoryed
+     * call onDestory
+     */
+    @Override
+    public void onDestroy() {
+        LogUtil.d(TAG, "LifeCycle onDestroy");
+
+        ViseBle.getInstance().clear();
+        BusManager.getBus().unregister(this);
+
         super.onDestroy();
     }
 
     @Override
     public void onDestroyView() {
-        BusManager.getBus().unregister(this);
-        if ( mDevice !=null && BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
-            BluetoothDeviceManager.getInstance().disconnect(mDevice);
-        }
+        LogUtil.d(TAG, "LifeCycle onDestroyView");
         super.onDestroyView();
     }
 
     @Override
     public void onDetach() {
+        LogUtil.d(TAG, "LifeCycle onDetach");
         super.onDetach();
 //        mActivity = null;
     }
 
     /**
-     * 检查蓝牙权限
+     * check BLE permission
      */
     private void checkBluetoothPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -767,6 +942,9 @@ public class SettingsFragment extends Fragment {
         }
     }
 
+    /**
+     * enableBluetooth
+     */
     @SuppressLint("RestrictedApi")
     private void enableBluetooth() {
         if (!BleUtil.isBleEnable(mActivity)) {
@@ -775,23 +953,23 @@ public class SettingsFragment extends Fragment {
     }
 
     /**
-     * 判断设备是否已连接
+     * check device is connected
      *
      * @return
      */
-    private boolean isConnected() {
+    private boolean connected() {
         return mDevice != null && BluetoothDeviceManager.getInstance().isConnected(mDevice);
     }
 
 
     /**
-     * 读取设备算法设置数据
+     * read algorithm setting parameter in the device
      */
     private void readAlgSettingData() {
-        LogUtil.d(TAG, "readAlgSettingData...");
-        if(isConnected()
+        if (connected()
                 && !serviceMap.isEmpty()
-                && !charaMap.isEmpty()){
+                && !charaMap.isEmpty()) {
+            LogUtil.d(TAG, "readAlgSettingData...");
             // the task in need of polling
             BluetoothGattService algService = serviceMap.get(mAlgorithmServiceUuid.toString());
             BluetoothGattCharacteristic algCharacteristic = charaMap.get(mAlgorithmIntensifyUuid.toString());
@@ -801,6 +979,10 @@ public class SettingsFragment extends Fragment {
 
     }
 
+    /**
+     * a runnable thread
+     * run to read data from device
+     */
     private Runnable r = new Runnable() {
         @Override
         public void run() {
