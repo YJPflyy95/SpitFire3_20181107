@@ -82,6 +82,68 @@ import static org.astri.spitfire.util.DataUtil.findByWeeklyExercise;
  */
 public class HistoryFragment extends Fragment implements View.OnClickListener {
 
+    private static final String TAG = HistoryFragment.class.getSimpleName();
+
+    public static float WIDTH = 3f;
+    public static float CIRCLE_RADIUS = 9f;
+
+    private Typeface mTf;
+
+    private static final String[] dates = new String[]{"Daily", "Weekly", "Monthly"};
+    private List<String> dateList = Arrays.asList(dates);
+
+    private LineChart mReadiness;
+    private LineChart mHrHrvSpo2;
+    private LineChart mGSR;
+    private TextView tvDate;
+    private ImageView ivDate;
+    private TextView tvStart;
+    private TextView tvStartDate;
+    private int mYear, mMonth, mDay;
+
+    private TextView tvEnd;
+    private TextView tvEndDate;
+
+    // search data by DAILY, WEEKLY or MONTHLY
+    private static final int DAILY = 0;
+    private static final int WEEKLY = 1;
+    private static final int MONTHLY = 2;
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+
+
+    // search data by time or exercise type
+    private TextView tvByTime;
+    private TextView tvByExercise;
+
+    private MaterialSearchBar searchBar; // search bar
+    private LinearLayout byTimeBar; // time
+    private LinearLayout legend; // chart legend
+
+
+    // chart group
+    private LinearLayout ll_pltgrp;
+
+    // search by exercise group
+    private LinearLayout ll_searchgrp;
+
+    private BottomNavigationBar bottom_navigation_bar;
+
+    // Sample data
+    private final String[] exercises = {
+            "Run",
+            "Jogging",
+            "Relax"
+    };
+
+    // exercise type
+    private String[] mStrs = {"Jogging", "Gym", "Exam"};
+
+    private SearchView mSearchView;
+
+    private ListView mListView;
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -95,15 +157,15 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         mListView.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, mStrs));
         mListView.setTextFilterEnabled(true);
 
-        // 设置搜索文本监听
+        // set query test listener
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            // 当点击搜索按钮时触发该方法
+            // when click submit trigger onQueryTextSubmit
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
             }
 
-            // 当搜索内容改变时触发该方法
+            // when text change trigger onQueryTextChange
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (!TextUtils.isEmpty(newText)){
@@ -127,7 +189,6 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-
         return view;
     }
 
@@ -141,7 +202,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     }
 
     /**
-     * 初始化一些控件
+     * init views
      * @param container
      * @param view
      */
@@ -183,19 +244,17 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         tvEndDate.setText(endDate);
         tvStartDate.setText(startDate);
 
-
-
         // search tag
         tvByExercise = view.findViewById(R.id.tv_byexercise);
         tvByExercise.setOnClickListener(this);
         tvByTime = view.findViewById(R.id.tv_bytime);
         tvByTime.setOnClickListener(this);
 
-        // swich search
+        // switch search
         searchBar = view.findViewById(R.id.searchBar);
         byTimeBar = view.findViewById(R.id.ll_byTime);
 
-        // 显示图例
+        // show legend
         legend = view.findViewById(R.id.ll_legend);
 
         // plots group(3 plots)
@@ -203,84 +262,24 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
 
         ll_searchgrp = view.findViewById(R.id.ll_searchgrp);
 
-        // 底部导航栏
+        // bottom navigation bar底部导航栏
         bottom_navigation_bar = container.getRootView().findViewById(R.id.bottom_navigation_bar);
 
-        // 初始化搜索栏
-        initsearchBar();
+        // init search bar
+        initSearchBar();
 
-        // 生成测试数据
+        // generate fake data for testing
         DataUtil.genFakeData2DB();
 
-        // 显示曲线
+        // show curves
         refreshView(Constants.DAILY);
     }
 
 
 
-    private static final String TAG = "HistoryFragment";
-
-    public static float WIDTH = 3f;
-    public static float CIRCLE_RADIUS = 9f;
-
-    private Typeface mTf;
-
-    private static final String[] dates = new String[]{"Daily", "Weekly", "Monthly"};
-    private List<String> dateList = Arrays.asList(dates);
-
-    private LineChart mReadiness;
-    private LineChart mHrHrvSpo2;
-    private LineChart mGSR;
-    private TextView tvDate;
-    private ImageView ivDate;
-    private TextView tvStart;
-    private TextView tvStartDate;
-    private int mYear, mMonth, mDay;
-
-    private TextView tvEnd;
-    private TextView tvEndDate;
-
-    // 搜索时间间隔
-    private static final int DAILY = 0;
-    private static final int WEEKLY = 1;
-    private static final int MONTHLY = 2;
-
-    private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-
-
-    // 按照何种方式搜索
-    private TextView tvByTime;
-    private TextView tvByExercise;
-
-    private MaterialSearchBar searchBar; // 搜索栏
-    private LinearLayout byTimeBar; // 按照时间
-    private LinearLayout legend; // 图表的legend
-
-
-    // 图表group
-    private LinearLayout ll_pltgrp;
-
-    // search by exercise group
-    private LinearLayout ll_searchgrp;
-
-    private BottomNavigationBar bottom_navigation_bar;
-
-    // Sample data
-    private final String[] exercises = {
-            "Run",
-            "Jogging",
-            "Relax"
-    };
-
-    private String[] mStrs = {"Jogging", "Gym", "Exam"};
-    private SearchView mSearchView;
-    private ListView mListView;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
@@ -422,7 +421,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     /**
      * Search bar settings
      */
-    private void initsearchBar(){
+    private void initSearchBar(){
         List<String> suggestions = new ArrayList();
         suggestions.add("Run");
         suggestions.add("Swim");
@@ -754,7 +753,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     }
 
     /**
-     *
+     * genHrHrvSpo2Data
      * @param
      * @return
      */
@@ -793,7 +792,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     }
 
     /**
-     *
+     * genGsrData
      * @param GSR_val
      * @param xlabels
      * @return
@@ -820,13 +819,13 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
 
 
     /**
-     * 生成曲线
+     * genPlots
      * @param by
      */
     private void genPlts(int by){
 
 
-        // 显示图例
+        // show Legend
         legend.setVisibility(View.VISIBLE);
 
         LogUtil.d(TAG, "genPlts:  by " + by);
@@ -888,6 +887,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
 
         if(checkDate() || historyList.size() == 0){ // start>end or list is empty
             // 搜索时间如果 开始>结束，那么不显示曲线数据
+            // search time interval if start > end, then show nothing.
             mGSR.getData().clearValues();
             mGSR.invalidate();
             mReadiness.getData().clearValues();
@@ -895,10 +895,10 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
             mHrHrvSpo2.getData().clearValues();
             mHrHrvSpo2.invalidate();
         }else{
-            // gen plts 显示图表数据
-            genReadinessPlt(genReadinessData(readiness_Val, xlabels));
-            genHrHrvSpo2Plt(genHrHrvSpo2Data(HR_val, HRV_val, SPO2_val, xlabels));
-            genGsrPlt(genGsrData(GSR_val,xlabels));
+            // gen plots to show data  显示图表数据
+            genReadinessPlt(genReadinessData(readiness_Val, xlabels)); // readiness
+            genHrHrvSpo2Plt(genHrHrvSpo2Data(HR_val, HRV_val, SPO2_val, xlabels)); // hr, hrv spo2
+            genGsrPlt(genGsrData(GSR_val,xlabels)); // gsr
         }
 
     }
@@ -946,7 +946,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
 
 
     /**
-     * 判断搜索时间
+     * check if start > end
      * @return
      */
     private boolean checkDate(){
@@ -998,7 +998,7 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     }
 
     /**
-     * X坐标轴的label
+     * X axis label
      * @param historyList
      * @return
      */
@@ -1021,6 +1021,10 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
     }
 
 
+    /**
+     * searchHisDataWeekly
+     * @return
+     */
     private List<History> searchHisDataWeekly() {
 
         String txStarDate = tvStartDate.getText().toString();
@@ -1045,6 +1049,11 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         return historyList;
     }
 
+    /**
+     * searchHisDataWeeklyXlabels
+     * @param historyList
+     * @return
+     */
     private String[] searchHisDataWeeklyXlabels(List<History> historyList){
         int size = historyList.size();
         final String[] xlabels = new String[size];
@@ -1062,7 +1071,10 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         return xlabels;
     }
 
-
+    /**
+     * searchHisDataMonthly
+     * @return
+     */
     private List<History> searchHisDataMonthly() {
 
         String txStarDate = tvStartDate.getText().toString();
@@ -1086,6 +1098,11 @@ public class HistoryFragment extends Fragment implements View.OnClickListener {
         return historyList;
     }
 
+    /**
+     * searchHisDataMonthlyXlabels
+     * @param historyList
+     * @return
+     */
     private String[] searchHisDataMonthlyXlabels(List<History> historyList){
         int size = historyList.size();
         final String[] xlabels = new String[size];
