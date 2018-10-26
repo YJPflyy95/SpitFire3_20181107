@@ -1,10 +1,7 @@
 package org.astri.spitfire.fragment;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,17 +22,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import org.astri.spitfire.Activities;
-import org.astri.spitfire.ActivityDetail;
-import org.astri.spitfire.NewActivity;
 import org.astri.spitfire.R;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
-//import static android.support.v4.media.MediaDescriptionCompatApi21.Builder.setTitle;
 
 /**
  * <pre>
@@ -52,13 +42,12 @@ import java.util.Date;
  */
 public class NewActivityFragment extends Fragment implements View.OnTouchListener{
     @Nullable
-
     private SeekBar seekBar;
     private TextView textView;
     private SeekBar seekBar1;
     private TextView textView1;
-    EditText warmup_time;
-    EditText cooldown_time;
+    private EditText warmup_time;
+    private EditText cooldown_time;
 
     private TimePicker tp = null;
     private DatePicker dp = null;
@@ -110,8 +99,8 @@ public class NewActivityFragment extends Fragment implements View.OnTouchListene
 //        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");// HH:mm:ss
 ////获取当前时间
 //        Date date = new Date(System.currentTimeMillis());
-//        warmup_time.setText("  Start              "+simpleDateFormat.format(date));
-//        cooldown_time.setText("  End                "+simpleDateFormat.format(date));
+//        warmupTime.setText("  Start              "+simpleDateFormat.format(date));
+//        cooldownTime.setText("  End                "+simpleDateFormat.format(date));
 
         //seekbar设置监听
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

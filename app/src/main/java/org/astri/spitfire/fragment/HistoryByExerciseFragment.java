@@ -6,18 +6,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
-import android.widget.Toast;
 
-import com.blankj.utilcode.util.TimeUtils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
@@ -32,7 +26,6 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import org.astri.spitfire.R;
 import org.astri.spitfire.chart.MyColor;
 import org.astri.spitfire.entities.History;
-import org.astri.spitfire.util.Constants;
 import org.astri.spitfire.util.DataUtil;
 import org.astri.spitfire.util.LogUtil;
 
@@ -54,50 +47,26 @@ import java.util.List;
  */
 public class HistoryByExerciseFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = "HistoryByExerciseFragment";
-
+    private static final String TAG = HistoryByExerciseFragment.class.getSimpleName();
     private LineChart mHrHrvSpo2;
     private LineChart mGSR;
     private Typeface mTf;
-
     private Button backButton;
-
     public static float WIDTH = 3f;
     public static float CIRCLE_RADIUS = 9f;
-
-    // 图表group
+    // plot group
     private LinearLayout ll_pltgrp;
-
-    @Override
-    public void onClick(View v) {
-        if(v.getId() == R.id.bt_history){
-            LogUtil.d(TAG, "back to history.");
-            replaceFragment(new HistoryFragment());
-        }
-    }
-
-    private void replaceFragment(Fragment fragment){
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.ll_content, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_history_by_exercise, container, false);
-
         init(view);
-
         genPlts();
-
-         return view;
+        return view;
     }
 
-    private void init(View view){
+    private void init(View view) {
         mTf = Typeface.createFromAsset(getContext().getAssets(), "OpenSans-Regular.ttf");
         mHrHrvSpo2 = view.findViewById(R.id.ct_hrhrvspo2);
         mGSR = view.findViewById(R.id.ct_gsr);
@@ -106,19 +75,37 @@ public class HistoryByExerciseFragment extends Fragment implements View.OnClickL
     }
 
 
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.bt_history) {
+            LogUtil.d(TAG, "back to history fragment.");
+            replaceFragment(new HistoryFragment());
+        }
+    }
 
     /**
-     * 生成曲线
+     * replaceFragment
+     * helper method
+     *
+     * @param fragment
      */
-    private void genPlts(){
+    private void replaceFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.ll_content, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
 
-        LogUtil.d(TAG, "genPlts: ");
-
+    /**
+     * genPlts
+     */
+    private void genPlts() {
+        LogUtil.d(TAG, "genPlts ... ");
         List<History> historyList = DataUtil.genFakeHistoryExerciseData();
-        String[] xlabels=searchHisDataDailyXlabels(historyList);
 
-
+        String[] xlabels = searchHisDataDailyXlabels(historyList);
         LogUtil.d(TAG, "genPlts:  size:  " + historyList.size());
 
         // plt1
@@ -134,7 +121,7 @@ public class HistoryByExerciseFragment extends Fragment implements View.OnClickL
 
         int size = historyList.size();
 
-        for(int i=0; i<size; i++){
+        for (int i = 0; i < size; i++) {
             History h = historyList.get(i);
 
             // plt1
@@ -154,26 +141,27 @@ public class HistoryByExerciseFragment extends Fragment implements View.OnClickL
             GSR_val.add(gsr);
         }
 
-        // gen plts 显示图表数据
+        // gen plts data
         genHrHrvSpo2Plt(genHrHrvSpo2Data(HR_val, HRV_val, SPO2_val, xlabels));
-        genGsrPlt(genGsrData(GSR_val,xlabels));
+        genGsrPlt(genGsrData(GSR_val, xlabels));
 
     }
 
 
     /**
-     * X坐标轴的label
+     * X axis label
+     *
      * @param historyList
      * @return
      */
-    private String[] searchHisDataDailyXlabels(List<History> historyList){
+    private String[] searchHisDataDailyXlabels(List<History> historyList) {
 
         int size = historyList.size();
         String[] xlabels = new String[size];
 
-        for(int i=0; i<size; i++){
+        for (int i = 0; i < size; i++) {
             History h = historyList.get(i);
-            xlabels[i] =  h.getTestTimeStr();
+            xlabels[i] = h.getTestTimeStr();
         }
 
         return xlabels;
@@ -181,13 +169,14 @@ public class HistoryByExerciseFragment extends Fragment implements View.OnClickL
 
     /**
      * genHrHrvSpo2Plt
+     *
      * @param data
      */
-    private void genHrHrvSpo2Plt(LineData data){
+    private void genHrHrvSpo2Plt(LineData data) {
 
         LogUtil.d(TAG, "genHrHrvSpo2Plt");
 
-        LineChart  chart = mHrHrvSpo2;
+        LineChart chart = mHrHrvSpo2;
         chart.setData(data);
         // legend
         Legend legend = chart.getLegend();
@@ -227,10 +216,11 @@ public class HistoryByExerciseFragment extends Fragment implements View.OnClickL
 
     /**
      * genGsrPlt
+     *
      * @param data
      */
-    private void genGsrPlt(LineData data){
-        LineChart  chart = mGSR;
+    private void genGsrPlt(LineData data) {
+        LineChart chart = mGSR;
         chart.setData(data);
         // legend
         Legend legend = chart.getLegend();
@@ -270,11 +260,11 @@ public class HistoryByExerciseFragment extends Fragment implements View.OnClickL
     }
 
     /**
-     *
+     * genHrHrvSpo2Data
      * @param
      * @return
      */
-    private LineData genHrHrvSpo2Data(List<Entry> HR_val , List<Entry> HRV_val, List<Entry> SPO2_val, final String[] xlabels){
+    private LineData genHrHrvSpo2Data(List<Entry> HR_val, List<Entry> HRV_val, List<Entry> SPO2_val, final String[] xlabels) {
         List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
 
         LineDataSet hr = new LineDataSet(HR_val, "HR");
@@ -309,12 +299,12 @@ public class HistoryByExerciseFragment extends Fragment implements View.OnClickL
     }
 
     /**
-     *
+     * genGsrData
      * @param GSR_val
      * @param xlabels
      * @return
      */
-    private LineData genGsrData(List<Entry> GSR_val,final String[] xlabels){
+    private LineData genGsrData(List<Entry> GSR_val, final String[] xlabels) {
 
         List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
 
@@ -345,18 +335,16 @@ public class HistoryByExerciseFragment extends Fragment implements View.OnClickL
             this.mValues = values;
         }
 
-
         @Override
         public String getFormattedValue(float value, AxisBase axis) {
 
             LogUtil.d(TAG, "getFormattedValue: " + value);
             LogUtil.d(TAG, "getFormattedValue： " + mValues.length);
-            if ((int) value >= mValues.length || (int) value <0) {
+            if ((int) value >= mValues.length || (int) value < 0) {
                 return "";
-            }else{
+            } else {
                 return mValues[(int) value];
             }
         }
-
     }
 }

@@ -1,21 +1,15 @@
 package org.astri.spitfire.fragment;
 
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.blankj.utilcode.util.TimeUtils;
 import com.github.mikephil.charting.charts.LineChart;
@@ -32,7 +26,6 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import org.astri.spitfire.R;
 import org.astri.spitfire.chart.MyColor;
 import org.astri.spitfire.entities.History;
-import org.astri.spitfire.util.Constants;
 import org.astri.spitfire.util.LogUtil;
 import org.astri.spitfire.util.MyTimeUtils;
 
@@ -42,10 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
-import java.util.TimerTask;
-
-import static com.blankj.utilcode.util.TimeUtils.millis2String;
-import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 import static org.astri.spitfire.util.Constants.FMT_HMS;
 
 /**
@@ -63,6 +52,8 @@ import static org.astri.spitfire.util.Constants.FMT_HMS;
  */
 public class LiveFragment extends Fragment {
 
+    private static final String TAG = LiveFragment.class.getSimpleName();
+
     private LineChart mHrHrvSpo2;
     private LineChart mGSR;
     private LineChart mStimulation;
@@ -74,9 +65,6 @@ public class LiveFragment extends Fragment {
     public static int MAX = 20; // max number of points
 
     private static int count;
-
-    private static final String TAG = "LiveFragment";
-
     private TextView txHeartRate;
     private TextView txHRV;
     private TextView txSPO2;
@@ -86,18 +74,6 @@ public class LiveFragment extends Fragment {
     private static List<String> xValueFormatterList = new ArrayList<>();
 
     private static LiveFragment singleLiveFragment = null;
-
-    public static LiveFragment getInstance(){
-        if(singleLiveFragment == null){
-            return new LiveFragment();
-        }else{
-            return singleLiveFragment;
-        }
-    }
-
-
-
-
 
     @Nullable
     @Override
@@ -112,8 +88,11 @@ public class LiveFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * init views
+     * @param view
+     */
     private void init(View view) {
-
         mHrHrvSpo2 = view.findViewById(R.id.ct_hrhrvspo2);
         mGSR = view.findViewById(R.id.ct_gsr);
         mStimulation = view.findViewById(R.id.ct_stimulation);
@@ -132,22 +111,6 @@ public class LiveFragment extends Fragment {
         mGSR.invalidate();
         mStimulation.invalidate();
 
-//        if(timer == null){
-//            timer = new Timer();
-//        }
-//
-//        timer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                if(count>=240){ // s
-//                    mHrHrvSpo2.getData().clearValues();
-//                    mGSR.getData().clearValues();
-//                    mStimulation.getData().clearValues();
-//                    count = 0;
-//                }
-//                addEntry();
-//            }
-//        },1000, 200);
         txHeartRate = view.findViewById(R.id.tx_heartrate);
         txHRV = view.findViewById(R.id.tx_hrv);
         txSPO2 = view.findViewById(R.id.tx_spo2);
@@ -158,7 +121,7 @@ public class LiveFragment extends Fragment {
     }
 
     /**
-     * 根据大小显示字体
+     * setCircleViewText
      * @param pre
      * @param data
      * @return
@@ -172,7 +135,7 @@ public class LiveFragment extends Fragment {
 
 
     /**
-     * 曲线中加入点
+     * addEntry to plot
      */
     private void addEntry(){
 
@@ -217,23 +180,6 @@ public class LiveFragment extends Fragment {
 
         ds_gsr.addEntry(new Entry(x, h.getGSR()));
 
-//        if(h.getStimulation()!=0){
-//            float xVal = (float) (count);
-//            if(x%10 == 8){
-//                xVal = xVal - 1.99f;
-//                LogUtil.d(TAG, "XVAL = " +xVal);
-//                float yVal = 0f;
-//                ds_simulation.addEntry(new Entry(xVal, h.getStimulation()));
-//            }else{
-//                xVal = xVal -0.1f;
-//                LogUtil.d(TAG, "XVAL = " +xVal);
-//                float yVal = 0f;
-//                ds_simulation.addEntry(new Entry(xVal, h.getStimulation()));
-//            }
-//        }else{
-//            ds_simulation.addEntry(new Entry(x, h.getStimulation()));
-//        }
-
         ds_simulation.addEntry(new Entry(x, h.getStimulation()));
 
         if(txHeartRate!=null && txSPO2!=null&& txHRV!=null){
@@ -249,14 +195,14 @@ public class LiveFragment extends Fragment {
 
         HrHrvSpo2.notifyDataChanged();
         mHrHrvSpo2.notifyDataSetChanged();
-        setXValueFormatt(mHrHrvSpo2);
+        setXValueFormat(mHrHrvSpo2);
         mHrHrvSpo2.setVisibleXRangeMaximum(MAX);
         //mHrHrvSpo2.invalidate();
         mHrHrvSpo2.moveViewTo(HrHrvSpo2.getDataSetByIndex(0).getEntryCount() - (MAX+1), 50f, YAxis.AxisDependency.RIGHT);
 
         GSR.notifyDataChanged();
         mGSR.notifyDataSetChanged();
-        setXValueFormatt(mGSR);
+        setXValueFormat(mGSR);
         mGSR.setVisibleXRangeMaximum(MAX);
         mGSR.moveViewTo(GSR.getDataSetByIndex(0).getEntryCount() - (MAX+1), 50f, YAxis.AxisDependency.RIGHT);
         //mGSR.invalidate();
@@ -264,17 +210,25 @@ public class LiveFragment extends Fragment {
 
         Stimulation.notifyDataChanged();
         mStimulation.notifyDataSetChanged();
-        setXValueFormatt(mStimulation);
+        setXValueFormat(mStimulation);
         mStimulation.setVisibleXRangeMaximum(MAX);
         mStimulation.moveViewTo(Stimulation.getDataSetByIndex(0).getEntryCount() - (MAX+1), 50f, YAxis.AxisDependency.RIGHT);
         //mStimulation.invalidate();
     }
 
-    private void setXValueFormatt(LineChart lchart){
+    /**
+     * setXValueFormat
+     * @param lchart
+     */
+    private void setXValueFormat(LineChart lchart){
         lchart.getXAxis().setValueFormatter(new MyXAxisValueFormatter(xValueFormatterList.toArray(new String[xValueFormatterList.size()])));
     }
 
 
+    /**
+     * createHrDataSet
+     * @return
+     */
     private LineDataSet createHrDataSet(){
         LineDataSet set = new LineDataSet(null, "Heart Rate");
         set.setLineWidth(WIDTH);
@@ -286,6 +240,10 @@ public class LiveFragment extends Fragment {
         return set;
     }
 
+    /**
+     * createHrvDataSet
+     * @return
+     */
     private LineDataSet createHrvDataSet(){
         LineDataSet set = new LineDataSet(null, "HRV");
         set.setLineWidth(WIDTH);
@@ -297,6 +255,10 @@ public class LiveFragment extends Fragment {
         return set;
     }
 
+    /**
+     * createSpo2DataSet
+     * @return
+     */
     private LineDataSet createSpo2DataSet(){
         LineDataSet set = new LineDataSet(null, "SPO2");
         set.setLineWidth(WIDTH);
@@ -308,6 +270,10 @@ public class LiveFragment extends Fragment {
         return set;
     }
 
+    /**
+     * createGsrDataSet
+     * @return
+     */
     private LineDataSet createGsrDataSet(){
         LineDataSet set = new LineDataSet(null, "GSR");
 
@@ -320,6 +286,10 @@ public class LiveFragment extends Fragment {
         return set;
     }
 
+    /**
+     * createStimulationDataSet
+     * @return
+     */
     private LineDataSet createStimulationDataSet(){
         LineDataSet set = new LineDataSet(null, "Stimulation");
         set.setLineWidth(WIDTH);
@@ -333,7 +303,7 @@ public class LiveFragment extends Fragment {
 
 
     /**
-     * 生成图表上的实时数据
+     * generate real time data
      * @return
      */
     private History genData(){
@@ -355,8 +325,7 @@ public class LiveFragment extends Fragment {
         h.setTestTime(c.getTimeInMillis());
         h.setWeek(MyTimeUtils.getWeekOfYearCN(h.getTestDate()));
         h.setMonth(c.get(Calendar.MONTH)); // jan -> 0
-//        if(count%10==8 || count%10==9){
-//            h.setStimulation(75);
+
         if(count%10==2){
             h.setStimulation(100);
         }else {
@@ -371,7 +340,7 @@ public class LiveFragment extends Fragment {
     }
 
     /**
-     * 设置图表的参数
+     * set plots parameter
      * @param chart
      * @param min Y min value
      * @param max Y max value
@@ -447,8 +416,10 @@ public class LiveFragment extends Fragment {
 
     private Thread thread;
 
+    /**
+     * real time data
+     */
     private void feedMultiple() {
-
         if (thread != null){
             thread.interrupt();
         }

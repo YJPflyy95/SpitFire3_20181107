@@ -60,41 +60,42 @@ import java.util.Calendar;
  */
 public class MeFragment extends Fragment {
 
-    private static final String TAG = "MeFragment";
+    private static final String TAG = MeFragment.class.getSimpleName();
 
     @Nullable
-
     private static final int PHOTO_REQUEST_CAREMA = 1;
     private static final int PHOTO_REQUEST_GALLERY = 2;
     private static final int PHOTO_REQUEST_CUT = 3;
     private static final String PHOTO_FILE_NAME = "my.png";
     private File tempFile;
     private CircleImageView headIcon;
-    int mYear, mMonth, mDay;
-    TextView dateDisplay;
-    final int DATE_DIALOG = 1;
+    private int mYear, mMonth, mDay;
+    private TextView dateDisplay;
+    private final int DATE_DIALOG = 1;
     private ImageView imgBoy;
     private ImageView imgGirl;
     private SeekBar seekBar;
     private TextView textView;
-    int[] image = {
+    private int[] image = {
             R.drawable.boy,
             R.drawable.boyfilled,
             R.drawable.girl,
             R.drawable.girlfilled
     };
 
-
-
     private Fragment changePasswordFragment = new ChangePasswordFragment();
     private Fragment languagesFragment = new LanguagesFragment();
     private Fragment deviceControlFragment = new DeviceControlFragment();
-
     private Fragment settingFragment = new SettingsFragment();
     private Fragment activitiesFragment = new ActivitiesFragment();
 
-
-
+    /**
+     *  onCreateView
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_me, container, false);
         initView(view);
@@ -103,62 +104,48 @@ public class MeFragment extends Fragment {
         mYear = ca.get(Calendar.YEAR);
         mMonth = ca.get(Calendar.MONTH);
         mDay = ca.get(Calendar.DAY_OF_MONTH);
-        dateDisplay = (TextView) view.findViewById(R.id.dateDisplay);
-        seekBar = (SeekBar) view.findViewById(R.id.seekBar);
-        textView = (TextView) view.findViewById(R.id.result);
+        dateDisplay =  view.findViewById(R.id.dateDisplay);
+        seekBar = view.findViewById(R.id.seekBar);
+        textView = view.findViewById(R.id.result);
 
-        TextView changepassword = (TextView) view.findViewById(R.id.ChangePassword_tv);
+        TextView changepassword = view.findViewById(R.id.ChangePassword_tv);
         changepassword.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-//                switchContent(changePasswordFragment);
                 replaceFragment(changePasswordFragment);
             }
         });
-        ImageView forwardchangepassword = (ImageView) view.findViewById(R.id.forwardChangePassword_ib);
+        ImageView forwardchangepassword =view.findViewById(R.id.forwardChangePassword_ib);
         forwardchangepassword.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-//                switchContent(changePasswordFragment);
                 replaceFragment(changePasswordFragment);
             }
         });
-        TextView languages = (TextView) view.findViewById(R.id.Languages_tv);
+        TextView languages =  view.findViewById(R.id.Languages_tv);
         languages.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-//                switchContent(languagesFragment);
                 replaceFragment(languagesFragment);
             }
         });
-        ImageView forwardlanguages = (ImageView) view.findViewById(R.id.forwardLanguages_ib);
+        ImageView forwardlanguages = view.findViewById(R.id.forwardLanguages_ib);
         forwardlanguages.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-//                switchContent(languagesFragment);
                 replaceFragment(languagesFragment);
             }
         });
-        TextView connecteddevice = (TextView) view.findViewById(R.id.ConnectedDevice_tv);
+        TextView connecteddevice = view.findViewById(R.id.ConnectedDevice_tv);
         connecteddevice.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-//                switchContent(deviceControlFragment);
                 replaceFragment(deviceControlFragment);
             }
         });
         ImageView forwardconnecteddevice = (ImageView) view.findViewById(R.id.forwardConnectedDevice_ib);
         forwardconnecteddevice.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-//                switchContent(deviceControlFragment);
                 replaceFragment(deviceControlFragment);
             }
         });
 
 
-//        // 设置： 算法
-//        TextView settings = view.findViewById(R.id.forwardSetting_tv);
-//        settings.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                replaceFragment(settingFragment);
-//            }
-//        });
         // Activities
         TextView settings = view.findViewById(R.id.forwardActivities_tv);
         settings.setOnClickListener(new View.OnClickListener() {
@@ -168,40 +155,22 @@ public class MeFragment extends Fragment {
             }
         });
 
-//        ImageView forwardSettings = view.findViewById(R.id.forwardSetting_ib);
-//        forwardSettings.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                replaceFragment(settingFragment);
-//            }
-//        });
-
-
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            /*
-            * seekbar改变时的事件监听处理
-            * */
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 textView.setText(" Morning Readiness Duration "+progress+" mins");
-                Log.d("debug", String.valueOf(seekBar.getId()));
+                Log.d(TAG, String.valueOf(seekBar.getId()));
             }
-            /*
-            * 按住seekbar时的事件监听处理
-            * */
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 Toast.makeText(getContext(),"按住seekbar", Toast.LENGTH_SHORT).show();
             }
-            /*
-            * 放开seekbar时的时间监听处理
-            * */
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Toast.makeText(getContext(),"放开seekbar", Toast.LENGTH_SHORT).show();
             }
         });
-        imgBoy = (ImageView)view.findViewById(R.id.boy_ib);
+        imgBoy = view.findViewById(R.id.boy_ib);
         imgBoy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -210,7 +179,7 @@ public class MeFragment extends Fragment {
                     imgGirl.setImageDrawable(getResources().getDrawable(image[2]));
                 }
             }});
-        imgGirl = (ImageView)view.findViewById(R.id.girl_ib);
+        imgGirl = view.findViewById(R.id.girl_ib);
         imgGirl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -256,7 +225,7 @@ public class MeFragment extends Fragment {
     };
 
     /**
-     * 设置日期 利用StringBuffer追加
+     * dateDisplay
      */
     public void display() {
         dateDisplay.setText(new StringBuffer().append(mMonth + 1).append("-").append(mDay).append("-").append(mYear).append(" "));
@@ -273,14 +242,18 @@ public class MeFragment extends Fragment {
             display();
         }
     };
+
+    /**
+     * head icon
+     * @param view
+     */
     private void initView(View view) {
 
-        headIcon = (CircleImageView) view.findViewById(R.id.headIcon);
+        headIcon = view.findViewById(R.id.headIcon);
         headIcon.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 changeHeadIcon();
             }
         });
@@ -290,6 +263,10 @@ public class MeFragment extends Fragment {
             headIcon.setImageURI(Uri.fromFile(file));
         }
     }
+
+    /**
+     * changeTheme
+     */
     private void changeTheme() {
         Calendar c = Calendar.getInstance();
         System.out.println(c.get(Calendar.HOUR_OF_DAY));
@@ -299,6 +276,10 @@ public class MeFragment extends Fragment {
             headIcon.setImageResource(R.drawable.my);
         }
     }
+
+    /**
+     * changeHeadIcon
+     */
     private void changeHeadIcon() {
         final CharSequence[] items = { "相册", "拍照" };
         AlertDialog dlg = new AlertDialog.Builder(getContext()).setTitle("选择图片").setItems(items, new DialogInterface.OnClickListener() {
@@ -391,7 +372,7 @@ public class MeFragment extends Fragment {
     }
 
     /**
-     * 切换内容
+     * switchContent
      * @param to
      */
     public void switchContent(Fragment to) {
@@ -401,7 +382,7 @@ public class MeFragment extends Fragment {
         hideFragments(transaction);
         LogUtil.d(TAG, "isadd: "+to.isAdded());
 
-        if (!to.isAdded()) {	// 先判断是否被add过
+        if (!to.isAdded()) {	// already add ?
             transaction.add(R.id.ll_content, to).show(to).commit(); // 隐藏当前的fragment，add下一个到Activity中
         } else {
             transaction.show(to).commit(); // 隐藏当前的fragment，显示下一个
@@ -409,7 +390,7 @@ public class MeFragment extends Fragment {
     }
 
     /**
-     * 隐藏所有fragment防止显示多个
+     * hideFragments
      */
     private void hideFragments(FragmentTransaction transaction) {
 

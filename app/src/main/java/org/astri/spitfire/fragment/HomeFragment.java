@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,16 +12,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.astri.spitfire.Activities;
-import org.astri.spitfire.HomeActivity;
-import org.astri.spitfire.MeActivity;
 import org.astri.spitfire.R;
 import org.astri.spitfire.ReadinessDetailActivity;
 import org.astri.spitfire.ReadinessReadingActivity;
-import org.astri.spitfire.ScanDeviceStartedActivity;
 import org.astri.spitfire.ble.Fragment.BLEMainFragment;
-import org.astri.spitfire.ble.activity.DeviceScanActivity;
-import org.astri.spitfire.ble.activity.DeviceScanActivityStart;
 
 /**
  * <pre>
@@ -38,8 +31,14 @@ import org.astri.spitfire.ble.activity.DeviceScanActivityStart;
  * </pre>
  */
 public class HomeFragment extends Fragment {
-    private View dialogBtn;
 
+    /**
+     * Home View
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
