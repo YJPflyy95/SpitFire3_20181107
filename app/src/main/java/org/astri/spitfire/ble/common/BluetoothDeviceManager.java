@@ -49,22 +49,25 @@ public class BluetoothDeviceManager {
     /**
      * 连接回调
      */
-    private IConnectCallback connectCallback = new IConnectCallback() {
+    private IConnectCallback connectCallback = new IConnectCallback( ) {
 
         @Override
-        public void onConnectSuccess(final DeviceMirror deviceMirror) {
-            ViseLog.i("Connect Success!");
+        public void onConnectSuccess(final DeviceMirror deviceMirror)
+        {
+            ViseLog.i("连接成功~~");
             BusManager.getBus().post(connectEvent.setDeviceMirror(deviceMirror).setSuccess(true));
         }
 
         @Override
-        public void onConnectFailure(BleException exception) {
-            ViseLog.i("Connect Failure!");
+        public void onConnectFailure(BleException exception)
+        {
+            ViseLog.i("连接失败!");
             BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(false));
         }
 
         @Override
-        public void onDisconnect(boolean isActive) {
+        public void onDisconnect(boolean isActive)
+        {
             ViseLog.i("onDisconnect!");
             BusManager.getBus().post(connectEvent.setSuccess(false).setDisconnected(true));
         }
@@ -73,9 +76,11 @@ public class BluetoothDeviceManager {
     /**
      * 接收数据回调
      */
-    private IBleCallback receiveCallback = new IBleCallback() {
+    private IBleCallback receiveCallback = new IBleCallback()
+    {
         @Override
-        public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice) {
+        public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice)
+        {
             if (data == null) {
                 return;
             }
@@ -86,7 +91,8 @@ public class BluetoothDeviceManager {
         }
 
         @Override
-        public void onFailure(BleException exception) {
+        public void onFailure(BleException exception)
+        {
             if (exception == null) {
                 return;
             }
@@ -99,7 +105,8 @@ public class BluetoothDeviceManager {
      */
     private IBleCallback bleCallback = new IBleCallback() {
         @Override
-        public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice) {
+        public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice)
+        {
             if (data == null) {
                 return;
             }
@@ -117,7 +124,8 @@ public class BluetoothDeviceManager {
         }
 
         @Override
-        public void onFailure(BleException exception) {
+        public void onFailure(BleException exception)
+        {
             if (exception == null) {
                 return;
             }
@@ -126,27 +134,30 @@ public class BluetoothDeviceManager {
         }
     };
 
-    private BluetoothDeviceManager() {
+    private BluetoothDeviceManager( )   //构造函数
+    {
 
     }
 
-    public static BluetoothDeviceManager getInstance() {
-        if (instance == null) {
-            synchronized (BluetoothDeviceManager.class) {
-                if (instance == null) {
-                    instance = new BluetoothDeviceManager();
-                }
+    public static BluetoothDeviceManager getInstance( )
+    {
+        if (instance == null)
+        {
+            synchronized (BluetoothDeviceManager.class)
+            {
+                  if (instance == null)
+                {  instance = new BluetoothDeviceManager( );  }
             }
         }
         return instance;
     }
 
-    public void init(Context context) {
-        if (context == null) {
-            return;
-        }
+    public void init(Context context)
+    {
+        if (context == null)
+        {   return;    }
         //蓝牙相关配置修改
-        ViseBle.config()
+        ViseBle.config( )
 //                .setScanTimeout(-1)//扫描超时时间，这里设置为永久扫描
                 .setScanTimeout(3 * 1000)//扫描超时时间，这里设置为永久扫描
                 .setConnectTimeout(10 * 1000)//连接超时时间
@@ -162,12 +173,14 @@ public class BluetoothDeviceManager {
         mDeviceMirrorPool = ViseBle.getInstance().getDeviceMirrorPool();
     }
 
-    public void connect(BluetoothLeDevice bluetoothLeDevice) {
+    public void connect(BluetoothLeDevice bluetoothLeDevice)
+    {
         LogUtil.d(TAG, "connect");
         ViseBle.getInstance().connect(bluetoothLeDevice, connectCallback);
     }
 
-    public void connectByName(String deviceName) {
+    public void connectByName(String deviceName)
+    {
         LogUtil.d(TAG, "connect");
         ViseBle.getInstance().connectByName(deviceName, connectCallback);
     }
@@ -264,11 +277,13 @@ public class BluetoothDeviceManager {
                 byte[] surplusData = new byte[data.length - index];
                 byte[] currentData;
                 System.arraycopy(data, index, surplusData, 0, data.length - index);
-                if (surplusData.length <= 20) {
+                if (surplusData.length <= 20)
+                {
                     currentData = new byte[surplusData.length];
                     System.arraycopy(surplusData, 0, currentData, 0, surplusData.length);
                     index += surplusData.length;
-                } else {
+                } else
+                    {
                     currentData = new byte[20];
                     System.arraycopy(data, index, currentData, 0, 20);
                     index += 20;

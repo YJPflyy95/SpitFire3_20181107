@@ -28,7 +28,7 @@ public class ConfirmDialog extends AppCompatDialog {
     }
 
     //初始化View
-    private void initalize() {
+    private void initalize( ) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.confirm_dialog, null);
         setContentView(view);

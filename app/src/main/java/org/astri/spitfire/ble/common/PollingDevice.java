@@ -27,36 +27,42 @@ public class PollingDevice {
         mHandler = handler;
     }
 
-    public void startPolling(Runnable runnable, long interval) {
+    public void startPolling(Runnable runnable, long interval)
+    {
         startPolling(runnable, interval, false);
     }
 
-    public void startPolling(final Runnable runnable, final long interval,
-                             boolean runImmediately) {
+    public void startPolling(final Runnable runnable, final long interval, boolean runImmediately)
+    {
         if (runImmediately) {
             runnable.run();
         }
         Runnable task = mTaskMap.get(runnable);
-        if (task == null) {
-            task = new Runnable() {
-                @Override
-                public void run() {
+        if (task == null)
+        {
+            task = new Runnable()
+            {   @Override
+                public void run()
+                {
                     runnable.run();
                     post(runnable, interval);
                 }
             };
             mTaskMap.put(runnable, task);
-        }
+        }//if( )
         post(runnable, interval);
     }
 
-    public void endPolling(Runnable runnable) {
-        if (mTaskMap.containsKey(runnable)) {
+    public void endPolling(Runnable runnable)
+    {
+        if (mTaskMap.containsKey(runnable))
+        {
             mHandler.removeCallbacks(mTaskMap.get(runnable));
         }
     }
 
-    private void post(Runnable runnable, long interval) {
+    private void post(Runnable runnable, long interval)
+    {
         Runnable task = mTaskMap.get(runnable);
         mHandler.removeCallbacks(task);
         mHandler.postDelayed(task, interval);

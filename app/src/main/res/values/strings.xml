@@ -1,5 +1,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">>
-    <string name="app_name">Qey</string>
+    <string name="app_name">智能手环</string>
 
     <string name="invalid_device_data">Invalid Device Data!</string>
     <string name="no_data">No data</string>

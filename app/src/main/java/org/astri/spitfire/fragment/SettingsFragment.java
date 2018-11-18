@@ -187,7 +187,7 @@ public class SettingsFragment extends Fragment {
         // initAlgorithms
         initAlgorithms();
 
-        // initMisc stop btn
+        // initStop btn
         initStopBtn(view);
 
         // initMisc alg list view
@@ -342,7 +342,8 @@ public class SettingsFragment extends Fragment {
             }
 
             @Override
-            public void getProgressOnFinally(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat, boolean fromUser) {
+            public void getProgressOnFinally(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat, boolean fromUser)
+            {
                 String s = String.format(Locale.CHINA, "onFinally int:%d, float:%.1f", progress, progressFloat);
                 LogUtil.d(TAG, s);
             }
@@ -605,14 +606,16 @@ public class SettingsFragment extends Fragment {
                     ServiceCharacUtil.getAppServicesCharcs(gattServices, serviceMap, charaMap);
 
                     // TODO: must wait a little while, don't figure out why?
-                    try {
-                        Thread.sleep(500);
-                    } catch (Exception e) {
-
-                    }
+//                    try {
+//                        Thread.sleep(500);
+//                    } catch (Exception e) {
+//
+//                    }
 
                     // binding service
-                    new BLETask().execute();
+//                    new BLETask().execute();
+
+                    bindServiceCharac();
 
                     LogUtil.d(TAG, "set device service and characteristic success！");
                 }
