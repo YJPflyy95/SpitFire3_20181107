@@ -10,16 +10,19 @@ public class CallbackDataEvent implements IEvent {
     private BluetoothLeDevice bluetoothLeDevice;
     private BluetoothGattChannel bluetoothGattChannel;
 
-    public CallbackDataEvent setSuccess(boolean success) {
+    public CallbackDataEvent setSuccess(boolean success)
+    {
         isSuccess = success;
         return this;
     }
 
-    public byte[] getData() {
+    public byte[] getData()
+    {
         return data;
     }
 
-    public CallbackDataEvent setData(byte[] data) {
+    public CallbackDataEvent setData(byte[] data)
+    {
         this.data = data;
         return this;
     }
@@ -32,7 +35,8 @@ public class CallbackDataEvent implements IEvent {
         return bluetoothLeDevice;
     }
 
-    public CallbackDataEvent setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice) {
+    public CallbackDataEvent setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice)
+    {
         this.bluetoothLeDevice = bluetoothLeDevice;
         return this;
     }
@@ -41,8 +45,10 @@ public class CallbackDataEvent implements IEvent {
         return bluetoothGattChannel;
     }
 
-    public CallbackDataEvent setBluetoothGattChannel(BluetoothGattChannel bluetoothGattChannel) {
+    public CallbackDataEvent setBluetoothGattChannel(BluetoothGattChannel bluetoothGattChannel)
+    {
         this.bluetoothGattChannel = bluetoothGattChannel;
         return this;
     }
+
 }

@@ -35,7 +35,7 @@
     <application
         android:name="org.litepal.LitePalApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ua"
+        android:icon="@mipmap/tubiao"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -55,7 +55,6 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".HomeActivity" />
         <activity android:name=".ReadinessReadingActivity" />
-        <activity android:name=".BaseActivity" />
         <activity android:name=".ReadinessDetailActivity" />
         <activity android:name=".ResetEmailSentActivity" />
         <activity android:name=".HistoryActivity" />

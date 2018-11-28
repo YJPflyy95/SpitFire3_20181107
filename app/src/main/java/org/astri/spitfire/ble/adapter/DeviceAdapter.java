@@ -11,7 +11,8 @@ import org.astri.spitfire.R;
 
 public class DeviceAdapter extends HelperAdapter<BluetoothLeDevice> {
 
-    public DeviceAdapter(Context context) {
+    public DeviceAdapter(Context context)
+    {
         super(context, R.layout.item_scan_layout);
     }
 
@@ -23,7 +24,8 @@ public class DeviceAdapter extends HelperAdapter<BluetoothLeDevice> {
 //        TextView deviceScanRecordTv = viewHolder.getView(R.id.device_scanRecord);
         if (bluetoothLeDevice != null && bluetoothLeDevice.getDevice() != null) {
             String deviceName = bluetoothLeDevice.getDevice().getName();
-            if (deviceName != null && !deviceName.isEmpty()) {
+            if (deviceName != null && !deviceName.isEmpty( ))
+            {
                 deviceNameTv.setText(deviceName);
             } else {
                 deviceNameTv.setText(mContext.getString(R.string.unknown_device));

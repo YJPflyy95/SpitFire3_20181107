@@ -1,22 +1,12 @@
-package org.astri.spitfire;
+package org.astri.spitfire.util;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import org.astri.spitfire.util.LogUtil;
-
 /**
- * <pre>
- *     author : HuGuoDong
- *     e-mail : guodong_hu@126.com
- *     time   : 2018/01/23
- *     desc   :
- *     modified by :
- *     e-mail : xx_xxx@xx
- *     time   :
- *     desc   :
- *     version: 1.0
- * </pre>
+ * Created by Administrator on 2018/11/23.
  */
+
 public class BaseActivity extends AppCompatActivity {
 
     private static final String TAG = "BaseActivity";

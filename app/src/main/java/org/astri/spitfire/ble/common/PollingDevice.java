@@ -21,7 +21,7 @@ import java.util.Map;
 public class PollingDevice {
 
     private Handler mHandler;
-    private Map<Runnable, Runnable> mTaskMap = new HashMap<Runnable, Runnable>();
+    private Map<Runnable, Runnable> mTaskMap = new HashMap<Runnable, Runnable>( );
 
     public PollingDevice(Handler handler) {
         mHandler = handler;
@@ -34,14 +34,15 @@ public class PollingDevice {
 
     public void startPolling(final Runnable runnable, final long interval, boolean runImmediately)
     {
-        if (runImmediately) {
-            runnable.run();
+        if (runImmediately)
+        {
+            runnable.run( );
         }
         Runnable task = mTaskMap.get(runnable);
         if (task == null)
         {
-            task = new Runnable()
-            {   @Override
+            task = new Runnable() {
+                @Override
                 public void run()
                 {
                     runnable.run();
@@ -67,4 +68,5 @@ public class PollingDevice {
         mHandler.removeCallbacks(task);
         mHandler.postDelayed(task, interval);
     }
+
 }

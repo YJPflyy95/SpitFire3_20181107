@@ -305,14 +305,17 @@ public class BLEMainActivity extends AppCompatActivity {
      *
      * @param count
      */
-    private void updateItemCount(final int count) {
+    private void updateItemCount(final int count)
+    {
         countTv.setText(getString(R.string.formatter_item_count, String.valueOf(count)));
     }
 
     /**
      * 显示项目信息
      */
-    private void displayAboutDialog() {
+    private void displayAboutDialog()
+    {
+
     }
 
 }

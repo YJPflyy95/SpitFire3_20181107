@@ -136,15 +136,17 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login() {
 
-
-        if (!IS_USER_TESTING) {
+        if (!IS_USER_TESTING)
+        {
             //登录按钮监听事件
-            if (isUserNameAndPwdValid()) {
+            if (isUserNameAndPwdValid())
+            {
                 String userName = mAccount.getText().toString().trim();    //获取当前输入的用户名和密码信息
                 String userPwd = password.getText().toString().trim();
                 SharedPreferences.Editor editor = login_sp.edit();
                 int result = mUserDataManager.findUserByNameAndPwd(userName, userName);
-                if (result == 1) {                                             //返回1说明用户名和密码均正确
+                if (result == 1)
+                 {                                             //返回1说明用户名和密码均正确
                     //保存用户名和密码
                     editor.putString("USER_NAME", userName);
                     editor.putString("PASSWORD", userPwd);
@@ -161,7 +163,8 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                     Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();//登录成功提示
-                } else if (result == 0) {
+                 } else if (result == 0)
+                {
                     Toast.makeText(this, getString(R.string.login_fail), Toast.LENGTH_SHORT).show();  //登录失败提示
                 }
             }

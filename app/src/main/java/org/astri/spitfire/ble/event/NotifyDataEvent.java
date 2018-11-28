@@ -13,7 +13,8 @@ public class NotifyDataEvent implements IEvent {
         return data;
     }
 
-    public NotifyDataEvent setData(byte[] data) {
+    public NotifyDataEvent setData(byte[] data)
+    {
         this.data = data;
         return this;
     }
@@ -22,7 +23,8 @@ public class NotifyDataEvent implements IEvent {
         return bluetoothLeDevice;
     }
 
-    public NotifyDataEvent setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice) {
+    public NotifyDataEvent setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice)
+    {
         this.bluetoothLeDevice = bluetoothLeDevice;
         return this;
     }
@@ -31,8 +33,10 @@ public class NotifyDataEvent implements IEvent {
         return bluetoothGattChannel;
     }
 
-    public NotifyDataEvent setBluetoothGattChannel(BluetoothGattChannel bluetoothGattChannel) {
+    public NotifyDataEvent setBluetoothGattChannel(BluetoothGattChannel bluetoothGattChannel)
+    {
         this.bluetoothGattChannel = bluetoothGattChannel;
         return this;
     }
+
 }

@@ -90,9 +90,10 @@ public class LiveFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
+    public void onStart( )
+    {
         super.onStart();
-        mAddEntryService.startPolling(runnable, 500);
+        mAddEntryService.startPolling(data_runnable, 500);
     }
 
     @Override
@@ -130,8 +131,8 @@ public class LiveFragment extends Fragment {
         txGSR = view.findViewById(R.id.tx_gsr);
         txStimulation = view.findViewById(R.id.tx_stimulation);
 
+        mAddEntryService = new AddEntryService(new Handler( ));
 //        feedMultiple();
-        mAddEntryService = new AddEntryService(new Handler());
 
     } //init( )
 
@@ -164,11 +165,11 @@ public class LiveFragment extends Fragment {
             mHrHrvSpo2.getData().addDataSet(createSpo2DataSet());
         }
 
-        int mGSRSets = mGSR.getLineData().getDataSetCount();
+        int mGSRSets = mGSR.getLineData().getDataSetCount( );
         if(mGSRSets == 0)
         {
             // add data set
-            mGSR.getData().addDataSet(createGsrDataSet());
+            mGSR.getData().addDataSet(createGsrDataSet( ));
         }
 
         int mStimulationSets = mStimulation.getLineData().getDataSetCount();
@@ -382,7 +383,7 @@ public class LiveFragment extends Fragment {
         legend.setEnabled(false);
 
 
-        XAxis xAxis = lineChart.getXAxis();
+        XAxis xAxis = lineChart.getXAxis( );
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(true);
         xAxis.setDrawAxisLine(true);
@@ -401,7 +402,7 @@ public class LiveFragment extends Fragment {
          lineChart.setDrawGridBackground(false);
          lineChart.getDescription().setEnabled(false);
 
-         lineChart.animateX(2000);
+         lineChart.animateX(1000);
         // do not forget to refresh the chart
         LogUtil.d(TAG, "invalidate");
     } //setPltParams( )
@@ -448,7 +449,8 @@ public class LiveFragment extends Fragment {
      */
     private void feedMultiple( )
     {
-        if (thread != null){
+        if (thread != null)
+        {
             thread.interrupt();
         }
 
@@ -488,9 +490,8 @@ public class LiveFragment extends Fragment {
     @Override
     public void onPause()
     {
-        mAddEntryService.endPolling(runnable);
+        mAddEntryService.endPolling(data_runnable);
         super.onPause();
-
     }
 
     @Override
@@ -503,17 +504,19 @@ public class LiveFragment extends Fragment {
      * a runnable thread
      * run to read data from device
      */
-    private Runnable runnable = new Runnable() {
+    private Runnable data_runnable = new Runnable() {
         @Override
-        public void run() {
+        public void run()
+        {
+           // addEntry();
             getActivity().runOnUiThread(addEntryRunnable);
         }
     };
 
     final Runnable addEntryRunnable = new Runnable() {
-
         @Override
-        public void run() {
+        public void run()
+        {
             addEntry( );
         }
     };

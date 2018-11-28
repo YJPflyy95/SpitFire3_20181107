@@ -1,22 +1,14 @@
-package org.astri.spitfire;
+package org.astri.spitfire.util;
+
 import android.app.Activity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <pre>
- *     author : HuGuoDong
- *     e-mail : guodong_hu@126.com
- *     time   : 2018/01/23
- *     desc   :
- *     modified by :
- *     e-mail : xx_xxx@xx
- *     time   :
- *     desc   :
- *     version: 1.0
- * </pre>
+ * Created by Administrator on 2018/11/23.
  */
+
 public class ActivityCollector {
 
     public static List<Activity> activities = new ArrayList<>();

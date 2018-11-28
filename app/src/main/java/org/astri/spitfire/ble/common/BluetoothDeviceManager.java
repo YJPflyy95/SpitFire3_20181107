@@ -37,12 +37,12 @@ public class BluetoothDeviceManager {
 
     private static final String TAG = "BluetoothDeviceManager";
 
-    private static BluetoothDeviceManager instance;
+    private static BluetoothDeviceManager bluetoothDeviceManager;
     private DeviceMirrorPool mDeviceMirrorPool;
-    private ScanEvent scanEvent = new ScanEvent();
-    private ConnectEvent connectEvent = new ConnectEvent();
-    private CallbackDataEvent callbackDataEvent = new CallbackDataEvent();
-    private NotifyDataEvent notifyDataEvent = new NotifyDataEvent();
+    private ScanEvent scanEvent = new ScanEvent( );
+    private ConnectEvent connectEvent = new ConnectEvent( );
+    private CallbackDataEvent callbackDataEvent = new CallbackDataEvent( );
+    private NotifyDataEvent notifyDataEvent = new NotifyDataEvent( );
 
     private static int count = 0;
 
@@ -81,7 +81,8 @@ public class BluetoothDeviceManager {
         @Override
         public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice)
         {
-            if (data == null) {
+            if (data == null)
+            {
                 return;
             }
             ViseLog.i("notify success:" + HexUtil.encodeHexStr(data));
@@ -98,7 +99,7 @@ public class BluetoothDeviceManager {
             }
             ViseLog.i("notify fail:" + exception.getDescription());
         }
-    };
+    }; //IBleCallback receiveCallback = new IBleCallback(){ };
 
     /**
      * 操作数据回调
@@ -107,9 +108,8 @@ public class BluetoothDeviceManager {
         @Override
         public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice)
         {
-            if (data == null) {
-                return;
-            }
+            if (data == null)
+            {    return;    }
             ViseLog.i("callback success:" + HexUtil.encodeHexStr(data));
             BusManager.getBus().post(callbackDataEvent.setData(data).setSuccess(true)
                     .setBluetoothLeDevice(bluetoothLeDevice)
@@ -117,22 +117,22 @@ public class BluetoothDeviceManager {
             if (bluetoothGattInfo != null && (bluetoothGattInfo.getPropertyType() == PropertyType.PROPERTY_INDICATE
                     || bluetoothGattInfo.getPropertyType() == PropertyType.PROPERTY_NOTIFY)) {
                 DeviceMirror deviceMirror = mDeviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
-                if (deviceMirror != null) {
+                if (deviceMirror != null)
+                {
                     deviceMirror.setNotifyListener(bluetoothGattInfo.getGattInfoKey(), receiveCallback);
                 }
             }
         }
-
         @Override
         public void onFailure(BleException exception)
         {
-            if (exception == null) {
-                return;
-            }
+            if (exception == null)
+            {       return;      }
             ViseLog.w("callback fail:" + exception.getDescription());
             BusManager.getBus().post(callbackDataEvent.setSuccess(false));
         }
-    };
+    }; //IBleCallback bleCallback=new IBleCallback( ) {   };
+
 
     private BluetoothDeviceManager( )   //构造函数
     {
@@ -141,15 +141,15 @@ public class BluetoothDeviceManager {
 
     public static BluetoothDeviceManager getInstance( )
     {
-        if (instance == null)
+        if (bluetoothDeviceManager == null)
         {
             synchronized (BluetoothDeviceManager.class)
             {
-                  if (instance == null)
-                {  instance = new BluetoothDeviceManager( );  }
+                  if (bluetoothDeviceManager == null)
+                {  bluetoothDeviceManager = new BluetoothDeviceManager( );  }
             }
         }
-        return instance;
+        return bluetoothDeviceManager;
     }
 
     public void init(Context context)
@@ -171,7 +171,7 @@ public class BluetoothDeviceManager {
         //蓝牙信息初始化，全局唯一，必须在应用初始化时调用
         ViseBle.getInstance().init(context.getApplicationContext());
         mDeviceMirrorPool = ViseBle.getInstance().getDeviceMirrorPool();
-    }
+    } //init( )
 
     public void connect(BluetoothLeDevice bluetoothLeDevice)
     {
@@ -210,7 +210,8 @@ public class BluetoothDeviceManager {
         }
     }
 
-    public void write(final BluetoothLeDevice bluetoothLeDevice, byte[] data) {
+    public void write(final BluetoothLeDevice bluetoothLeDevice, byte[] data)
+    {
         if (dataInfoQueue != null) {
             dataInfoQueue.clear();
             dataInfoQueue = splitPacketFor20Byte(data);
@@ -224,16 +225,20 @@ public class BluetoothDeviceManager {
         }
     }
 
-    public void read(BluetoothLeDevice bluetoothLeDevice) {
+    public void read(BluetoothLeDevice bluetoothLeDevice)
+    {
         DeviceMirror deviceMirror = mDeviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
-        if (deviceMirror != null) {
+        if (deviceMirror != null)
+        {
             deviceMirror.readData();
         }
     }
 
-    public void registerNotify(BluetoothLeDevice bluetoothLeDevice, boolean isIndicate) {
+    public void registerNotify(BluetoothLeDevice bluetoothLeDevice, boolean isIndicate)
+    {
         DeviceMirror deviceMirror = mDeviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
-        if (deviceMirror != null) {
+        if (deviceMirror != null)
+        {
             deviceMirror.registerNotify(isIndicate);
         }
     }
@@ -245,7 +250,8 @@ public class BluetoothDeviceManager {
      * 数据字节大于20分包长度
      * @param bluetoothLeDevice
      */
-    private void send(final BluetoothLeDevice bluetoothLeDevice) {
+    private void send(final BluetoothLeDevice bluetoothLeDevice)
+    {
 
         if (dataInfoQueue != null && !dataInfoQueue.isEmpty()) {
             DeviceMirror deviceMirror = mDeviceMirrorPool.getDeviceMirror(bluetoothLeDevice);

@@ -101,10 +101,9 @@ public class SettingsFragment extends Fragment {
 
     private TextView settingAlgResultTv;
     private TextView heartRateTv;
-    private Button heartRateBtn;
     private Button settingAlgBtn;
+    private Button heartRateBtn;
     private ListView alglist;
-
     private Button stopBtn;
 
     // mSpCache store key-value
@@ -231,7 +230,6 @@ public class SettingsFragment extends Fragment {
         });
 
 
-
     }
 
     private void initAlgListView(View view) {
@@ -274,6 +272,7 @@ public class SettingsFragment extends Fragment {
 
     /**
      * initSeekBar setting
+     *
      * @param view
      */
     private void initSeekBar(View view) {
@@ -348,10 +347,12 @@ public class SettingsFragment extends Fragment {
                 LogUtil.d(TAG, s);
             }
         });
-    }
+
+    }//initSeekBar( )
 
     /**
      * init  miscellaneous
+     *
      * @param view
      */
     private void initMisc(View view) {
@@ -360,7 +361,8 @@ public class SettingsFragment extends Fragment {
         heartRateBtn = view.findViewById(R.id.heartrate_btn);
         settingAlgBtn = view.findViewById(R.id.algorithm_setting_btn);
 
-        if (IS_PRODUCTION) { // show some testing view or not
+        if (IS_PRODUCTION)  //是上线产品的话，这些控件就不显示了
+        { // show some testing view or not
             heartRateTv.setVisibility(View.GONE);
             settingAlgResultTv.setVisibility(View.GONE);
             settingAlgBtn.setVisibility(View.GONE);
@@ -373,7 +375,7 @@ public class SettingsFragment extends Fragment {
 
         // just for testing
         setAlgBtn();
-    }
+    } //initMisc( )
 
     /**
      * binding specific services and characteristic
@@ -395,10 +397,10 @@ public class SettingsFragment extends Fragment {
             setAlgCharaPropBindReadChnnel(algService, algCharacteristic);
 
             Thread.sleep(SLEEP_INTERVAL);
-            setAlgCharaPropBindNotifyChnnel(algService, algCharacteristic);
+            setAlgCharaPropBindWriteChnnel(algService, algCharacteristic);
 
             Thread.sleep(SLEEP_INTERVAL);
-            setAlgCharaPropBindWriteChnnel(algService, algCharacteristic);
+            setAlgCharaPropBindNotifyChnnel(algService, algCharacteristic);
 
             Thread.sleep(SLEEP_INTERVAL);
 
@@ -414,23 +416,29 @@ public class SettingsFragment extends Fragment {
      * @param service
      * @param characteristic
      */
-    private void setHearRateCharaPropBindChnnel(BluetoothGattService service, BluetoothGattCharacteristic characteristic) {
+    private void setHearRateCharaPropBindChnnel(BluetoothGattService service, BluetoothGattCharacteristic characteristic)
+    {
 
-        final int charaProp = characteristic.getProperties();
-        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+        final int charaProperties = characteristic.getProperties();
+        if ((charaProperties | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0)
+        {
             mSpCache.put(WRITE_CHARACTERISTI_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
             BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_WRITE, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().read(mDevice);
-        } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+        }
+        else if ((charaProperties & BluetoothGattCharacteristic.PROPERTY_READ) > 0)
+        {
             BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_READ, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().read(mDevice);
         }
-        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+        if ((charaProperties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0)
+        {
             mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
             BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_NOTIFY, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().registerNotify(mDevice, false);
-
-        } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_INDICATE) > 0) {
+        }
+        else if ((charaProperties & BluetoothGattCharacteristic.PROPERTY_INDICATE) > 0)
+        {
             mSpCache.put(NOTIFY_CHARACTERISTIC_UUID_KEY + mDevice.getAddress(), characteristic.getUuid().toString());
             BluetoothDeviceManager.getInstance().bindChannel(mDevice, PropertyType.PROPERTY_INDICATE, service.getUuid(), characteristic.getUuid(), null);
             BluetoothDeviceManager.getInstance().registerNotify(mDevice, true);
@@ -444,7 +452,8 @@ public class SettingsFragment extends Fragment {
     private IBleCallback receiveAlgCallBack = new IBleCallback() {
         @Override
         public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattInfo, BluetoothLeDevice bluetoothLeDevice) {
-            if (data == null) {
+            if (data == null)
+            {
                 return;
             }
             ViseLog.i("receiveAlgCallBack notify success:" + HexUtil.encodeHexStr(data));
@@ -527,16 +536,17 @@ public class SettingsFragment extends Fragment {
     private void connect() {
         LogUtil.d(TAG, "Start to connect device!");
         BluetoothDeviceManager.getInstance().connectByName(DEVICE_NAME);
-
     }
 
     /**
      * initAlgorithms
      * show in the ListView
      */
-    private void initAlgorithms() {
+    private void initAlgorithms()
+    {
         algorithmList.clear();
-        for (int i = 0; i < algorithms.length; i++) {
+        for (int i = 0; i < algorithms.length; i++)
+        {
             Algorithm alg = new Algorithm(algorithms[i]);
             alg.setIndex(i + 1); // attention add 1
             algorithmList.add(alg);
@@ -554,34 +564,39 @@ public class SettingsFragment extends Fragment {
     public void showDeviceNotifyData(NotifyDataEvent event) {
         LogUtil.d(TAG, "showDeviceNotifyData");
         if (event != null && event.getData() != null && event.getBluetoothLeDevice() != null
-                && event.getBluetoothLeDevice().getAddress().equals(mDevice.getAddress())) {
+                && event.getBluetoothLeDevice().getAddress().equals(mDevice.getAddress()))
+        {
 
             BluetoothGattCharacteristic characteristic = event.getBluetoothGattChannel().getCharacteristic();
-            if (mHeartRateCharacteristicUuid.equals(characteristic.getUuid())) {
+            if (mHeartRateCharacteristicUuid.equals(characteristic.getUuid()))
+            {
                 int flag = characteristic.getProperties();
                 int format = -1;
-                if ((flag & 0x01) != 0) {
+                if ((flag & 0x01) != 0)
+                {
                     Log.d(TAG, "format: " + format);
                     format = BluetoothGattCharacteristic.FORMAT_UINT16;
                     Log.d(TAG, "Heart rate format UINT16.");
-                } else {
+                } else
+                {
                     Log.d(TAG, "format: " + format);
                     format = BluetoothGattCharacteristic.FORMAT_UINT8;
                     Log.d(TAG, "Heart rate format UINT8.");
                 }
-                characteristic.setValue(event.getData());
+                characteristic.setValue(event.getData( ));
                 final int heartRate = characteristic.getIntValue(format, 1);
                 heartRateTv.setText(heartRate + " BMP");
                 Log.d(TAG, String.format("Received heart rate: %d", heartRate));
                 LogUtil.d(TAG, characteristic.getUuid() + ": " + HexUtil.encodeHexStr(event.getData()));
 
-            } else if (characteristic.getUuid().equals(mAlgorithmIntensifyUuid)) {
-
+            }
+            else if (characteristic.getUuid().equals(mAlgorithmIntensifyUuid))
+            {
                 // do nothing...
                 LogUtil.d(TAG, "Alg Intense notify received....");
-
-
-            } else {
+            }
+            else
+            {
                 // For all other profiles, writes the data formatted in HEX.
                 final byte[] data = characteristic.getValue();
                 LogUtil.d(TAG, characteristic.getUuid() + ": " + HexUtil.encodeHexStr(data));
@@ -593,37 +608,40 @@ public class SettingsFragment extends Fragment {
 
     @SuppressLint("RestrictedApi")
     @Subscribe
-    public void showConnectedDevice(ConnectEvent event) {
+    public void showConnectedDevice(ConnectEvent connectEvent) {
         LogUtil.d(TAG, "showConnectedDevice");
-        if (event != null) {
-            if (event.isSuccess()) {
+        if (connectEvent != null) {
+            if (connectEvent.isSuccess())
+            {
                 ToastUtil.showToast(mActivity, "Device Connected");
-                if (event.getDeviceMirror() != null && event.getDeviceMirror().getBluetoothGatt() != null) {
-                    mDevice = event.getDeviceMirror().getBluetoothLeDevice();
+                if (connectEvent.getDeviceMirror() != null && connectEvent.getDeviceMirror().getBluetoothGatt() != null)
+                {
+                    mDevice = connectEvent.getDeviceMirror().getBluetoothLeDevice();
 
                     // set device service and characteristic
-                    List<BluetoothGattService> gattServices = event.getDeviceMirror().getBluetoothGatt().getServices();
+                    List<BluetoothGattService> gattServices = connectEvent.getDeviceMirror().getBluetoothGatt().getServices();
                     ServiceCharacUtil.getAppServicesCharcs(gattServices, serviceMap, charaMap);
 
                     // TODO: must wait a little while, don't figure out why?
-//                    try {
-//                        Thread.sleep(500);
-//                    } catch (Exception e) {
-//
-//                    }
+//                    try {Thread.sleep(500);}
+//                   catch (Exception e) {}
 
                     // binding service
 //                    new BLETask().execute();
 
                     bindServiceCharac();
-
                     LogUtil.d(TAG, "set device service and characteristic success！");
                 }
-            } else {
-                if (event.isDisconnected()) {
+            }//if (connectEvent.isSuccess())
+            else
+            {
+                if (connectEvent.isDisconnected())
+                {
                     clearData();
                     ToastUtil.showToast(mActivity, "Device Disconnected");
-                } else {
+                }
+                else
+                {
                     clearData();
                     ToastUtil.showToast(mActivity, "Connect Failure!");
                 }
@@ -638,7 +656,8 @@ public class SettingsFragment extends Fragment {
     private void setAlgBtn() {
         settingAlgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 if (mDevice != null) { // 设备
                     ToastUtil.showShortToast(mActivity, "Connected!");
                     LogUtil.d(TAG, "已经存在连接的设备！");
@@ -658,35 +677,40 @@ public class SettingsFragment extends Fragment {
     /**
      * get data from callback
      * i.e. read characteristic
+     *
      * @param event
      */
     @Subscribe
     public void showDeviceCallbackData(CallbackDataEvent event) {
         LogUtil.d(TAG, "showDeviceCallbackData");
-        if (event != null) {
-            if (event.isSuccess()) {
+        if (event != null)
+        {
+            if (event.isSuccess())
+            {
                 if (event.getBluetoothGattChannel() != null
-                        && event.getBluetoothGattChannel().getCharacteristic() != null) {
-
+                        && event.getBluetoothGattChannel().getCharacteristic() != null)
+                {
                     // read data from device!
-                    if (event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_READ) {
+                    if (event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_READ)
+                    {
                         showReadInfo(event.getBluetoothGattChannel().getCharacteristic().getUuid().toString(), event.getData());
 
                         BluetoothGattCharacteristic chara = event.getBluetoothGattChannel().getCharacteristic();
                         // if chara is AlgorithmIntensify
-                        if (chara.getUuid().equals(mAlgorithmIntensifyUuid)) {
+                        if (chara.getUuid().equals(mAlgorithmIntensifyUuid))
+                        {
                             LogUtil.d(TAG, "polling read device alg data...");
 
                             // deal with param, get string like "0202"
                             String param = getAlgSettingStringFromCharac(chara);
 
-                            // update alg setting UI
+                            // update alg setting UI （更新UI）
                             preUpdateAlgSettingUI(param);
                         }
                     }
 
-                    if (event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_WRITE) {
-                        // start polling
+                    if (event.getBluetoothGattChannel().getPropertyType() == PropertyType.PROPERTY_WRITE)
+                    {    // start polling
                         mPollingDevice.startPolling(r, 1000);
                     }
                 }
@@ -700,7 +724,8 @@ public class SettingsFragment extends Fragment {
      *
      * @param param
      */
-    private void preUpdateAlgSettingUI(String  param, boolean isWaitShow) {
+
+    private void preUpdateAlgSettingUI(String param, boolean isWaitShow) {
 
         try {
 
@@ -744,9 +769,10 @@ public class SettingsFragment extends Fragment {
     /**
      * 1. prepare data
      * 2. then update UI
+     *
      * @param param
      */
-    private void preUpdateAlgSettingUI(String  param) {
+    private void preUpdateAlgSettingUI(String param) {
 
         try {
             mSpCache.put(ALG_SETTING_PARAM, param); // store
@@ -771,22 +797,26 @@ public class SettingsFragment extends Fragment {
     }
 
 
-
     /**
      * Set Alg list index checked or not
      *
      * @param index
      */
-    private void updateAlgIndexUi(int index) {
+    private void updateAlgIndexUi(int index)
+    {
         int count = alglist.getCount();
         index -= 1;
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             ImageView tempImageView = alglist.getChildAt(i).findViewById(R.id.algorithm_index_img);
             int blankId = R.drawable.blank;
             int checkedId = R.drawable.checkmark;
-            if (i == index && index >= 0) {
+            if (i == index && index >= 0)
+            {
                 tempImageView.setImageResource(checkedId);
-            } else {
+            }
+            else
+            {
                 tempImageView.setImageResource(blankId);
             }
         }
@@ -794,22 +824,28 @@ public class SettingsFragment extends Fragment {
 
     /**
      * update progress bar
+     *
      * @param intense
      */
-    private void updateSeekBarUi(int intense) {
+    private void updateSeekBarUi(int intense)
+    {
         // for intense set seek bar progress
         seekBar.setProgress(intense + 1);
     }
 
     /**
      * stop btn setting
+     *
      * @param algIndex
      */
-    private void updateStopBtnUi(int algIndex){
-        if(algIndex==0){
+    private void updateStopBtnUi(int algIndex) {
+        if (algIndex == 0)
+        {
             stopBtn.setEnabled(false);
             stopBtn.setTextColor(getResources().getColor(R.color.gray));
-        }else{
+        }
+        else
+        {
             stopBtn.setEnabled(true);
             stopBtn.setTextColor(getResources().getColor(R.color.white));
         }
@@ -817,9 +853,10 @@ public class SettingsFragment extends Fragment {
 
     /**
      * get length=4 string from charac
+     *
      * @param chara
      */
-    private String getAlgSettingStringFromCharac(BluetoothGattCharacteristic chara){
+    private String getAlgSettingStringFromCharac(BluetoothGattCharacteristic chara) {
         final byte[] data = chara.getValue();  // get data from characteristic
         LogUtil.d(TAG, chara.getUuid() + ": " + HexUtil.encodeHexStr(data));
 
@@ -829,7 +866,8 @@ public class SettingsFragment extends Fragment {
         try {
             LogUtil.d(TAG, "Alg Intense " + ": " + HexUtil.encodeHexStr(data));
             // TODO: if data length is larger than 4, sub str
-            if (algParams.length() > 4) {
+            if (algParams.length() > 4)
+            {
                 algParams = algParams.substring(0, 4);
             }
         } catch (Exception e) {
@@ -843,7 +881,8 @@ public class SettingsFragment extends Fragment {
     /**
      * clear saved services and characteristics
      */
-    private void clearData() {
+    private void clearData()
+    {
         serviceMap.clear();
         charaMap.clear();
     }
@@ -857,9 +896,10 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onResume() {
         LogUtil.d(TAG, "LifeCycle onResume");
-        super.onResume();
+        super.onResume( );
         checkBluetoothPermission();
-        if (mDevice == null || !BluetoothDeviceManager.getInstance().isConnected(mDevice)) {
+        if (mDevice == null || !BluetoothDeviceManager.getInstance().isConnected(mDevice))
+        {
             BluetoothDeviceManager.getInstance().connectByName(DEVICE_NAME);
         }
 
@@ -880,7 +920,8 @@ public class SettingsFragment extends Fragment {
         // end polling
         mPollingDevice.endPolling(r);
 
-        if (connected()) {
+        if (connected())
+        {
             BluetoothDeviceManager.getInstance().disconnect(mDevice);
         }
         super.onPause();
@@ -908,7 +949,8 @@ public class SettingsFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
+    public void onDetach()
+    {
         LogUtil.d(TAG, "LifeCycle onDetach");
         super.onDetach();
 //        mActivity = null;
@@ -923,9 +965,7 @@ public class SettingsFragment extends Fragment {
             if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 PermissionManager.instance().with(mActivity).request(new OnPermissionCallback() {
                     @Override
-                    public void onRequestAllow(String permissionName) {
-                        enableBluetooth();
-                    }
+                    public void onRequestAllow(String permissionName) {enableBluetooth();}
 
                     @Override
                     public void onRequestRefuse(String permissionName) {
@@ -949,8 +989,10 @@ public class SettingsFragment extends Fragment {
      * enableBluetooth
      */
     @SuppressLint("RestrictedApi")
-    private void enableBluetooth() {
-        if (!BleUtil.isBleEnable(mActivity)) {
+    private void enableBluetooth()
+    {
+        if (!BleUtil.isBleEnable(mActivity))
+        {
             BleUtil.enableBluetooth(mActivity, 1);
         }
     }
@@ -960,7 +1002,8 @@ public class SettingsFragment extends Fragment {
      *
      * @return
      */
-    private boolean connected() {
+    private boolean connected()
+    {
         return mDevice != null && BluetoothDeviceManager.getInstance().isConnected(mDevice);
     }
 
@@ -969,16 +1012,14 @@ public class SettingsFragment extends Fragment {
      * read algorithm setting parameter in the device
      */
     private void readAlgSettingData() {
-        if (connected()
-                && !serviceMap.isEmpty()
-                && !charaMap.isEmpty()) {
+        if (connected() && !serviceMap.isEmpty() && !charaMap.isEmpty())
+        {
             LogUtil.d(TAG, "readAlgSettingData...");
             // the task in need of polling
             BluetoothGattService algService = serviceMap.get(mAlgorithmServiceUuid.toString());
             BluetoothGattCharacteristic algCharacteristic = charaMap.get(mAlgorithmIntensifyUuid.toString());
             setAlgCharaPropBindReadChnnel(algService, algCharacteristic);
         }
-
 
     }
 

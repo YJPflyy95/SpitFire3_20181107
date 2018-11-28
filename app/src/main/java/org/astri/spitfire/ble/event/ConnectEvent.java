@@ -12,16 +12,18 @@ public class ConnectEvent implements IEvent {
         return isSuccess;
     }
 
-    public ConnectEvent setSuccess(boolean success) {
-        isSuccess = success;
-        return this;
-    }
-
     public boolean isDisconnected() {
         return isDisconnected;
     }
 
-    public ConnectEvent setDisconnected(boolean disconnected) {
+    public ConnectEvent setSuccess(boolean success)
+    {
+        isSuccess = success;
+        return this;
+    }
+
+    public ConnectEvent setDisconnected(boolean disconnected)
+    {
         isDisconnected = disconnected;
         return this;
     }

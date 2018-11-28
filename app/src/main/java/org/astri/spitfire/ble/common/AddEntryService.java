@@ -23,11 +23,13 @@ public class AddEntryService {
     private Handler mHandler;
     private Map<Runnable, Runnable> mTaskMap = new HashMap<Runnable, Runnable>( );
 
-    public AddEntryService(Handler handler) {
+    public AddEntryService(Handler handler)  //构造函数
+    {
         mHandler = handler;
     }
 
-    public void startPolling(Runnable runnable, long interval) {
+    public void startPolling(Runnable runnable, long interval)
+    {
         startPolling(runnable, interval, false);
     }
 
@@ -37,10 +39,10 @@ public class AddEntryService {
         {
             runnable.run( );
         }
-        Runnable task = mTaskMap.get(runnable);
-        if (task == null)
+        Runnable task_runnable = mTaskMap.get(runnable);
+        if (task_runnable == null)
         {
-            task = new Runnable( )
+            task_runnable = new Runnable( )
             {
                 @Override
                 public void run( )
@@ -49,18 +51,21 @@ public class AddEntryService {
                     post(runnable, interval);
                 }
             };
-            mTaskMap.put(runnable, task);
+            mTaskMap.put(runnable, task_runnable);
         }
         post(runnable, interval);
     }
 
-    public void endPolling(Runnable runnable) {
-        if (mTaskMap.containsKey(runnable)) {
+    public void endPolling(Runnable runnable)
+    {
+        if (mTaskMap.containsKey(runnable))
+        {
             mHandler.removeCallbacks(mTaskMap.get(runnable));
         }
     }
 
-    private void post(Runnable runnable, long interval) {
+    private void post(Runnable runnable, long interval)
+    {
         Runnable task = mTaskMap.get(runnable);
         mHandler.removeCallbacks(task);
         mHandler.postDelayed(task, interval);

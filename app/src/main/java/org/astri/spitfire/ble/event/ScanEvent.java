@@ -8,7 +8,9 @@ public class ScanEvent implements IEvent {
     private boolean isScanFinish;
     private BluetoothLeDeviceStore bluetoothLeDeviceStore;
 
-    public ScanEvent() {
+    public ScanEvent()
+    {
+
     }
 
     public boolean isScanTimeout() {

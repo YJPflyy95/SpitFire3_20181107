@@ -29,29 +29,31 @@ public class Algorithm {
         this.intensify = intensify;
     }
 
-    public String getName() {
-        return name;
-    }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public int getIndex() {
-        return index;
+    public String getName() {
+        return name;
     }
 
     public void setIndex(int index) {
         this.index = index;
     }
 
-    public int getIntensify() {
-        return intensify;
+    public int getIndex() {
+        return index;
     }
 
     public void setIntensify(int intensify) {
         this.intensify = intensify;
     }
+
+    public int getIntensify() {
+        return intensify;
+    }
+
 
     /**
      * 生成写入设备的参数
@@ -65,7 +67,8 @@ public class Algorithm {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Algorithm{" +
                 "name='" + name + '\'' +
                 ", index=" + index +

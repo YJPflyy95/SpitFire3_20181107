@@ -121,7 +121,8 @@ public class ServiceCharacUtil {
 
         LogUtil.d(TAG, "将服务和属性保存在MAP中");
 
-        for (BluetoothGattService service : mGattServices) {
+        for (BluetoothGattService service : mGattServices)
+        {
             if (service.getUuid().equals(mAlgorithmServiceUuid)
                     || service.getUuid().equals(mHeartRateServiceUuid)) {
 
@@ -135,7 +136,7 @@ public class ServiceCharacUtil {
                     }
                 }
             }
-        }
+        } //for
 
     }
 }
